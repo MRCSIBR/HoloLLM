@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "holographic_nn"
+version = "0.1.0"
+description = "Holographic Neural Networks & HRR in pure PyTorch"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1.0",
+    "numpy>=1.24.0,<2.0.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

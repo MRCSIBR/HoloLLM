@@ -1,0 +1,18 @@
+cat << 'EOF' > .gitignore
+# Entorno virtual y dependencias locales
+.venv/
+env/
+venv/
+
+# Caches de Python y Pytest
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Archivos de sistema
+.DS_Store
+*.swp
+
+# Checkpoints pesados (opcional, si no quieres subir archivos .pt de varios MB)
+# checkpoints/*.pt
+EOF
