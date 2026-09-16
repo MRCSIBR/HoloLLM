@@ -18,3 +18,5 @@ __pycache__/
 EOF# Excluir datasets pesados y checkpoints binarios de la GPU
 data/
 checkpoints/*.pt
+checkpoints/*.pt
+data/
