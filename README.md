@@ -58,6 +58,7 @@ Inspirado en los principios de:
 │   ├── benchmark_kv_elimination.py     # Prueba empírica de memoria O(1) vs KV-Cache
 │   ├── benchmark_memory.py             # Retención de largo alcance y hetero-asociación K->V
 │   └── benchmark_transformer_vs_holo.py# Comparativa contra Transformer y test de daño de Pribram
+```
 ├── checkpoints/                 # Pesos .pt e inspecciones visuales (.png)
 ├── data/                        # Datasets (CodeAlpaca filtrado)
 ├── requirements.txt             # Dependencias optimizadas para CPU (sin basura de CUDA)
