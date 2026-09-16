@@ -15,4 +15,6 @@ __pycache__/
 
 # Checkpoints pesados (opcional, si no quieres subir archivos .pt de varios MB)
 # checkpoints/*.pt
-EOF
+EOF# Excluir datasets pesados y checkpoints binarios de la GPU
+data/
+checkpoints/*.pt
