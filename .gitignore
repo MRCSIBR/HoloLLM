@@ -20,3 +20,7 @@ data/
 checkpoints/*.pt
 checkpoints/*.pt
 data/
+
+# Pesos de modelos binarios (>100MB)
+checkpoints/*.pt
+*.pt
