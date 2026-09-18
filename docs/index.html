@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HoloLLM: Nueva arquitectura LLM basada en redes holográficas con complejidad de memoria O(1)</title>
+  <title>HoloLLM: Nueva Arquitectura LLM basada en Redes Holográficas con Complejidad de Memoria O(1)</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -289,8 +289,8 @@
 <div class="container">
 
   <header class="paper-header">
-    <h1 class="title">HoloLLM: Causal Holographic Reduced Representations</h1>
-    <p class="subtitle">HoloLLM: Nueva arquitectura LLM basada en redes holográficas con complejidad de memoria O(1)</p>
+    <h1 class="title">HoloLLM: Nueva Arquitectura LLM</h1>
+    <p class="subtitle">Basada en redes holográficas con complejidad de memoria O(1)</p>
     
     <div class="metadata">
       <span><strong>Autores:</strong> Marcos Ibarra &amp; HoloLLM Research Team</span>
@@ -305,151 +305,186 @@
     
     <!-- COLUMNA DIAGRAMA ARQUITECTÓNICO REDISEÑADO -->
     <div class="figure-container">
-      <svg class="diagram-svg" viewBox="0 0 860 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg class="diagram-svg" viewBox="0 0 960 650" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker id="arr-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
           </marker>
-          <marker id="arrow-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker id="arr-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0d9488"/>
           </marker>
-          <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <marker id="arr-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed"/>
           </marker>
         </defs>
 
-        <!-- FONDO GENERAL -->
-        <rect width="860" height="620" rx="8" fill="#ffffff"/>
+        <!-- FONDO GENERAL DEL LIENZO -->
+        <rect width="960" height="650" rx="10" fill="#ffffff"/>
 
         <!-- ============================================================ -->
         <!-- COLUMNA 1: AdS/CFT BULK SPACETIME (Izquierda)                 -->
         <!-- ============================================================ -->
-        <rect x="25" y="30" width="220" height="560" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
-        <rect x="35" y="42" width="200" height="28" rx="4" fill="#f1f5f9"/>
-        <text x="135" y="60" font-family="Inter" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">AdS/CFT BULK 2D (Poincaré)</text>
+        <rect x="25" y="25" width="220" height="600" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+        
+        <!-- Badge Título -->
+        <rect x="40" y="40" width="190" height="28" rx="4" fill="#f1f5f9"/>
+        <text x="135" y="58" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">AdS/CFT BULK 2D (Poincaré)</text>
 
-        <!-- Fórmula Métrica de Poincaré -->
-        <rect x="45" y="90" width="180" height="52" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
-        <text x="135" y="112" font-family="Inter" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">Métrica de Poincaré</text>
-        <text x="135" y="130" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">ds² = (dz² + dx²) / z²</text>
+        <!-- Tarjeta 1: Métrica Conforme -->
+        <rect x="40" y="85" width="190" height="65" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="135" y="107" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#64748b" text-anchor="middle">Métrica Conforme de Poincaré</text>
+        <text x="135" y="130" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0f172a" text-anchor="middle">ds² = (dz² + dx²) / z²</text>
 
-        <!-- Curvatura Gravitacional y Pozo Semántico -->
-        <path d="M 45 220 C 95 320, 175 320, 225 220" stroke="#0284c7" stroke-width="2.5" fill="none"/>
-        <circle cx="135" cy="285" r="5" fill="#0284c7"/>
-        <text x="135" y="310" font-family="Inter" font-size="11" font-weight="600" fill="#0369a1" text-anchor="middle">Pozo Semántico</text>
-        <text x="135" y="326" font-family="Inter" font-size="9" fill="#64748b" text-anchor="middle">Invariantes Conceptuales</text>
+        <!-- Tarjeta 2: Pozo Gravitacional Semántico con Ejes Limpios -->
+        <rect x="40" y="165" width="190" height="235" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="135" y="188" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0369a1" text-anchor="middle">Geodesia en el Bulk z</text>
+        
+        <!-- Ejes cartesianos limpios (x = frontera de tokens, z = profundidad radial) -->
+        <line x1="55" y1="210" x2="215" y2="210" stroke="#94a3b8" stroke-width="1"/>
+        <text x="215" y="205" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8" text-anchor="end">x (tokens 1D)</text>
+        
+        <line x1="55" y1="210" x2="55" y2="360" stroke="#94a3b8" stroke-width="1"/>
+        <text x="60" y="360" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">z (profundidad) ↓</text>
 
-        <!-- Propagador de Witten -->
-        <rect x="45" y="360" width="180" height="60" rx="6" fill="#f0f9ff" stroke="#bae6fd"/>
-        <text x="135" y="382" font-family="Inter" font-size="10" font-weight="700" fill="#0369a1" text-anchor="middle">Propagador Conforme de Witten</text>
-        <text x="135" y="403" font-family="JetBrains Mono" font-size="12" font-weight="700" fill="#0284c7" text-anchor="middle">K_z(k) ∝ e^{-|k|z}</text>
+        <!-- Curva del Pozo de Potencial Semántico -->
+        <path d="M 65 225 Q 135 340 205 225" stroke="#0284c7" stroke-width="2.5" fill="none"/>
+        <circle cx="135" cy="282" r="4.5" fill="#0284c7"/>
+        <text x="135" y="315" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#0369a1" text-anchor="middle">Pozo Semántico</text>
+        <text x="135" y="333" font-family="Inter, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">Invariantes Conceptuales (|k| → 0)</text>
 
-        <!-- Indicador de Profundidad z -->
-        <line x1="225" y1="90" x2="225" y2="520" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
-        <text x="215" y="540" font-family="Inter" font-size="10" font-weight="600" fill="#64748b" text-anchor="end">Profundidad radial z (Capas)</text>
+        <!-- Tarjeta 3: Propagador de Witten -->
+        <rect x="40" y="415" width="190" height="85" rx="6" fill="#f0f9ff" stroke="#bae6fd"/>
+        <text x="135" y="438" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0369a1" text-anchor="middle">Propagador de Witten</text>
+        <text x="135" y="462" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#0284c7" text-anchor="middle">K_z(k) ∝ e<tspan dy="-5" font-size="10">-|k|z</tspan></text>
+        <text x="135" y="485" font-family="Inter, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">Amortigua ruido sintáctico (|k| → ∞)</text>
+
+        <text x="135" y="580" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#94a3b8" text-anchor="middle">Estructura de las 24 capas</text>
+
 
         <!-- ============================================================ -->
         <!-- COLUMNA 2: BLOQUE CAUSAL HOLOCLIENT (Centro)                  -->
         <!-- ============================================================ -->
         <!-- Macro-bloque Repetición x24 Capas -->
-        <rect x="270" y="140" width="310" height="350" rx="8" fill="#fdfefe" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="5 5"/>
-        <rect x="530" y="148" width="42" height="20" rx="3" fill="#0d9488"/>
-        <text x="551" y="162" font-family="Inter" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">× 24</text>
-        <text x="285" y="162" font-family="Inter" font-size="11" font-weight="700" fill="#0f766e">HoloBlock Layer</text>
+        <rect x="275" y="115" width="360" height="425" rx="8" fill="#fdfefe" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <rect x="580" y="125" width="45" height="22" rx="3" fill="#0d9488"/>
+        <text x="602" y="140" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">× 24</text>
+        <text x="295" y="140" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#0f766e">HoloBlock Layer (d = 1536)</text>
 
         <!-- Capa SwiGLU MLP -->
-        <rect x="290" y="180" width="270" height="42" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-        <text x="425" y="206" font-family="Inter" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">SwiGLU MLP (d_mlp = 8960)</text>
+        <rect x="305" y="180" width="300" height="46" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="455" y="202" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">SwiGLU MLP (d_mlp = 8960)</text>
+        <text x="455" y="218" font-family="JetBrains Mono, monospace" font-size="9" fill="#b45309" text-anchor="middle">down_proj( silu(gate(x)) · up(x) )</text>
 
-        <!-- Post-Norm -->
-        <rect x="355" y="235" width="140" height="24" rx="3" fill="#f8fafc" stroke="#cbd5e1"/>
-        <text x="425" y="251" font-family="Inter" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Post-RMSNorm</text>
+        <!-- Post-RMSNorm -->
+        <rect x="385" y="245" width="140" height="26" rx="4" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="455" y="262" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Post-RMSNorm</text>
 
         <!-- MultiHeadHoloAttention Core Block -->
-        <rect x="290" y="275" width="270" height="150" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
-        <text x="425" y="297" font-family="Inter" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">MultiHeadHoloAttention O(1)</text>
+        <rect x="295" y="290" width="320" height="185" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+        <text x="455" y="312" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">MultiHeadHoloAttention O(1)</text>
 
         <!-- Proyecciones Q, K, V, Gate -->
-        <rect x="305" y="310" width="55" height="30" rx="3" fill="#ffffff" stroke="#86efac"/>
-        <text x="332" y="329" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_q</text>
+        <rect x="305" y="328" width="68" height="32" rx="4" fill="#ffffff" stroke="#86efac"/>
+        <text x="339" y="348" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_q</text>
 
-        <rect x="368" y="310" width="55" height="30" rx="3" fill="#ffffff" stroke="#86efac"/>
-        <text x="395" y="329" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_k</text>
+        <rect x="380" y="328" width="68" height="32" rx="4" fill="#ffffff" stroke="#86efac"/>
+        <text x="414" y="348" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_k</text>
 
-        <rect x="431" y="310" width="55" height="30" rx="3" fill="#ffffff" stroke="#86efac"/>
-        <text x="458" y="329" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_v</text>
+        <rect x="455" y="328" width="68" height="32" rx="4" fill="#ffffff" stroke="#86efac"/>
+        <text x="489" y="348" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_v</text>
 
-        <rect x="494" y="310" width="55" height="30" rx="3" fill="#ffffff" stroke="#86efac"/>
-        <text x="521" y="329" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_gate</text>
+        <rect x="530" y="328" width="70" height="32" rx="4" fill="#ffffff" stroke="#86efac"/>
+        <text x="565" y="348" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">W_gate</text>
 
-        <!-- Convolución Causal por FFT 1D -->
-        <rect x="305" y="355" width="244" height="32" rx="4" fill="#dcfce7" stroke="#16a34a"/>
-        <text x="427" y="375" font-family="Inter" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Convolución Causal 1D por FFT</text>
+        <!-- Convolución Causal 1D por FFT -->
+        <rect x="305" y="375" width="295" height="36" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="452" y="397" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Convolución Causal 1D por FFT (O(S log S))</text>
 
-        <!-- Proyección Final Out -->
-        <rect x="345" y="398" width="160" height="20" rx="3" fill="#ffffff" stroke="#86efac"/>
-        <text x="425" y="412" font-family="JetBrains Mono" font-size="9" font-weight="600" fill="#166534" text-anchor="middle">Out_Proj (d=1536)</text>
+        <!-- Out Proj Box -->
+        <rect x="365" y="425" width="180" height="28" rx="4" fill="#ffffff" stroke="#86efac"/>
+        <text x="455" y="443" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#166534" text-anchor="middle">Out_Proj (d = 1536)</text>
 
-        <!-- Input Norm -->
-        <rect x="355" y="440" width="140" height="24" rx="3" fill="#f8fafc" stroke="#cbd5e1"/>
-        <text x="425" y="456" font-family="Inter" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Input-RMSNorm</text>
+        <!-- Input-RMSNorm -->
+        <rect x="385" y="495" width="140" height="26" rx="4" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="455" y="512" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Input-RMSNorm</text>
+
+        <!-- Conexiones Residuales Laterales (Bypasses Clásicos sin cruces) -->
+        <path d="M 385 508 H 285 V 278 H 385" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" fill="none" marker-end="url(#arr-gray)"/>
+        <text x="280" y="390" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8" text-anchor="end" transform="rotate(-90 280 390)">Residual +</text>
+
+        <path d="M 385 258 H 285 V 160 H 455 V 180" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" fill="none" marker-end="url(#arr-gray)"/>
 
         <!-- ENTRADA INFERIOR (TOKENS & ROPE) -->
-        <rect x="290" y="525" width="270" height="48" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-        <text x="425" y="546" font-family="Inter" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">Token Input x_t + RoPE Continuo</text>
-        <text x="425" y="563" font-family="JetBrains Mono" font-size="10" fill="#3b82f6" text-anchor="middle">θ_{t,k} = ω_k · t (Contexto Ilimitado)</text>
+        <rect x="305" y="565" width="300" height="52" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="455" y="587" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">Token Input x_t + RoPE Continuo</text>
+        <text x="455" y="605" font-family="JetBrains Mono, monospace" font-size="10" fill="#3b82f6" text-anchor="middle">θ_{t,k} = ω_k · t (Contexto Ilimitado)</text>
 
         <!-- SALIDA SUPERIOR (LM HEAD) -->
-        <rect x="290" y="45" width="270" height="48" rx="6" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
-        <text x="425" y="66" font-family="Inter" font-size="11" font-weight="700" fill="#5b21b6" text-anchor="middle">LM Head (151.936 Clases)</text>
-        <text x="425" y="83" font-family="Inter" font-size="10" fill="#6d28d9" text-anchor="middle">Logits de Salida • Argmax Greedy</text>
+        <rect x="305" y="35" width="300" height="52" rx="6" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+        <text x="455" y="57" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#5b21b6" text-anchor="middle">LM Head (151.936 Clases)</text>
+        <text x="455" y="74" font-family="Inter, sans-serif" font-size="10" fill="#6d28d9" text-anchor="middle">Logits de Salida • Argmax Greedy</text>
 
-        <!-- FLECHAS DE FLUJO PRINCIPAL VERTICAL -->
-        <path d="M 425 525 V 465" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <path d="M 425 275 V 260" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <path d="M 425 235 V 222" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <path d="M 425 180 V 95" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- FLUJO VERTICAL LIMPIO (Eje Central x = 455, CERO choques con texto) -->
+        <path d="M 455 565 V 525" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr-gray)"/>
+        <path d="M 455 495 V 478" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr-gray)"/>
+        <path d="M 455 290 V 275" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr-gray)"/>
+        <path d="M 455 245 V 230" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr-gray)"/>
+        <path d="M 455 180 V 91" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr-gray)"/>
+
 
         <!-- ============================================================ -->
         <!-- COLUMNA 3: MEMORIA HOLOGRÁFICA O(1) EN C (Derecha)           -->
         <!-- ============================================================ -->
-        <rect x="605" y="30" width="230" height="560" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5"/>
-        <rect x="615" y="42" width="210" height="28" rx="4" fill="#ccfbf1"/>
-        <text x="720" y="60" font-family="Inter" font-size="11" font-weight="700" fill="#0f766e" text-anchor="middle">ORDEN IMPLICADO (Memoria C)</text>
+        <rect x="665" y="25" width="270" height="600" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5"/>
+        <rect x="680" y="40" width="240" height="28" rx="4" fill="#ccfbf1"/>
+        <text x="800" y="58" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#0f766e" text-anchor="middle">ORDEN IMPLICADO (Memoria C)</text>
 
-        <!-- Toro Unitario de Plate -->
-        <rect x="625" y="100" width="190" height="50" rx="5" fill="#ffffff" stroke="#14b8a6" stroke-width="1.5"/>
-        <text x="720" y="121" font-family="Inter" font-size="10" font-weight="700" fill="#0f766e" text-anchor="middle">Toro Unitario de Plate</text>
-        <text x="720" y="139" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#0d9488" text-anchor="middle">|F(K)| = 1.00</text>
+        <!-- Bloque 1: Toro Unitario de Plate -->
+        <rect x="685" y="90" width="230" height="52" rx="6" fill="#ffffff" stroke="#14b8a6" stroke-width="1.5"/>
+        <text x="800" y="112" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0f766e" text-anchor="middle">Toro Unitario de Plate</text>
+        <text x="800" y="130" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d9488" text-anchor="middle">|F(K)| = 1.00</text>
 
-        <!-- Binding Circular -->
-        <rect x="625" y="180" width="190" height="50" rx="5" fill="#ffffff" stroke="#14b8a6" stroke-width="1.5"/>
-        <text x="720" y="201" font-family="Inter" font-size="10" font-weight="700" fill="#0f766e" text-anchor="middle">Convolución Circular (HRR)</text>
-        <text x="720" y="219" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#0d9488" text-anchor="middle">B_t = F(V) ⊙ conj(F(K))</text>
+        <!-- Bloque 2: Binding Circular (HRR) -->
+        <rect x="685" y="170" width="230" height="52" rx="6" fill="#ffffff" stroke="#14b8a6" stroke-width="1.5"/>
+        <text x="800" y="192" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0f766e" text-anchor="middle">Convolución Circular (HRR)</text>
+        <text x="800" y="210" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#0d9488" text-anchor="middle">B_t = F(V) ⊙ conj(F(K))</text>
 
-        <!-- ACUMULADOR HOLOGRÁFICO CONSTANTE O(1) -->
-        <rect x="620" y="260" width="200" height="95" rx="6" fill="#134e4a" stroke="#2dd4bf" stroke-width="2"/>
-        <text x="720" y="285" font-family="Inter" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">ACUMULADOR O(1): S_t</text>
-        <text x="720" y="306" font-family="JetBrains Mono" font-size="10" fill="#5eead4" text-anchor="middle">S_t = λ ⊙ S_{t-1} + B_t</text>
-        <rect x="640" y="320" width="160" height="22" rx="3" fill="#042f2e"/>
-        <text x="720" y="335" font-family="Inter" font-size="10" font-weight="700" fill="#2dd4bf" text-anchor="middle">64 KB CONSTANTE</text>
+        <!-- Bloque 3: ACUMULADOR HOLOGRÁFICO CONSTANTE O(1) -->
+        <rect x="680" y="250" width="240" height="105" rx="8" fill="#134e4a" stroke="#2dd4bf" stroke-width="2"/>
+        <text x="800" y="276" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">ACUMULADOR O(1): S_t</text>
+        <text x="800" y="299" font-family="JetBrains Mono, monospace" font-size="11" fill="#5eead4" text-anchor="middle">S_t = λ ⊙ S_{t-1} + B_t</text>
+        <rect x="705" y="315" width="190" height="26" rx="4" fill="#042f2e"/>
+        <text x="800" y="332" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#2dd4bf" text-anchor="middle">64 KB CONSTANTE (L1/L2)</text>
 
-        <!-- Lectura por Correlación (Unbinding) -->
-        <rect x="625" y="385" width="190" height="50" rx="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
-        <text x="720" y="406" font-family="Inter" font-size="10" font-weight="700" fill="#5b21b6" text-anchor="middle">Unbinding con Query Q</text>
-        <text x="720" y="424" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#7c3aed" text-anchor="middle">V̂ = iRFFT(S_t ⊙ F(Q)) ⊙ G</text>
+        <!-- Bloque 4: Unbinding con Query Q -->
+        <rect x="685" y="380" width="230" height="52" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="800" y="402" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#5b21b6" text-anchor="middle">Recuperación Asociativa (Query)</text>
+        <text x="800" y="420" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#7c3aed" text-anchor="middle">V̂ = iRFFT( S_t ⊙ F(Q) ) ⊙ G</text>
 
-        <!-- Decaimientos Multiescala -->
-        <rect x="625" y="465" width="190" height="48" rx="5" fill="#f8fafc" stroke="#cbd5e1"/>
-        <text x="720" y="485" font-family="Inter" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Decaimientos Sigmoides</text>
-        <text x="720" y="501" font-family="JetBrains Mono" font-size="10" fill="#64748b" text-anchor="middle">λ_h = σ(α_h) ∈ (0, 1)</text>
+        <!-- Bloque 5: Decaimientos Multiescala -->
+        <rect x="685" y="460" width="230" height="65" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="800" y="482" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">Decaimientos Sigmoides Acotados</text>
+        <text x="800" y="501" font-family="JetBrains Mono, monospace" font-size="11" fill="#64748b" text-anchor="middle">λ_h = σ(α_h) ∈ (0, 1)</text>
+        <text x="800" y="516" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">16 cabezas multiescala</text>
 
-        <!-- LÍNEAS CONECTORAS INTER-COLUMNA -->
-        <path d="M 423 310 V 220 H 625" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-teal)"/>
-        <path d="M 720 150 V 180" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arrow-teal)"/>
-        <path d="M 720 230 V 260" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arrow-teal)"/>
-        <path d="M 720 355 V 385" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
-        <path d="M 625 410 H 510 V 398" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-purple)"/>
+        <!-- Flujo Vertical dentro de la Torre de Memoria -->
+        <path d="M 800 142 V 166" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <path d="M 800 222 V 246" stroke="#0d9488" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <path d="M 800 355 V 376" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+
+        <!-- ============================================================ -->
+        <!-- PUENTES HORIZONTALES LIMPIOS (GUTTERS SIN COLISIONES)        -->
+        <!-- ============================================================ -->
+        <!-- Puente 1: K, V salen de Atención y entran limpios a Binding -->
+        <path d="M 615 344 H 650 V 196 H 681" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="3 3" fill="none" marker-end="url(#arr-teal)"/>
+        <rect x="625" y="240" width="45" height="18" rx="2" fill="#ccfbf1"/>
+        <text x="647" y="253" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#0f766e" text-anchor="middle">K, V</text>
+
+        <!-- Puente 2: V̂ recuperado regresa limpio desde Unbinding a Out_Proj -->
+        <path d="M 685 406 H 650 V 439 H 549" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3 3" fill="none" marker-end="url(#arr-purple)"/>
+        <rect x="625" y="415" width="45" height="18" rx="2" fill="#ede9fe"/>
+        <text x="647" y="428" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#5b21b6" text-anchor="middle">V̂ rec</text>
       </svg>
 
       <div class="figure-caption">
@@ -463,7 +498,7 @@
     <!-- COLUMNA DERECHA: AT A GLANCE (FICHA TÉCNICA) -->
     <aside class="sidebar-card">
       <div class="sidebar-header">Reporte §1 &amp; §4</div>
-      <div class="sidebar-title">HoloLLM v2 at a glance</div>
+      <div class="sidebar-title">HoloLLM at a glance</div>
       <div class="sidebar-desc">
         Modelo causal con eliminación total del KV-Cache basado en representaciones holográficas reducidas y dualidad conforme AdS/CFT.
       </div>
