@@ -24,3 +24,12 @@ data/
 # Pesos de modelos binarios (>100MB)
 checkpoints/*.pt
 *.pt
+
+# Ignorar checkpoints y archivos pesados (>100MB)
+*.pt
+*.bin
+*.tar.gz
+*.zip
+checkpoints/*.pt
+checkpoints/*.tar.gz
+data/*.json

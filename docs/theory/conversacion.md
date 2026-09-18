@@ -1,0 +1,3 @@
+- The post from @latestincosmos claims physicists view the universe as a neural network, pairing a neural network visualization with an image of the cosmic web to illustrate structural similarities between neuron connections and galaxy distributions.
+- It references Vitaly Vanchurin's 2020 paper "The World as a Neural Network," which mathematically shows neural network learning dynamics can approximate both quantum mechanics (Madelung equations) and general relativity (Einstein-Hilbert action) in certain limits.
+- The idea posits a microscopic neural network as the fundamental substrate from which quantum and gravitational phenomena emerge, offering a speculative framework linking physics, information theory, and machine learning. 
