@@ -419,3 +419,4 @@ if __name__ == "__main__":
 FILE_EOF
 
 echo "=== Estructura del proyecto configurada con éxito ==="
+
