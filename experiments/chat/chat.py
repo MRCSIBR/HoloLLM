@@ -105,7 +105,7 @@ def main():
         max_seq_len=128
     ).to(device)
 
-    ckpt_path = "checkpoints/holo_chat_best.pt"
+    ckpt_path = "checkpoints/holo_chat_30m.pt"
     if not os.path.exists(ckpt_path):
         print(f"No se encontró {ckpt_path}. Entrena primero con train_15min_chat.py")
         return
@@ -124,10 +124,7 @@ def main():
                 break
 
             # Determinar si el usuario pide código o conversación
-            is_explanation = any(k in user_input.lower() for k in ("explain", "what is", "why", "difference", "how", "que es", "explica", "cual es"))
-            is_code_request = any(k in user_input.lower() for k in ("write", "create", "implement", "function", "def ", "codigo", "crea", "escribe"))
-
-            if is_code_request and not is_explanation:
+            if any(k in user_input.lower() for k in ("def ", "code", "function", "python", "script", "program")):
                 prompt = f"User: Write a python function for the following task:\n{user_input}\n\nAssistant:\n```python\n"
             else:
                 prompt = f"User: {user_input}\n\nAssistant:\n"
