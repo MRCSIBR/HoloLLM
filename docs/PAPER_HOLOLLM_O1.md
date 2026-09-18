@@ -1,4 +1,4 @@
-# HoloLLM: Causal Holographic Reduced Representations with Constant O(1) Memory and Unitary Phase Disentanglement
+# HoloLLM: A Novel Holographic LLM Architecture with O(1) Memory Complexity
 
 **Authors:** Marcos Ibarra & HoloLLM Research Team  
 **Repository:** `MRCSIBR/HoloLLM`  

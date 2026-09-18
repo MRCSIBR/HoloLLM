@@ -1,6 +1,6 @@
 # Documento Técnico (Whitepaper)
 
-# HoloLLM: Arquitectura de Lenguaje Causal Holográfica con Memoria O(1) y Desentrelazado de Fase Unitaria
+# HoloLLM: Nueva arquitectura LLM basada en redes holográficas con complejidad de memoria O(1)
 
 **Autores:** Marcos Ibarra & HoloLLM Research Team  
 **Afiliación:** Laboratorio de Investigación en Inteligencia Artificial Holográfica  

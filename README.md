@@ -12,7 +12,7 @@
 ╰────────────────────────────────────────────────────────────────────────╯
 ```
 
-### *Arquitectura de Lenguaje Causal Holográfica con Memoria Constante O(1) y Cero KV-Cache*
+### *HoloLLM: Nueva arquitectura LLM basada en redes holográficas con complejidad de memoria O(1)*
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python: 3.11+](https://img.shields.io/badge/Python-3.11%2B-brightgreen.svg)](https://python.org)
