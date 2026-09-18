@@ -1,15 +1,17 @@
 r"""
 SCRIPT: holo_server.py
 PROYECTO: HoloLLM (MRCSIBR/HoloLLM)
-DESCRIPCIÓN: Servidor API compatible con OpenAI para HoloLLM.
+DESCRIPCIÓN: Servidor API OpenAI-compatible con soporte CORS y frontend WebGL 3D integrado.
 """
 
+import os
 import time
 import json
 import torch
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 from pydantic import BaseModel
 from typing import List, Optional
@@ -18,9 +20,19 @@ from src.engine.holo_engine import HoloInferenceEngine
 
 app = FastAPI(title="HoloLLM API Server (O(1) Memory)")
 
-print("Cargando Motor HoloLLM en memoria local...")
+# Habilitar CORS para permitir peticiones web locales
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+print("Cargando Motor HoloLLM en memoria local (CPU)...")
 engine = HoloInferenceEngine(device="cpu")
-print("HoloLLM listo para recibir conexiones.")
+print("✔ HoloLLM listo.")
+
 
 class Message(BaseModel):
     role: str
@@ -33,12 +45,24 @@ class ChatCompletionRequest(BaseModel):
     max_tokens: int = 200
     temperature: float = 0.2
 
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_cosmos_ui():
+    """Sirve la interfaz gráfica WebGL 3D directamente en la raíz."""
+    ui_path = "tools/visualization/holo_cosmos_chat.html"
+    if os.path.exists(ui_path):
+        with open(ui_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>HoloLLM API activa. Interfaz no encontrada.</h1>"
+
+
 @app.get("/v1/models")
 async def list_models():
     return {
         "object": "list",
         "data": [{"id": "holollm-70m", "object": "model", "created": int(time.time()), "owned_by": "MRCSIBR/HoloLLM"}]
     }
+
 
 @app.post("/v1/chat/completions")
 async def chat_completions(request: ChatCompletionRequest):
@@ -61,7 +85,6 @@ async def chat_completions(request: ChatCompletionRequest):
         async def event_generator():
             response_id = f"chatcmpl-holo-{int(time.time())}"
             
-            # FIX: Forzar apertura del bloque Markdown para que Jan Desktop no colapse los espacios
             yield {"data": json.dumps({
                 "id": response_id, "object": "chat.completion.chunk", "created": int(time.time()),
                 "model": request.model, "choices": [{"index": 0, "delta": {"content": "```python\n"}, "finish_reason": None}]
@@ -87,7 +110,7 @@ async def chat_completions(request: ChatCompletionRequest):
         return EventSourceResponse(event_generator())
 
     else:
-        full_text = "```python\n" # FIX para peticiones síncronas
+        full_text = "```python\n"
         for chunk_text, _ in engine.generate_stream(prompt, max_new_tokens=request.max_tokens):
             full_text += chunk_text
 
@@ -98,6 +121,7 @@ async def chat_completions(request: ChatCompletionRequest):
             "model": request.model,
             "choices": [{"index": 0, "message": {"role": "assistant", "content": full_text}, "finish_reason": "stop"}]
         })
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")

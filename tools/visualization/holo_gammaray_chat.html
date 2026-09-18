@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HoloLLM • Fermi Gamma-Ray Dark Matter Edition</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-space: #030304;
+      --panel-bg: rgba(7, 8, 11, 0.85);
+      --border-hud: rgba(255, 183, 3, 0.25);
+      --fermi-gold: #ffb703;
+      --gamma-amber: #fb8500;
+      --halo-glow: #ffe6a7;
+      --text-main: #f1f5f9;
+      --text-dim: #94a3b8;
+      --dark-matter-vein: #12141a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-space);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+    }
+
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* PANEL IZQUIERDO: CHAT FERMI-LAT */
+    .chat-panel {
+      width: 40%;
+      min-width: 420px;
+      height: 100%;
+      background: var(--panel-bg);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--border-hud);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      box-shadow: 20px 0 45px rgba(0, 0, 0, 0.85);
+    }
+
+    .panel-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 183, 3, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--halo-glow);
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 183, 3, 0.12);
+      color: var(--fermi-gold);
+      border: 1px solid var(--fermi-gold);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .metrics-bar {
+      display: flex;
+      gap: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .metric-pill {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .metric-val {
+      color: var(--fermi-gold);
+      font-weight: 600;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      scroll-behavior: smooth;
+    }
+
+    .messages-container::-webkit-scrollbar { width: 5px; }
+    .messages-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 183, 3, 0.15);
+      border-radius: 3px;
+    }
+
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      max-width: 92%;
+    }
+
+    .message-row.user { align-self: flex-end; }
+    .message-row.assistant { align-self: flex-start; width: 100%; }
+
+    .message-sender {
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .message-bubble {
+      padding: 0.85rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .user .message-bubble {
+      background: rgba(255, 183, 3, 0.1);
+      border: 1px solid rgba(255, 183, 3, 0.3);
+      color: #fff;
+    }
+
+    .assistant .message-bubble {
+      background: rgba(14, 16, 22, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      width: 100%;
+    }
+
+    pre code {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: #050608;
+      border: 1px solid rgba(255, 183, 3, 0.15);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 0.6rem;
+      overflow-x: auto;
+      color: #ffdda1;
+      line-height: 1.45;
+    }
+
+    .quick-actions {
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .quick-actions::-webkit-scrollbar { display: none; }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 183, 3, 0.15);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 183, 3, 0.15);
+      border-color: var(--fermi-gold);
+      color: #fff;
+    }
+
+    .input-wrapper {
+      padding: 1.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 183, 3, 0.2);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--fermi-gold); }
+
+    .send-btn {
+      background: var(--fermi-gold);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 0 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+
+    .send-btn:hover { opacity: 0.85; }
+
+    /* PANEL DERECHO: VISUALIZACIÓN FERMI GAMMA-RAY */
+    .cosmos-panel {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .fermi-hud {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(8, 9, 13, 0.82);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-hud);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      pointer-events: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.85);
+    }
+
+    .hud-header {
+      color: var(--fermi-gold);
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hud-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .led-gamma {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--fermi-gold);
+      box-shadow: 0 0 8px var(--fermi-gold);
+      transition: all 0.12s ease;
+    }
+
+    .led-gamma.burst {
+      background: #fff;
+      box-shadow: 0 0 16px #fff, 0 0 24px var(--gamma-amber);
+      transform: scale(1.4);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <div class="chat-panel">
+    <div class="panel-header">
+      <div class="brand-title">
+        HoloLLM
+        <span class="brand-badge">FERMI GAMMA-RAY ED.</span>
+      </div>
+      <div class="metrics-bar">
+        <div class="metric-pill">KV-Cache: <span class="metric-val">0.00 KB</span></div>
+        <div class="metric-pill">Flux: <span class="metric-val" id="tok-sec">0.0</span> γ/s</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messages-box">
+      <div class="message-row assistant">
+        <span class="message-sender">Fermi Space Observatory • Dark Matter Halo</span>
+        <div class="message-bubble">
+          Visualizador de Rayos Gamma activo. A la derecha puedes observar la <strong>red de materia oscura cósmica</strong> inspirada en las observaciones del telescopio Fermi de la NASA.
+          El resplandor dorado central representa el exceso de rayos gamma en el centro galáctico: cada palabra que genera la red neuronal detona una aniquilación que propaga fotones de alta energía a lo largo de los filamentos oscuros.
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action-btn" onclick="sendQuick('fibonacci')">fibonacci</button>
+      <button class="action-btn" onclick="sendQuick('factorial')">factorial</button>
+      <button class="action-btn" onclick="sendQuick('binary search')">binary search</button>
+      <button class="action-btn" onclick="sendQuick('reverse list')">reverse list</button>
+      <button class="action-btn" onclick="sendQuick('bfs')">bfs</button>
+      <button class="action-btn" onclick="sendQuick('kadane')">kadane</button>
+    </div>
+
+    <div class="input-wrapper">
+      <input type="text" id="user-input" class="chat-input" placeholder="Consulta un algoritmo o tarea..." autocomplete="off">
+      <button id="send-btn" class="send-btn" onclick="handleSend()">INFERIR</button>
+    </div>
+  </div>
+
+  <div class="cosmos-panel">
+    <div class="fermi-hud">
+      <div class="hud-header">
+        <span>🛰️ FERMI-LAT TELESCOPE</span>
+        <span style="font-size:0.65rem; color:var(--text-dim);">NASA / DOE</span>
+      </div>
+      <div class="hud-indicator">
+        <div class="led-gamma" id="gamma-led"></div>
+        <span id="flux-status" style="color:var(--halo-glow)">Flujo de Fondo Cósmico</span>
+      </div>
+      <div>Espectro: <span style="color:var(--fermi-gold)">E_γ > 1.0 - 300 GeV</span></div>
+      <div>Canal: <span style="color:#f87171">χ + χ → b + b̄ (Annihilation)</span></div>
+      <div>Materia Oscura: <span style="color:var(--text-dim)">Red de Filamentos Inerciales</span></div>
+      <div>Memoria Invariante: <span style="color:var(--fermi-gold)">O(1) Estado Implicado</span></div>
+      <div style="font-size:0.68rem; color:var(--text-dim); margin-top:0.3rem;">Arrastra para rotar • Rueda para zoom</div>
+    </div>
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+</div>
+
+<!-- THREE.JS: FERMI GAMMA RAY CORE + DARK MATTER SMOKE FILAMENTS -->
+<script>
+  let scene, camera, renderer, controls;
+  const nodeCount = 384;
+  let nodePositions = [];
+  let coreMesh, coreGlowMesh, subhaloMesh, lineMesh, smokeMesh;
+  let lineColors, lineBaseColors;
+  let graphNeighbors = Array.from({ length: nodeCount }, () => []);
+  let pulses = [];
+
+  const canvas = document.getElementById("webgl-canvas");
+  const gammaLed = document.getElementById("gamma-led");
+  const fluxStatus = document.getElementById("flux-status");
+  const tokSecEl = document.getElementById("tok-sec");
+
+  function initCosmos() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030304, 0.0032);
+
+    camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1000);
+    camera.position.set(0, 15, 95);
+
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.3;
+
+    buildDarkMatterUniverse();
+    buildFermiGammaCore();
+
+    window.addEventListener('resize', onWindowResize);
+    animate();
+  }
+
+  // Textura radial procedural para el orbe de rayos gamma
+  function createGammaTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 128; cv.height = 128;
+    const ctx = cv.getContext('2d');
+    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    grad.addColorStop(0.2, 'rgba(255, 230, 160, 0.95)');
+    grad.addColorStop(0.5, 'rgba(255, 183, 3, 0.6)');
+    grad.addColorStop(0.8, 'rgba(251, 133, 0, 0.2)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  // Textura de humo volumétrico de materia oscura
+  function createSmokeTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 64; cv.height = 64;
+    const ctx = cv.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(28, 30, 38, 0.6)');
+    grad.addColorStop(0.5, 'rgba(15, 16, 22, 0.3)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  function buildFermiGammaCore() {
+    // EL NÚCLEO CENTRAL DORADO INCANDESCENTE (EL EXCESO DE FERMI)
+    const coreTex = createGammaTexture();
+
+    // 1. Esfera interior densa
+    const coreGeo = new THREE.BufferGeometry();
+    coreGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+    const coreMat = new THREE.PointsMaterial({
+      size: 32.0,
+      map: coreTex,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    coreMesh = new THREE.Points(coreGeo, coreMat);
+    scene.add(coreMesh);
+
+    // 2. Halo coronal exterior difuso
+    const glowGeo = new THREE.BufferGeometry();
+    glowGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+    const glowMat = new THREE.PointsMaterial({
+      size: 52.0,
+      map: coreTex,
+      transparent: true,
+      opacity: 0.45,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    coreGlowMesh = new THREE.Points(glowGeo, glowMat);
+    scene.add(coreGlowMesh);
+  }
+
+  function buildDarkMatterUniverse() {
+    // 1. NEBULOSA DE HUMO VOLUMÉTRICO DE FONDO (MATERIA OSCURA DIFUSA)
+    const smokeCount = 450;
+    const sGeo = new THREE.BufferGeometry();
+    const sPos = new Float32Array(smokeCount * 3);
+    for (let i = 0; i < smokeCount; i++) {
+      const r = 8 + Math.random() * 55;
+      const th = Math.random() * Math.PI * 2;
+      const ph = (Math.random() - 0.5) * Math.PI * 0.75;
+      sPos[i * 3] = r * Math.cos(ph) * Math.cos(th);
+      sPos[i * 3 + 1] = r * Math.sin(ph) * 0.5;
+      sPos[i * 3 + 2] = r * Math.cos(ph) * Math.sin(th);
+    }
+    sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+    const sMat = new THREE.PointsMaterial({
+      size: 38.0,
+      map: createSmokeTexture(),
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.NormalBlending,
+      depthWrite: false
+    });
+    smokeMesh = new THREE.Points(sGeo, sMat);
+    scene.add(smokeMesh);
+
+    // 2. FILAMENTOS TIPO ZARCILLO / VENAS OSCURAS
+    for (let i = 0; i < nodeCount; i++) {
+      const isSubhalo = (i % 6 === 0);
+      const r = 6 + Math.pow(Math.random(), 0.7) * 48;
+      const th = Math.random() * Math.PI * 2;
+      const ph = (Math.random() - 0.5) * Math.PI * 0.85;
+
+      const x = r * Math.cos(ph) * Math.cos(th);
+      const y = r * Math.sin(ph) * 0.55;
+      const z = r * Math.cos(ph) * Math.sin(th);
+      nodePositions.push(new THREE.Vector3(x, y, z));
+    }
+
+    // ARISTAS / FILAMENTOS OSCUROS CON CONEXIÓN AL NÚCLEO
+    const linePositions = [];
+    const lineColorsList = [];
+    let edgeCounter = 0;
+
+    for (let i = 0; i < nodeCount; i++) {
+      let connections = 0;
+      for (let j = i + 1; j < nodeCount; j++) {
+        const d = nodePositions[i].distanceTo(nodePositions[j]);
+        if (d < 14.5 && connections < 4) {
+          linePositions.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
+          linePositions.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
+
+          // Color en reposo: Gris carbón oscuro y humo casi negro
+          lineColorsList.push(0.08, 0.08, 0.1);
+          lineColorsList.push(0.08, 0.08, 0.1);
+
+          graphNeighbors[i].push({ neighbor: j, edgeIdx: edgeCounter });
+          graphNeighbors[j].push({ neighbor: i, edgeIdx: edgeCounter });
+
+          edgeCounter++;
+          connections++;
+        }
+      }
+    }
+
+    const lGeo = new THREE.BufferGeometry();
+    lGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    lineColors = new Float32Array(lineColorsList);
+    lineBaseColors = new Float32Array(lineColorsList);
+    lGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+
+    const lMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    lineMesh = new THREE.LineSegments(lGeo, lMat);
+    scene.add(lineMesh);
+
+    // 3. SUBHALOS DORADOS BRILLANTES (PUNTOS DE ANIQUILACIÓN REGADOS EN EL COSMOS)
+    const subPositions = [];
+    for (let i = 0; i < nodeCount; i += 4) {
+      subPositions.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
+    }
+    const subGeo = new THREE.BufferGeometry();
+    subGeo.setAttribute('position', new THREE.Float32BufferAttribute(subPositions, 3));
+    const subMat = new THREE.PointsMaterial({
+      size: 4.8,
+      map: createGammaTexture(),
+      color: 0xffca3a,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    subhaloMesh = new THREE.Points(subGeo, subMat);
+    scene.add(subhaloMesh);
+  }
+
+  // DISPARO DE ANIQUILACIÓN DE RAYOS GAMMA AL LLEGAR CADA TOKEN
+  function triggerGammaRayEvent() {
+    gammaLed.classList.add("burst");
+    fluxStatus.innerText = "Detonación de Rayos Gamma (E > 10 GeV)";
+    fluxStatus.style.color = "#ffb703";
+
+    // 1. Destello expansivo del núcleo central de Fermi
+    coreMesh.material.size = 42.0;
+    coreGlowMesh.material.size = 70.0;
+    coreGlowMesh.material.opacity = 0.9;
+
+    // 2. Encender un camino de materia oscura que conduce hacia los subhalos
+    const lineColorAttr = lineMesh.geometry.attributes.color;
+    const originIdx = Math.floor(Math.random() * nodeCount);
+
+    for (let conn of graphNeighbors[originIdx]) {
+      const eIdx = conn.edgeIdx;
+      const v1 = eIdx * 2;
+      const v2 = v1 + 1;
+
+      // Resplandor dorado / ámbar de altísima energía sobre la vena oscura
+      lineColorAttr.setXYZ(v1, 1.0, 0.85, 0.2);
+      lineColorAttr.setXYZ(v2, 0.98, 0.52, 0.0);
+
+      // Disparar un fotón de rayos gamma en el camino
+      pulses.push({
+        start: nodePositions[originIdx],
+        end: nodePositions[conn.neighbor],
+        progress: 0.0,
+        speed: 0.08
+      });
+    }
+    lineColorAttr.needsUpdate = true;
+
+    setTimeout(() => {
+      gammaLed.classList.remove("burst");
+      fluxStatus.innerText = "Flujo de Fondo Cósmico";
+      fluxStatus.style.color = "#ffe6a7";
+    }, 130);
+  }
+
+  function onWindowResize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    // Relajación suave del núcleo coronal de Fermi
+    if (coreMesh) {
+      coreMesh.material.size += (32.0 - coreMesh.material.size) * 0.08;
+      coreGlowMesh.material.size += (52.0 - coreGlowMesh.material.size) * 0.08;
+      coreGlowMesh.material.opacity += (0.45 - coreGlowMesh.material.opacity) * 0.08;
+    }
+
+    // Enfriamiento de los filamentos hacia el carbón oscuro
+    if (lineMesh) {
+      const colorAttr = lineMesh.geometry.attributes.color;
+      const count = lineColors.length / 3;
+      for (let i = 0; i < count; i++) {
+        const r = colorAttr.getX(i);
+        const g = colorAttr.getY(i);
+        const b = colorAttr.getZ(i);
+        const br = lineBaseColors[i * 3];
+        const bg = lineBaseColors[i * 3 + 1];
+        const bb = lineBaseColors[i * 3 + 2];
+
+        colorAttr.setXYZ(
+          i,
+          r + (br - r) * 0.1,
+          g + (bg - g) * 0.1,
+          b + (bb - b) * 0.1
+        );
+      }
+      colorAttr.needsUpdate = true;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  window.onload = initCosmos;
+</script>
+
+<!-- CLIENTE DE STREAMING -->
+<script>
+  const msgBox = document.getElementById("messages-box");
+  const userInput = document.getElementById("user-input");
+
+  userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleSend();
+  });
+
+  function sendQuick(task) {
+    userInput.value = task;
+    handleSend();
+  }
+
+  async function handleSend() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    userInput.value = "";
+
+    appendMessage("user", text);
+
+    const assistantBubble = appendMessage("assistant", "");
+    const codeContainer = document.createElement("pre");
+    const codeBlock = document.createElement("code");
+    codeContainer.appendChild(codeBlock);
+    assistantBubble.appendChild(codeContainer);
+
+    let accumulatedText = "";
+    let tokenCounter = 0;
+    let startTime = performance.now();
+
+    try {
+      const response = await fetch("http://localhost:8000/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "holollm-70m",
+          messages: [{ role: "user", content: text }],
+          stream: true,
+          max_tokens: 150
+        })
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("data: ")) {
+            const dataStr = trimmed.substring(6);
+            if (dataStr === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              const delta = parsed.choices[0].delta?.content || "";
+              if (delta) {
+                accumulatedText += delta;
+                tokenCounter++;
+
+                // DETONACIÓN DE RAYOS GAMMA POR TOKEN
+                triggerGammaRayEvent();
+
+                codeBlock.textContent = accumulatedText.replace(/```python/g, "").replace(/```/g, "").trimStart();
+                msgBox.scrollTop = msgBox.scrollHeight;
+
+                const elapsedSec = (performance.now() - startTime) / 1000.0;
+                tokSecEl.innerText = (tokenCounter / Math.max(elapsedSec, 0.001)).toFixed(1);
+              }
+            } catch (err) {}
+          }
+        }
+      }
+    } catch (err) {
+      codeBlock.textContent = "Verifica que holo_server.py esté corriendo en http://localhost:8000.";
+      codeBlock.style.color = "#ffb703";
+    }
+  }
+
+  function appendMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = `message-row ${role}`;
+
+    const sender = document.createElement("span");
+    sender.className = "message-sender";
+    sender.innerText = role === "user" ? "Telescopio Fermi • Entrada" : "HoloLLM • Flujo de Rayos Gamma";
+
+    const bubble = document.createElement("div");
+    bubble.className = "message-bubble";
+    bubble.innerText = text;
+
+    row.appendChild(sender);
+    row.appendChild(bubble);
+    msgBox.appendChild(row);
+    msgBox.scrollTop = msgBox.scrollHeight;
+    return bubble;
+  }
+</script>
+
+</body>
+</html>
