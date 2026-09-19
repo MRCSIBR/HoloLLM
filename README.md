@@ -25,21 +25,24 @@
 
 ---
 
-[**Portal Web Oficial**](https://mrcsibr.github.io/HoloLLM) • [**Paper en PDF**](docs/HoloLLM_Whitepaper.pdf) • [**Registro en Zenodo (DOI)**](https://doi.org/10.5281/zenodo.22849908) • [**Demostración Rápida**](#-inicio-rápido-en-tu-máquina-local-consola-interactiva-tipo-ollama)
+[**Portal Web Oficial**](https://mrcsibr.github.io/HoloLLM) • [**Paper en PDF**](docs/HoloLLM_Whitepaper_v1.pdf) • [**Registro en Zenodo (DOI)**](https://doi.org/10.5281/zenodo.22849908) • [**Demostración Rápida**](#-inicio-rápido-en-tu-máquina-local-consola-interactiva-tipo-ollama)
 
 </div>
 
 ## 🌌 Visión y Primeros Principios
 
-Los modelos de lenguaje basados en **Transformers estándar** sufren de un cuello de botella físico intratable: el **KV-Cache crece linealmente $\mathcal{O}(N)$** con la longitud del contexto, devorando gigabytes de memoria VRAM y ahogando el ancho de banda del procesador.
+Los modelos de lenguaje basados en **Transformers estándar** sufren de un cuello de botella físico intratable: el **KV-Cache crece linealmente `O(N)`** con la longitud del contexto, devorando gigabytes de memoria VRAM y ahogando el ancho de banda del procesador.
 
 **HoloLLM** reemplaza el almacenamiento lineal de claves y valores por **superposición interferométrica de frentes de onda en el Orden Implicado**. Toda la historia de la conversación o del código se pliega analíticamente en un estado holográfico constante de **64 KB**.
 
 ### Fundamentación Teórica
-- **David Bohm (Orden Implicado vs. Orden Explicado):** La memoria reside permanentemente plegada en el dominio espectral complejo. El texto observable solo se despliega en el Orden Explicado al proyectar el token presente.
+- **David Bohm (Orden Implicado vs. Orden Explicado):** La memoria reside permanentemente en el dominio espectral complejo. El texto observable solo se despliega en el Orden Explicado al proyectar el token presente.
 - **Karl Pribram (Teoría Holonómica del Cerebro):** Almacenamiento distribuido no local por patrones de interferencia de onda; resistencia inherente a la ablación y al daño localizado.
-- **Tony Plate (Holographic Reduced Representations - HRR):** Enlace asociativo mediante convolución y correlación circular unitaria sobre el toro de fase complejas ($|\mathcal{F}(K)| = 1$).
-- **Juan Maldacena & Edward Witten (Correspondencia AdS/CFT):** La secuencia 1D de tokens en la frontera conforme proyecta un espaciotiempo curvo en un Bulk radial 2D con métrica de Poincaré y propagador $e^{-|k|z}$, amortiguando el ruido de alta frecuencia en capas profundas.
+- **Tony Plate (Holographic Reduced Representations - HRR):** Enlace asociativo mediante convolución y correlación circular unitaria sobre el toro de fase compleja:
+  $$|\mathcal{F}(K)| = 1.0$$
+- **Juan Maldacena & Edward Witten (Correspondencia AdS/CFT):** La frontera 1D de tokens proyecta un espaciotiempo curvo en un Bulk radial 2D con métrica de Poincaré y propagador de Witten:
+  $$K_z(k) \propto e^{-|k|z}$$
+  amortiguando el ruido de alta frecuencia sintáctica en las capas profundas.
 - **Vitaly Vanchurin (El Universo como Red Neuronal):** El aprendizaje modelado como la relajación de una acción efectiva hacia el estado de mínima energía libre holográfica.
 
 ---
@@ -163,9 +166,11 @@ Si utilizas esta arquitectura o sus fundamentos en tu investigación, por favor 
 
 ## 🔬 Apoyo a la Investigación y Cómputo Independiente
 
+## 🔬 Apoyo a la Investigación y Cómputo Independiente
+
 HoloLLM es una iniciativa científica abierta e independiente. Para continuar con el escalamiento de la arquitectura hacia modelos de 1.5B y 7B parámetros (HoloQwen y HoloLlama) realizamos entrenamientos en clústeres GPU en la nube (NVIDIA A100 / H100 / H200).
 
-Si deseas apoyar el avance de arquitecturas de memoria $\mathcal{O}(1)$ y financiar horas de cómputo, puedes colaborar directamente a través de Bitcoin:
+Si deseas apoyar el avance de arquitecturas de memoria `O(1)` y financiar horas de cómputo, puedes colaborar directamente a través de Bitcoin:
 
 - **Red Bitcoin (On-Chain SegWit):**  
   `bc1qyckf2kujstlxx4rcnd5lxe5thvkjgw8d7jkthv`
