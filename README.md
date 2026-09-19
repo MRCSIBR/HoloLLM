@@ -25,7 +25,7 @@
 
 ---
 
-[**Portal Web Oficial**](https://mrcsibr.github.io/HoloLLM) • [**Paper en PDF**](docs/HoloLLM_Whitepaper_v1.pdf) • [**Registro en Zenodo (DOI)**](https://doi.org/10.5281/zenodo.22849908) • [**Demostración Rápida**](#-inicio-rápido-en-tu-máquina-local-consola-interactiva-tipo-ollama)
+[**Portal Web Oficial**](https://mrcsibr.github.io/HoloLLM) • [**Paper en PDF**](docs/HoloLLM_whitepaper_v1.pdf) • [**Registro en Zenodo (DOI)**](https://doi.org/10.5281/zenodo.22849908) • [**Demostración Rápida**](#-inicio-rápido-en-tu-máquina-local-consola-interactiva-tipo-ollama)
 
 </div>
 
@@ -136,7 +136,7 @@ HoloLLM/
 
 El trabajo formal se encuentra publicado y preservado permanentemente en el repositorio de ciencia abierta del CERN (Zenodo):
 
-- **Artículo Oficial (PDF):** [Descargar `HoloLLM_Whitepaper.pdf`](docs/HoloLLM_Whitepaper.pdf)
+- **Artículo Oficial (PDF):** [Descargar `HoloLLM_Whitepaper.pdf`](docs/HoloLLM_whitepaper_v1.pdf)
 - **Registro Permanente:** [doi.org/10.5281/zenodo.22849908](https://doi.org/10.5281/zenodo.22849908)
 - **Portal Web Interactivo:** [https://mrcsibr.github.io/HoloLLM](https://mrcsibr.github.io/HoloLLM)
 
