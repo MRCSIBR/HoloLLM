@@ -43,3 +43,7 @@ docs/theory/conversacion.md
 docs/theory/escalar_a_gpu.md
 docs/conversacion.md
 docs/escalar_a_gpu.md
+
+#notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
