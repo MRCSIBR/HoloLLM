@@ -164,7 +164,6 @@ Si utilizas esta arquitectura o sus fundamentos en tu investigación, por favor 
 
 ---
 
-## 🔬 Apoyo a la Investigación y Cómputo Independiente
 
 ## 🔬 Apoyo a la Investigación y Cómputo Independiente
 
