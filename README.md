@@ -18,7 +18,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22849908.svg)](https://doi.org/10.5281/zenodo.22849908)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Web Portal](https://img.shields.io/badge/Web-GitHub_Pages-2ea44f.svg)](https://mrcsibr.github.io/HoloLLM)
-[![Whitepaper PDF](https://img.shields.io/badge/Paper-PDF-red.svg)](docs/HoloLLM_Whitepaper.pdf)
+[![Whitepaper PDF](https://img.shields.io/badge/Paper-PDF-red.svg)](docs/HoloLLM_whitepaper_v1.pdf)
 [![KV-Cache: 0.00 KB](https://img.shields.io/badge/KV--Cache-0.00_KB_(O(1))-emerald.svg)](#-resultados-empíricos-certificados)
 [![Throughput: 40 tok/s CPU](https://img.shields.io/badge/CPU_Speed-~40_tok%2Fs-purple.svg)](#-resultados-empíricos-certificados)
 [![PyTorch: Native](https://img.shields.io/badge/PyTorch-2.1%2B_Native-orange.svg)](https://pytorch.org)
