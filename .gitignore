@@ -3,6 +3,7 @@ cat << 'EOF' > .gitignore
 .venv/
 env/
 venv/
+docs/conversacion.md
 
 # Caches de Python y Pytest
 __pycache__/
@@ -33,3 +34,8 @@ checkpoints/*.pt
 checkpoints/*.pt
 checkpoints/*.tar.gz
 data/*.json
+
+#excluir tex
+# Excluir fuentes LaTeX locales
+docs/*.tex
+*.tex

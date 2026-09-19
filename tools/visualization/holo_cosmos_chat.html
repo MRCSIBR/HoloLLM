@@ -3,307 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HoloLLM • Red Cósmica Unificada en el Orden Implicado</title>
-  
+  <title>HoloLLM • Red Cósmica Ultra-Densa (Orden Implicado)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
   <style>
     :root {
-      --bg-dark: #020204;
-      --panel-bg: rgba(6, 8, 14, 0.82);
-      --border-glow: rgba(0, 240, 255, 0.18);
+      --bg-dark: #000000;
+      --panel-bg: rgba(8, 6, 12, 0.85);
+      --border-glow: rgba(255, 0, 119, 0.2);
       --accent-cyan: #00f0ff;
       --accent-magenta: #ff0077;
       --accent-gold: #ffb703;
       --text-main: #e2e8f0;
-      --text-dim: #64748b;
+      --text-dim: #94a3b8;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: var(--bg-dark);
-      font-family: 'Outfit', sans-serif;
-      color: var(--text-main);
-    }
-
-    .app-container {
-      display: flex;
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-
-    /* CHAT IZQUIERDO: ORDEN EXPLICADO */
-    .chat-panel {
-      width: 40%;
-      min-width: 420px;
-      height: 100%;
-      background: var(--panel-bg);
-      backdrop-filter: blur(24px);
-      border-right: 1px solid var(--border-glow);
-      display: flex;
-      flex-direction: column;
-      z-index: 10;
-      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.75);
-    }
-
-    .panel-header {
-      padding: 1.2rem 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .brand-badge {
-      font-size: 0.65rem;
-      font-family: 'JetBrains Mono', monospace;
-      background: rgba(0, 240, 255, 0.12);
-      color: var(--accent-cyan);
-      border: 1px solid var(--accent-cyan);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-    }
-
-    .metrics-bar {
-      display: flex;
-      gap: 0.7rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-dim);
-    }
-
-    .metric-pill {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .metric-val {
-      color: var(--accent-gold);
-      font-weight: 600;
-    }
-
-    .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-      scroll-behavior: smooth;
-    }
-
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-dark); font-family: 'Outfit', sans-serif; color: var(--text-main); }
+    .app-container { display: flex; width: 100vw; height: 100vh; position: relative; }
+    .chat-panel { width: 40%; min-width: 420px; height: 100%; background: var(--panel-bg); backdrop-filter: blur(24px); border-right: 1px solid var(--border-glow); display: flex; flex-direction: column; z-index: 10; box-shadow: 15px 0 35px rgba(0,0,0,0.9); }
+    .panel-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; }
+    .brand-title { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color: #fff; }
+    .brand-badge { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; background: rgba(255, 0, 119, 0.15); color: var(--accent-magenta); border: 1px solid var(--accent-magenta); padding: 0.15rem 0.45rem; border-radius: 4px; }
+    .edition-link { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); text-decoration: none; border-bottom: 1px dashed var(--accent-cyan); margin-left: 0.5rem; }
+    .metrics-bar { display: flex; gap: 0.7rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
+    .metric-pill { background: rgba(255, 255, 255, 0.05); padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .metric-val { color: var(--accent-gold); font-weight: 600; }
+    .messages-container { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; scroll-behavior: smooth; }
     .messages-container::-webkit-scrollbar { width: 5px; }
-    .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-    }
-
-    .message-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      max-width: 92%;
-    }
-
+    .messages-container::-webkit-scrollbar-thumb { background: rgba(255, 0, 119, 0.2); border-radius: 3px; }
+    .message-row { display: flex; flex-direction: column; gap: 0.3rem; max-width: 92%; }
     .message-row.user { align-self: flex-end; }
     .message-row.assistant { align-self: flex-start; width: 100%; }
-
-    .message-sender {
-      font-size: 0.7rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .message-bubble {
-      padding: 0.85rem 1.1rem;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    .user .message-bubble {
-      background: rgba(0, 240, 255, 0.12);
-      border: 1px solid rgba(0, 240, 255, 0.25);
-      color: #fff;
-    }
-
-    .assistant .message-bubble {
-      background: rgba(14, 18, 28, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      width: 100%;
-    }
-
-    pre code {
-      display: block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      background: #050608;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      padding: 1rem;
-      margin-top: 0.6rem;
-      overflow-x: auto;
-      color: #4ade80;
-      line-height: 1.45;
-    }
-
-    .quick-actions {
-      padding: 0.6rem 1.2rem;
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
-    }
+    .message-sender { font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .message-bubble { padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.5; }
+    .user .message-bubble { background: rgba(255, 0, 119, 0.12); border: 1px solid rgba(255, 0, 119, 0.3); color: #fff; }
+    .assistant .message-bubble { background: rgba(10, 8, 14, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); width: 100%; }
+    pre code { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; background: #050408; border: 1px solid rgba(255, 0, 119, 0.15); border-radius: 6px; padding: 1rem; margin-top: 0.6rem; overflow-x: auto; color: #ffb703; line-height: 1.45; }
+    .quick-actions { padding: 0.6rem 1.2rem; display: flex; gap: 0.5rem; overflow-x: auto; border-top: 1px solid rgba(255, 255, 255, 0.05); }
     .quick-actions::-webkit-scrollbar { display: none; }
-
-    .action-btn {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-dim);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      padding: 0.35rem 0.65rem;
-      border-radius: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .action-btn:hover {
-      background: rgba(0, 240, 255, 0.12);
-      border-color: var(--accent-cyan);
-      color: #fff;
-    }
-
-    .input-wrapper {
-      padding: 1.2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      gap: 0.6rem;
-    }
-
-    .chat-input {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 0.8rem 1rem;
-      color: #fff;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .chat-input:focus { border-color: var(--accent-cyan); }
-
-    .send-btn {
-      background: var(--accent-cyan);
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      padding: 0 1.3rem;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: opacity 0.2s;
-    }
-
+    .action-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 12px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .action-btn:hover { background: rgba(255, 0, 119, 0.15); border-color: var(--accent-magenta); color: #fff; }
+    .input-wrapper { padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 0.6rem; }
+    .chat-input { flex: 1; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 0, 119, 0.2); border-radius: 8px; padding: 0.8rem 1rem; color: #fff; font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .chat-input:focus { border-color: var(--accent-magenta); }
+    .send-btn { background: var(--accent-magenta); color: #fff; border: none; border-radius: 8px; padding: 0 1.3rem; font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: opacity 0.2s; }
     .send-btn:hover { opacity: 0.85; }
-
-    /* CANVAS 3D DERECHO: ORDEN IMPLICADO */
-    .cosmos-panel {
-      flex: 1;
-      height: 100%;
-      position: relative;
-    }
-
-    #webgl-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .cosmos-hud {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: rgba(6, 8, 14, 0.8);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-glow);
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      z-index: 5;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      pointer-events: none;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-    }
-
-    .hud-title {
-      color: var(--accent-cyan);
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-      letter-spacing: 0.5px;
-    }
-
-    .hud-indicator {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .indicator-led {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-gold);
-      box-shadow: 0 0 6px var(--accent-gold);
-      transition: all 0.15s ease;
-    }
-
-    .indicator-led.firing {
-      background: var(--accent-cyan);
-      box-shadow: 0 0 14px var(--accent-cyan);
-      transform: scale(1.3);
-    }
+    .cosmos-panel { flex: 1; height: 100%; position: relative; }
+    #webgl-canvas { width: 100%; height: 100%; display: block; }
+    .cosmos-hud { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(8, 6, 12, 0.85); backdrop-filter: blur(16px); border: 1px solid var(--border-glow); border-radius: 8px; padding: 1rem 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; z-index: 5; display: flex; flex-direction: column; gap: 0.4rem; pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.8); }
+    .hud-title { color: var(--accent-magenta); font-weight: 600; margin-bottom: 0.2rem; letter-spacing: 0.5px; }
+    .hud-indicator { display: flex; align-items: center; gap: 0.5rem; }
+    .indicator-led { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-magenta); box-shadow: 0 0 8px var(--accent-magenta); transition: all 0.15s ease; }
+    .indicator-led.firing { background: var(--accent-cyan); box-shadow: 0 0 16px var(--accent-cyan); transform: scale(1.4); }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  
   <div class="chat-panel">
     <div class="panel-header">
-      <div class="brand-title">
-        HoloLLM
-        <span class="brand-badge">O(1) CAUSAL</span>
-      </div>
+      <div class="brand-title">HoloLLM <span class="brand-badge">O(1) CAUSAL</span> <a href="/gamma" class="edition-link">Fermi Gamma-Ray 🛰️</a></div>
       <div class="metrics-bar">
         <div class="metric-pill">KV-Cache: <span class="metric-val">0.00 KB</span></div>
         <div class="metric-pill">Speed: <span class="metric-val" id="tok-sec">0.0</span> t/s</div>
@@ -314,8 +75,8 @@
       <div class="message-row assistant">
         <span class="message-sender">HoloLLM Core • Orden Explicado</span>
         <div class="message-bubble">
-          Estructura cósmica unificada en resonancia. A la derecha puedes ver el <strong>núcleo supermasivo dorado central</strong> rodeado por la red sináptica. 
-          Al consultar un algoritmo, verás cómo la energía emerge del núcleo y viaja exclusivamente por los filamentos que codifican ese concepto.
+          <strong>¡Red Cósmica Ultra-Densa activa!</strong> A la derecha verás los más de 2.200 filamentos reales extraídos de la matriz de pesos del modelo de 70M, renderizados en paleta <i>Magma</i>.
+          Al generar código, los fotones cian viajarán velozmente por esta densa telaraña tridimensional.
         </div>
       </div>
     </div>
@@ -330,7 +91,7 @@
     </div>
 
     <div class="input-wrapper">
-      <input type="text" id="user-input" class="chat-input" placeholder="Escribe un algoritmo (ej: 'factorial', 'bfs')..." autocomplete="off">
+      <input type="text" id="user-input" class="chat-input" placeholder="Escribe un algoritmo..." autocomplete="off">
       <button id="send-btn" class="send-btn" onclick="handleSend()">ENVIAR</button>
     </div>
   </div>
@@ -340,29 +101,30 @@
       <div class="hud-title">🌌 ORDEN IMPLICADO (ℂ)</div>
       <div class="hud-indicator">
         <div class="indicator-led" id="firing-led"></div>
-        <span id="circuit-status" style="color:var(--accent-gold)">Núcleo en Equilibrio</span>
+        <span id="circuit-status" style="color:var(--accent-magenta)">Malla en Reposo Térmico</span>
       </div>
-      <div>Estructura: <span style="color:var(--accent-gold)">Núcleo Gravitacional + Velo</span></div>
-      <div>Dimensiones: <span style="color:var(--accent-cyan)">384 (12 cabezas)</span></div>
-      <div>Canal de Fase: <span id="firing-channel" style="color:#4ade80">Modo Causal O(1)</span></div>
-      <div>Foco Sináptico: <span id="active-neurons-count" style="color:#fff">40 Núcleo / 384</span></div>
+      <div>Estructura: <span style="color:var(--accent-gold)">Red Scale-Free Ultradensa</span></div>
+      <div>Filamentos (Top 3%): <span style="color:var(--accent-cyan)">~2,200 Sinapsis</span></div>
+      <div>Canal de Fase: <span id="firing-channel" style="color:#4ade80">Convolución Causal</span></div>
+      <div>Foco de Energía: <span id="active-neurons-count" style="color:#fff">0 / 384 Nodos</span></div>
       <div style="font-size:0.68rem; color:var(--text-dim); margin-top:0.4rem;">Arrastra para rotar • Rueda para zoom</div>
     </div>
     <canvas id="webgl-canvas"></canvas>
   </div>
-
 </div>
 
-<!-- THREE.JS: ESTRUCTURA CÓSMICA UNIFICADA CON NÚCLEO DORADO Y PROPAGACIÓN SELECTIVA -->
 <script>
+  // Inyección segura del JSON
+  const REAL_GRAPH_DATA = {"nodes": [{"id": 0, "x": -3.6, "y": 32.6, "z": 2.22, "deg": 0.3, "is_hub": false}, {"id": 1, "x": -1.84, "y": -34.41, "z": 5.19, "deg": 0.27, "is_hub": false}, {"id": 2, "x": 8.77, "y": 22.08, "z": 0.03, "deg": 0.41, "is_hub": true}, {"id": 3, "x": 24.91, "y": -14.1, "z": -13.15, "deg": 0.34, "is_hub": false}, {"id": 4, "x": 36.94, "y": -6.11, "z": -0.01, "deg": 0.34, "is_hub": false}, {"id": 5, "x": -7.44, "y": -8.76, "z": 24.58, "deg": 0.33, "is_hub": false}, {"id": 6, "x": 11.73, "y": -32.6, "z": -5.99, "deg": 0.26, "is_hub": false}, {"id": 7, "x": -7.98, "y": -13.4, "z": -29.37, "deg": 0.23, "is_hub": false}, {"id": 8, "x": 7.09, "y": 8.81, "z": -22.18, "deg": 0.3, "is_hub": false}, {"id": 9, "x": 14.47, "y": 19.95, "z": -18.43, "deg": 0.28, "is_hub": false}, {"id": 10, "x": 10.84, "y": 2.34, "z": -43.33, "deg": 0.24, "is_hub": false}, {"id": 11, "x": -7.49, "y": 25.7, "z": 2.14, "deg": 0.26, "is_hub": false}, {"id": 12, "x": -4.02, "y": 8.78, "z": 22.61, "deg": 0.43, "is_hub": true}, {"id": 13, "x": -12.77, "y": -3.54, "z": 11.95, "deg": 0.36, "is_hub": false}, {"id": 14, "x": -29.22, "y": -7.96, "z": -5.87, "deg": 0.43, "is_hub": true}, {"id": 15, "x": 7.34, "y": -26.36, "z": -19.99, "deg": 0.21, "is_hub": false}, {"id": 16, "x": -3.3, "y": -8.67, "z": 8.37, "deg": 0.61, "is_hub": true}, {"id": 17, "x": 12.61, "y": 19.59, "z": 8.86, "deg": 0.34, "is_hub": false}, {"id": 18, "x": -22.04, "y": 9.83, "z": 2.72, "deg": 0.37, "is_hub": false}, {"id": 19, "x": -6.85, "y": -22.95, "z": 25.46, "deg": 0.28, "is_hub": false}, {"id": 20, "x": 8.58, "y": 18.61, "z": 31.62, "deg": 0.3, "is_hub": false}, {"id": 21, "x": -0.2, "y": -16.09, "z": -1.5, "deg": 0.39, "is_hub": true}, {"id": 22, "x": -6.89, "y": -10.28, "z": -11.99, "deg": 0.39, "is_hub": true}, {"id": 23, "x": 9.3, "y": -8.86, "z": -24.19, "deg": 0.39, "is_hub": true}, {"id": 24, "x": -43.57, "y": 0.51, "z": 17.09, "deg": 0.15, "is_hub": false}, {"id": 25, "x": 24.55, "y": -4.73, "z": -15.48, "deg": 0.3, "is_hub": false}, {"id": 26, "x": 20.75, "y": -7.53, "z": 8.06, "deg": 0.38, "is_hub": true}, {"id": 27, "x": -22.71, "y": -14.26, "z": -15.01, "deg": 0.33, "is_hub": false}, {"id": 28, "x": 19.34, "y": 14.55, "z": -12.01, "deg": 0.47, "is_hub": true}, {"id": 29, "x": -5.66, "y": 7.05, "z": -6.28, "deg": 0.49, "is_hub": true}, {"id": 30, "x": 8.08, "y": 4.52, "z": 16.53, "deg": 0.36, "is_hub": false}, {"id": 31, "x": 12.96, "y": 8.08, "z": -10.29, "deg": 0.29, "is_hub": false}, {"id": 32, "x": -13.23, "y": 5.06, "z": -7.75, "deg": 0.36, "is_hub": false}, {"id": 33, "x": -23.7, "y": 11.08, "z": -23.39, "deg": 0.29, "is_hub": false}, {"id": 34, "x": -24.08, "y": -14.03, "z": 14.05, "deg": 0.25, "is_hub": false}, {"id": 35, "x": -17.66, "y": -5.05, "z": 0.34, "deg": 0.47, "is_hub": true}, {"id": 36, "x": -32.19, "y": 12.94, "z": -2.8, "deg": 0.24, "is_hub": false}, {"id": 37, "x": 12.94, "y": 1.33, "z": 4.01, "deg": 0.47, "is_hub": true}, {"id": 38, "x": -5.24, "y": -4.53, "z": -17.9, "deg": 0.51, "is_hub": true}, {"id": 39, "x": 11.75, "y": 3.49, "z": 6.83, "deg": 0.33, "is_hub": false}, {"id": 40, "x": 0.23, "y": 32.53, "z": 3.71, "deg": 0.29, "is_hub": false}, {"id": 41, "x": -20.52, "y": -4.85, "z": 21.79, "deg": 0.32, "is_hub": false}, {"id": 42, "x": -5.82, "y": 14.42, "z": 11.1, "deg": 0.48, "is_hub": true}, {"id": 43, "x": -11.59, "y": 18.75, "z": -22.62, "deg": 0.24, "is_hub": false}, {"id": 44, "x": 7.8, "y": 16.4, "z": 20.0, "deg": 0.28, "is_hub": false}, {"id": 45, "x": -44.79, "y": 6.47, "z": 4.97, "deg": 0.17, "is_hub": false}, {"id": 46, "x": -18.28, "y": 33.38, "z": -1.46, "deg": 0.32, "is_hub": false}, {"id": 47, "x": -2.38, "y": -10.05, "z": -30.42, "deg": 0.24, "is_hub": false}, {"id": 48, "x": -5.01, "y": -18.25, "z": -12.65, "deg": 0.36, "is_hub": false}, {"id": 49, "x": -5.02, "y": 18.36, "z": 3.34, "deg": 0.5, "is_hub": true}, {"id": 50, "x": 3.64, "y": -13.88, "z": -5.77, "deg": 0.46, "is_hub": true}, {"id": 51, "x": -12.47, "y": 23.37, "z": 22.42, "deg": 0.23, "is_hub": false}, {"id": 52, "x": -11.59, "y": 13.55, "z": 5.39, "deg": 0.41, "is_hub": true}, {"id": 53, "x": 29.07, "y": 5.9, "z": 19.39, "deg": 0.25, "is_hub": false}, {"id": 54, "x": -19.16, "y": 6.6, "z": -38.29, "deg": 0.22, "is_hub": false}, {"id": 55, "x": 3.84, "y": 26.74, "z": -9.7, "deg": 0.34, "is_hub": false}, {"id": 56, "x": -10.1, "y": 17.84, "z": -5.67, "deg": 0.38, "is_hub": true}, {"id": 57, "x": 1.43, "y": -14.23, "z": -36.58, "deg": 0.22, "is_hub": false}, {"id": 58, "x": -10.72, "y": -5.56, "z": 14.39, "deg": 0.37, "is_hub": false}, {"id": 59, "x": 1.54, "y": 9.05, "z": -15.5, "deg": 0.49, "is_hub": true}, {"id": 60, "x": 0.09, "y": 2.38, "z": 18.18, "deg": 0.33, "is_hub": false}, {"id": 61, "x": 14.56, "y": 17.38, "z": -3.23, "deg": 0.41, "is_hub": true}, {"id": 62, "x": 17.34, "y": 1.51, "z": 11.33, "deg": 0.68, "is_hub": true}, {"id": 63, "x": -1.96, "y": -10.88, "z": 32.77, "deg": 0.21, "is_hub": false}, {"id": 64, "x": 32.29, "y": -2.01, "z": -20.88, "deg": 0.32, "is_hub": false}, {"id": 65, "x": 4.64, "y": 19.08, "z": 19.66, "deg": 0.44, "is_hub": true}, {"id": 66, "x": 22.51, "y": -2.73, "z": -20.17, "deg": 0.3, "is_hub": false}, {"id": 67, "x": 5.88, "y": 9.64, "z": 1.44, "deg": 0.55, "is_hub": true}, {"id": 68, "x": 13.43, "y": -25.11, "z": -7.16, "deg": 0.35, "is_hub": false}, {"id": 69, "x": -14.54, "y": -18.63, "z": 23.52, "deg": 0.28, "is_hub": false}, {"id": 70, "x": -1.82, "y": -12.96, "z": -20.88, "deg": 0.4, "is_hub": true}, {"id": 71, "x": -17.47, "y": -1.09, "z": -4.78, "deg": 0.36, "is_hub": false}, {"id": 72, "x": -27.93, "y": 5.52, "z": 4.36, "deg": 0.33, "is_hub": false}, {"id": 73, "x": 7.24, "y": 6.02, "z": -10.91, "deg": 0.61, "is_hub": true}, {"id": 74, "x": -6.28, "y": -12.5, "z": 8.46, "deg": 0.34, "is_hub": false}, {"id": 75, "x": -21.05, "y": 1.43, "z": -4.91, "deg": 0.37, "is_hub": false}, {"id": 76, "x": -8.75, "y": 6.36, "z": 11.88, "deg": 0.51, "is_hub": true}, {"id": 77, "x": 9.03, "y": -3.54, "z": -25.87, "deg": 0.31, "is_hub": false}, {"id": 78, "x": 7.55, "y": -16.71, "z": 11.69, "deg": 0.47, "is_hub": true}, {"id": 79, "x": -7.84, "y": 14.83, "z": -11.08, "deg": 0.54, "is_hub": true}, {"id": 80, "x": 21.47, "y": 6.23, "z": 26.2, "deg": 0.33, "is_hub": false}, {"id": 81, "x": -12.35, "y": -5.59, "z": -14.96, "deg": 0.36, "is_hub": false}, {"id": 82, "x": 13.21, "y": -5.11, "z": 11.02, "deg": 0.39, "is_hub": true}, {"id": 83, "x": 18.65, "y": -3.0, "z": 12.54, "deg": 0.38, "is_hub": true}, {"id": 84, "x": 0.61, "y": -7.66, "z": -19.35, "deg": 0.39, "is_hub": true}, {"id": 85, "x": 2.74, "y": -4.54, "z": 39.95, "deg": 0.23, "is_hub": false}, {"id": 86, "x": -7.79, "y": -25.14, "z": -21.54, "deg": 0.26, "is_hub": false}, {"id": 87, "x": 10.35, "y": 2.35, "z": -7.19, "deg": 0.25, "is_hub": false}, {"id": 88, "x": 3.88, "y": 18.54, "z": -18.09, "deg": 0.41, "is_hub": true}, {"id": 89, "x": 5.43, "y": -0.57, "z": 9.7, "deg": 0.6, "is_hub": true}, {"id": 90, "x": 3.83, "y": 12.5, "z": 24.29, "deg": 0.41, "is_hub": true}, {"id": 91, "x": -5.53, "y": 1.77, "z": -17.25, "deg": 0.37, "is_hub": true}, {"id": 92, "x": -12.51, "y": -10.5, "z": 16.25, "deg": 0.42, "is_hub": true}, {"id": 93, "x": -15.51, "y": 9.96, "z": 15.44, "deg": 0.3, "is_hub": false}, {"id": 94, "x": -4.79, "y": -15.7, "z": 26.65, "deg": 0.18, "is_hub": false}, {"id": 95, "x": -40.74, "y": -9.98, "z": -2.2, "deg": 0.19, "is_hub": false}, {"id": 96, "x": -25.37, "y": 15.55, "z": -9.76, "deg": 0.3, "is_hub": false}, {"id": 97, "x": -0.55, "y": -2.28, "z": -15.87, "deg": 0.56, "is_hub": true}, {"id": 98, "x": -9.79, "y": 15.55, "z": 35.83, "deg": 0.19, "is_hub": false}, {"id": 99, "x": -8.59, "y": -4.02, "z": -33.61, "deg": 0.3, "is_hub": false}, {"id": 100, "x": -10.74, "y": -23.21, "z": -8.56, "deg": 0.33, "is_hub": false}, {"id": 101, "x": 32.16, "y": 4.81, "z": -16.94, "deg": 0.29, "is_hub": false}, {"id": 102, "x": -27.22, "y": -12.3, "z": -4.32, "deg": 0.35, "is_hub": false}, {"id": 103, "x": 7.22, "y": -21.07, "z": -21.69, "deg": 0.33, "is_hub": false}, {"id": 104, "x": -3.05, "y": -1.61, "z": 22.79, "deg": 0.29, "is_hub": false}, {"id": 105, "x": -12.09, "y": -18.71, "z": 4.17, "deg": 0.24, "is_hub": false}, {"id": 106, "x": -0.58, "y": 21.28, "z": 14.82, "deg": 0.26, "is_hub": false}, {"id": 107, "x": 37.53, "y": -8.11, "z": 5.04, "deg": 0.24, "is_hub": false}, {"id": 108, "x": 10.02, "y": -10.65, "z": -7.98, "deg": 0.4, "is_hub": true}, {"id": 109, "x": 2.62, "y": -10.27, "z": -37.05, "deg": 0.32, "is_hub": false}, {"id": 110, "x": 21.8, "y": -13.23, "z": 2.97, "deg": 0.34, "is_hub": false}, {"id": 111, "x": 9.37, "y": -1.24, "z": -22.45, "deg": 0.54, "is_hub": true}, {"id": 112, "x": 21.13, "y": 0.44, "z": 1.37, "deg": 0.51, "is_hub": true}, {"id": 113, "x": 15.66, "y": -0.13, "z": 24.13, "deg": 0.31, "is_hub": false}, {"id": 114, "x": -10.44, "y": 3.17, "z": -19.77, "deg": 0.4, "is_hub": true}, {"id": 115, "x": -0.88, "y": -11.67, "z": -6.23, "deg": 0.4, "is_hub": true}, {"id": 116, "x": 22.56, "y": 18.23, "z": 5.94, "deg": 0.36, "is_hub": false}, {"id": 117, "x": -6.63, "y": -21.63, "z": -17.28, "deg": 0.27, "is_hub": false}, {"id": 118, "x": -25.76, "y": 9.52, "z": 21.48, "deg": 0.28, "is_hub": false}, {"id": 119, "x": 24.26, "y": 17.59, "z": 11.47, "deg": 0.35, "is_hub": false}, {"id": 120, "x": 22.79, "y": 14.82, "z": -13.0, "deg": 0.32, "is_hub": false}, {"id": 121, "x": -11.47, "y": -3.45, "z": 8.96, "deg": 0.5, "is_hub": true}, {"id": 122, "x": 3.81, "y": 17.93, "z": -21.51, "deg": 0.42, "is_hub": true}, {"id": 123, "x": 8.78, "y": 7.34, "z": -42.27, "deg": 0.24, "is_hub": false}, {"id": 124, "x": -4.25, "y": 26.66, "z": -14.34, "deg": 0.33, "is_hub": false}, {"id": 125, "x": -33.83, "y": -0.34, "z": 1.07, "deg": 0.26, "is_hub": false}, {"id": 126, "x": -13.63, "y": -16.98, "z": -16.54, "deg": 0.32, "is_hub": false}, {"id": 127, "x": -12.15, "y": -8.01, "z": 15.1, "deg": 0.41, "is_hub": true}, {"id": 128, "x": 11.27, "y": -3.16, "z": -23.36, "deg": 0.44, "is_hub": true}, {"id": 129, "x": 11.86, "y": -0.66, "z": -13.9, "deg": 0.4, "is_hub": true}, {"id": 130, "x": 24.29, "y": -12.18, "z": -2.53, "deg": 0.37, "is_hub": false}, {"id": 131, "x": 3.85, "y": -30.11, "z": 26.92, "deg": 0.25, "is_hub": false}, {"id": 132, "x": 32.12, "y": -12.04, "z": -1.35, "deg": 0.26, "is_hub": false}, {"id": 133, "x": 16.21, "y": -22.66, "z": -13.21, "deg": 0.24, "is_hub": false}, {"id": 134, "x": -11.72, "y": 2.04, "z": 11.0, "deg": 0.53, "is_hub": true}, {"id": 135, "x": -10.56, "y": 17.46, "z": -17.66, "deg": 0.45, "is_hub": true}, {"id": 136, "x": 4.85, "y": -4.09, "z": 16.47, "deg": 0.6, "is_hub": true}, {"id": 137, "x": -15.94, "y": 11.84, "z": 0.88, "deg": 0.48, "is_hub": true}, {"id": 138, "x": 12.71, "y": -15.82, "z": 17.74, "deg": 0.29, "is_hub": false}, {"id": 139, "x": 0.85, "y": 37.11, "z": 17.94, "deg": 0.12, "is_hub": false}, {"id": 140, "x": -23.75, "y": -3.08, "z": -13.5, "deg": 0.37, "is_hub": true}, {"id": 141, "x": 8.56, "y": -6.82, "z": -13.79, "deg": 0.68, "is_hub": true}, {"id": 142, "x": -3.71, "y": 13.69, "z": -27.42, "deg": 0.37, "is_hub": false}, {"id": 143, "x": -17.75, "y": -7.2, "z": -9.18, "deg": 0.32, "is_hub": false}, {"id": 144, "x": 23.84, "y": 6.33, "z": -31.99, "deg": 0.29, "is_hub": false}, {"id": 145, "x": -15.75, "y": -8.38, "z": 24.07, "deg": 0.31, "is_hub": false}, {"id": 146, "x": -30.21, "y": -19.49, "z": -5.53, "deg": 0.24, "is_hub": false}, {"id": 147, "x": 1.41, "y": -3.7, "z": 18.27, "deg": 0.53, "is_hub": true}, {"id": 148, "x": 12.12, "y": -11.18, "z": -3.94, "deg": 0.35, "is_hub": false}, {"id": 149, "x": 8.07, "y": -13.7, "z": -12.56, "deg": 0.4, "is_hub": true}, {"id": 150, "x": -6.84, "y": 8.68, "z": 9.61, "deg": 0.45, "is_hub": true}, {"id": 151, "x": 22.81, "y": -1.91, "z": 10.24, "deg": 0.35, "is_hub": false}, {"id": 152, "x": -16.09, "y": 2.8, "z": 6.04, "deg": 0.42, "is_hub": true}, {"id": 153, "x": 8.89, "y": -0.94, "z": 29.52, "deg": 0.3, "is_hub": false}, {"id": 154, "x": 14.47, "y": 0.82, "z": 18.82, "deg": 0.41, "is_hub": true}, {"id": 155, "x": 3.45, "y": 15.77, "z": -8.25, "deg": 0.28, "is_hub": false}, {"id": 156, "x": 0.34, "y": -2.16, "z": 1.75, "deg": 0.43, "is_hub": true}, {"id": 157, "x": 14.58, "y": -4.52, "z": -2.53, "deg": 0.47, "is_hub": true}, {"id": 158, "x": 19.84, "y": 26.03, "z": -26.55, "deg": 0.15, "is_hub": false}, {"id": 159, "x": -5.33, "y": -1.55, "z": 13.43, "deg": 0.55, "is_hub": true}, {"id": 160, "x": -14.97, "y": 3.3, "z": 15.46, "deg": 0.39, "is_hub": true}, {"id": 161, "x": -0.95, "y": -1.88, "z": 25.8, "deg": 0.33, "is_hub": false}, {"id": 162, "x": -18.79, "y": -13.75, "z": -14.78, "deg": 0.27, "is_hub": false}, {"id": 163, "x": 9.69, "y": 14.38, "z": 38.1, "deg": 0.19, "is_hub": false}, {"id": 164, "x": 26.33, "y": -18.27, "z": 17.82, "deg": 0.26, "is_hub": false}, {"id": 165, "x": 22.03, "y": 0.54, "z": -14.35, "deg": 0.38, "is_hub": true}, {"id": 166, "x": -23.87, "y": 7.36, "z": 10.1, "deg": 0.46, "is_hub": true}, {"id": 167, "x": 9.18, "y": -8.7, "z": 34.53, "deg": 0.23, "is_hub": false}, {"id": 168, "x": 15.75, "y": -11.85, "z": 5.41, "deg": 0.5, "is_hub": true}, {"id": 169, "x": -21.76, "y": 22.23, "z": -12.31, "deg": 0.32, "is_hub": false}, {"id": 170, "x": -15.71, "y": -17.21, "z": 7.4, "deg": 0.42, "is_hub": true}, {"id": 171, "x": -6.98, "y": -7.31, "z": -4.64, "deg": 0.33, "is_hub": false}, {"id": 172, "x": 2.84, "y": 7.19, "z": 32.02, "deg": 0.27, "is_hub": false}, {"id": 173, "x": -24.71, "y": 2.79, "z": -11.74, "deg": 0.4, "is_hub": true}, {"id": 174, "x": 0.85, "y": -2.51, "z": -9.69, "deg": 0.38, "is_hub": true}, {"id": 175, "x": -20.95, "y": 9.62, "z": 6.07, "deg": 0.43, "is_hub": true}, {"id": 176, "x": -8.84, "y": 9.67, "z": 28.6, "deg": 0.37, "is_hub": false}, {"id": 177, "x": -2.43, "y": -2.01, "z": -32.95, "deg": 0.35, "is_hub": false}, {"id": 178, "x": -1.52, "y": -22.85, "z": 5.37, "deg": 0.34, "is_hub": false}, {"id": 179, "x": -5.83, "y": -0.69, "z": -27.34, "deg": 0.54, "is_hub": true}, {"id": 180, "x": 23.99, "y": -4.96, "z": 11.44, "deg": 0.4, "is_hub": true}, {"id": 181, "x": 28.77, "y": -0.64, "z": 18.63, "deg": 0.29, "is_hub": false}, {"id": 182, "x": -30.27, "y": -13.14, "z": -0.27, "deg": 0.38, "is_hub": true}, {"id": 183, "x": 13.12, "y": -18.08, "z": 1.35, "deg": 0.55, "is_hub": true}, {"id": 184, "x": -9.99, "y": 8.47, "z": -9.57, "deg": 0.35, "is_hub": false}, {"id": 185, "x": 31.16, "y": -0.54, "z": -5.82, "deg": 0.4, "is_hub": true}, {"id": 186, "x": -29.6, "y": -5.13, "z": 24.54, "deg": 0.32, "is_hub": false}, {"id": 187, "x": -2.35, "y": -15.93, "z": 13.26, "deg": 0.43, "is_hub": true}, {"id": 188, "x": -36.73, "y": -10.84, "z": 2.37, "deg": 0.4, "is_hub": true}, {"id": 189, "x": -28.41, "y": 4.81, "z": -20.4, "deg": 0.33, "is_hub": false}, {"id": 190, "x": -3.4, "y": 10.3, "z": 0.35, "deg": 0.52, "is_hub": true}, {"id": 191, "x": -13.19, "y": 1.04, "z": 7.9, "deg": 0.58, "is_hub": true}, {"id": 192, "x": -15.06, "y": 10.05, "z": 10.41, "deg": 0.35, "is_hub": false}, {"id": 193, "x": -23.77, "y": 15.64, "z": 6.18, "deg": 0.35, "is_hub": false}, {"id": 194, "x": -1.02, "y": 14.89, "z": 23.74, "deg": 0.46, "is_hub": true}, {"id": 195, "x": -0.78, "y": -29.31, "z": 18.55, "deg": 0.31, "is_hub": false}, {"id": 196, "x": 5.7, "y": -37.07, "z": -19.26, "deg": 0.23, "is_hub": false}, {"id": 197, "x": 0.82, "y": -29.63, "z": -4.94, "deg": 0.22, "is_hub": false}, {"id": 198, "x": -0.17, "y": 2.71, "z": 2.35, "deg": 0.38, "is_hub": true}, {"id": 199, "x": -15.26, "y": 15.82, "z": -2.77, "deg": 0.36, "is_hub": false}, {"id": 200, "x": 5.6, "y": 16.0, "z": -26.98, "deg": 0.41, "is_hub": true}, {"id": 201, "x": 21.18, "y": -4.02, "z": -2.43, "deg": 0.52, "is_hub": true}, {"id": 202, "x": -17.31, "y": -24.27, "z": 11.55, "deg": 0.21, "is_hub": false}, {"id": 203, "x": 8.05, "y": -19.62, "z": 7.39, "deg": 0.47, "is_hub": true}, {"id": 204, "x": -33.75, "y": -1.05, "z": -2.02, "deg": 0.29, "is_hub": false}, {"id": 205, "x": -17.55, "y": -16.36, "z": -26.51, "deg": 0.34, "is_hub": false}, {"id": 206, "x": 29.55, "y": -7.9, "z": 12.8, "deg": 0.26, "is_hub": false}, {"id": 207, "x": -16.12, "y": 16.93, "z": 11.76, "deg": 0.4, "is_hub": true}, {"id": 208, "x": -6.94, "y": 12.66, "z": -4.88, "deg": 0.46, "is_hub": true}, {"id": 209, "x": -5.5, "y": 4.02, "z": -27.35, "deg": 0.37, "is_hub": false}, {"id": 210, "x": 10.86, "y": 10.09, "z": -22.9, "deg": 0.43, "is_hub": true}, {"id": 211, "x": -1.87, "y": 2.51, "z": -7.95, "deg": 0.56, "is_hub": true}, {"id": 212, "x": 12.2, "y": 18.7, "z": -9.66, "deg": 0.37, "is_hub": true}, {"id": 213, "x": 15.69, "y": -21.48, "z": -7.18, "deg": 0.45, "is_hub": true}, {"id": 214, "x": -12.65, "y": 18.87, "z": 15.26, "deg": 0.39, "is_hub": true}, {"id": 215, "x": 11.31, "y": -5.51, "z": 13.82, "deg": 0.38, "is_hub": true}, {"id": 216, "x": 2.04, "y": 13.4, "z": -29.25, "deg": 0.36, "is_hub": false}, {"id": 217, "x": -12.31, "y": 2.13, "z": -4.28, "deg": 0.58, "is_hub": true}, {"id": 218, "x": 3.02, "y": -0.1, "z": -33.5, "deg": 0.28, "is_hub": false}, {"id": 219, "x": -8.64, "y": 8.71, "z": 34.47, "deg": 0.21, "is_hub": false}, {"id": 220, "x": -15.86, "y": 5.51, "z": -30.11, "deg": 0.27, "is_hub": false}, {"id": 221, "x": -11.61, "y": 0.64, "z": -1.05, "deg": 0.42, "is_hub": true}, {"id": 222, "x": 1.43, "y": 15.31, "z": 2.89, "deg": 0.58, "is_hub": true}, {"id": 223, "x": -10.12, "y": -12.23, "z": 34.69, "deg": 0.25, "is_hub": false}, {"id": 224, "x": -37.29, "y": -16.88, "z": 12.43, "deg": 0.26, "is_hub": false}, {"id": 225, "x": -9.96, "y": -14.81, "z": -0.11, "deg": 0.4, "is_hub": true}, {"id": 226, "x": 24.3, "y": 8.51, "z": -1.27, "deg": 0.45, "is_hub": true}, {"id": 227, "x": -2.27, "y": -15.17, "z": 39.26, "deg": 0.24, "is_hub": false}, {"id": 228, "x": 27.44, "y": 11.53, "z": 18.43, "deg": 0.24, "is_hub": false}, {"id": 229, "x": -20.36, "y": -2.68, "z": 10.5, "deg": 0.43, "is_hub": true}, {"id": 230, "x": -16.15, "y": -19.3, "z": -6.22, "deg": 0.32, "is_hub": false}, {"id": 231, "x": -24.51, "y": 2.9, "z": 19.0, "deg": 0.34, "is_hub": false}, {"id": 232, "x": -10.59, "y": -0.62, "z": -15.31, "deg": 0.46, "is_hub": true}, {"id": 233, "x": 17.38, "y": -2.47, "z": 8.18, "deg": 0.4, "is_hub": true}, {"id": 234, "x": 11.75, "y": -15.77, "z": -16.6, "deg": 0.32, "is_hub": false}, {"id": 235, "x": 15.03, "y": 12.14, "z": -15.45, "deg": 0.28, "is_hub": false}, {"id": 236, "x": -9.06, "y": -4.16, "z": 2.45, "deg": 0.52, "is_hub": true}, {"id": 237, "x": 20.83, "y": 25.2, "z": 2.44, "deg": 0.27, "is_hub": false}, {"id": 238, "x": -11.39, "y": 1.8, "z": -29.6, "deg": 0.4, "is_hub": true}, {"id": 239, "x": 3.05, "y": 15.3, "z": 12.36, "deg": 0.38, "is_hub": true}, {"id": 240, "x": 37.98, "y": -9.78, "z": 15.47, "deg": 0.23, "is_hub": false}, {"id": 241, "x": 19.64, "y": -6.61, "z": -22.67, "deg": 0.3, "is_hub": false}, {"id": 242, "x": -32.58, "y": -2.02, "z": 19.11, "deg": 0.27, "is_hub": false}, {"id": 243, "x": -7.73, "y": 13.09, "z": 18.41, "deg": 0.42, "is_hub": true}, {"id": 244, "x": -2.57, "y": 23.2, "z": 14.58, "deg": 0.21, "is_hub": false}, {"id": 245, "x": 24.37, "y": 10.57, "z": 4.7, "deg": 0.39, "is_hub": true}, {"id": 246, "x": -3.74, "y": 15.99, "z": -6.62, "deg": 0.52, "is_hub": true}, {"id": 247, "x": 7.18, "y": -8.49, "z": 10.29, "deg": 0.53, "is_hub": true}, {"id": 248, "x": -25.74, "y": 14.75, "z": 11.22, "deg": 0.31, "is_hub": false}, {"id": 249, "x": 4.03, "y": 25.12, "z": 26.6, "deg": 0.18, "is_hub": false}, {"id": 250, "x": 1.6, "y": 6.43, "z": 41.26, "deg": 0.32, "is_hub": false}, {"id": 251, "x": -16.64, "y": -28.6, "z": -17.83, "deg": 0.24, "is_hub": false}, {"id": 252, "x": 0.94, "y": 29.23, "z": 12.51, "deg": 0.15, "is_hub": false}, {"id": 253, "x": 3.13, "y": -9.2, "z": 1.9, "deg": 0.27, "is_hub": false}, {"id": 254, "x": -7.3, "y": -8.34, "z": -33.21, "deg": 0.34, "is_hub": false}, {"id": 255, "x": 6.15, "y": -18.92, "z": 18.77, "deg": 0.24, "is_hub": false}, {"id": 256, "x": 20.26, "y": 0.27, "z": -6.43, "deg": 0.39, "is_hub": true}, {"id": 257, "x": 18.49, "y": -0.3, "z": -17.1, "deg": 0.48, "is_hub": true}, {"id": 258, "x": -3.23, "y": -11.51, "z": 1.23, "deg": 0.6, "is_hub": true}, {"id": 259, "x": -12.68, "y": 20.43, "z": 5.3, "deg": 0.4, "is_hub": true}, {"id": 260, "x": 7.83, "y": -0.23, "z": -18.55, "deg": 0.34, "is_hub": false}, {"id": 261, "x": -5.32, "y": -5.95, "z": -12.28, "deg": 0.67, "is_hub": true}, {"id": 262, "x": -3.13, "y": 3.6, "z": 26.92, "deg": 0.47, "is_hub": true}, {"id": 263, "x": 37.56, "y": -4.43, "z": 12.94, "deg": 0.18, "is_hub": false}, {"id": 264, "x": -9.4, "y": -11.96, "z": -3.28, "deg": 0.43, "is_hub": true}, {"id": 265, "x": 17.1, "y": 10.52, "z": 19.49, "deg": 0.59, "is_hub": true}, {"id": 266, "x": -1.55, "y": 17.69, "z": -25.83, "deg": 0.29, "is_hub": false}, {"id": 267, "x": -31.14, "y": 10.98, "z": 3.13, "deg": 0.34, "is_hub": false}, {"id": 268, "x": -13.68, "y": -20.79, "z": 29.47, "deg": 0.21, "is_hub": false}, {"id": 269, "x": 10.74, "y": -19.52, "z": 8.28, "deg": 0.44, "is_hub": true}, {"id": 270, "x": 15.82, "y": 0.13, "z": -37.41, "deg": 0.18, "is_hub": false}, {"id": 271, "x": 34.89, "y": 10.65, "z": 12.29, "deg": 0.26, "is_hub": false}, {"id": 272, "x": -10.04, "y": 11.96, "z": -0.6, "deg": 0.48, "is_hub": true}, {"id": 273, "x": -7.84, "y": 1.96, "z": -4.34, "deg": 0.62, "is_hub": true}, {"id": 274, "x": -23.13, "y": 0.32, "z": 0.99, "deg": 0.51, "is_hub": true}, {"id": 275, "x": 9.15, "y": -6.85, "z": 1.43, "deg": 0.74, "is_hub": true}, {"id": 276, "x": 9.37, "y": 9.03, "z": -55.0, "deg": 0.12, "is_hub": false}, {"id": 277, "x": 17.69, "y": -17.35, "z": 14.49, "deg": 0.38, "is_hub": true}, {"id": 278, "x": 21.03, "y": -9.89, "z": -9.1, "deg": 0.46, "is_hub": true}, {"id": 279, "x": -42.35, "y": 11.73, "z": -13.0, "deg": 0.2, "is_hub": false}, {"id": 280, "x": -15.28, "y": 2.46, "z": -45.11, "deg": 0.18, "is_hub": false}, {"id": 281, "x": 5.34, "y": 15.44, "z": 3.35, "deg": 0.72, "is_hub": true}, {"id": 282, "x": 5.51, "y": -0.14, "z": -2.31, "deg": 0.47, "is_hub": true}, {"id": 283, "x": 3.99, "y": 0.88, "z": 10.9, "deg": 0.56, "is_hub": true}, {"id": 284, "x": 23.79, "y": 3.18, "z": -4.99, "deg": 0.36, "is_hub": false}, {"id": 285, "x": 17.7, "y": -19.37, "z": -5.49, "deg": 0.31, "is_hub": false}, {"id": 286, "x": -0.24, "y": -25.41, "z": 9.71, "deg": 0.33, "is_hub": false}, {"id": 287, "x": -8.27, "y": 9.93, "z": 17.14, "deg": 0.51, "is_hub": true}, {"id": 288, "x": 3.02, "y": 3.61, "z": 21.63, "deg": 0.49, "is_hub": true}, {"id": 289, "x": 3.09, "y": -2.83, "z": 23.87, "deg": 0.44, "is_hub": true}, {"id": 290, "x": 23.26, "y": 2.26, "z": 11.23, "deg": 0.44, "is_hub": true}, {"id": 291, "x": -14.68, "y": 3.91, "z": -19.28, "deg": 0.33, "is_hub": false}, {"id": 292, "x": 15.65, "y": 25.36, "z": -13.77, "deg": 0.23, "is_hub": false}, {"id": 293, "x": -4.66, "y": 14.92, "z": 2.63, "deg": 0.41, "is_hub": true}, {"id": 294, "x": 10.51, "y": -21.95, "z": 27.5, "deg": 0.3, "is_hub": false}, {"id": 295, "x": 0.94, "y": 18.3, "z": -17.0, "deg": 0.36, "is_hub": false}, {"id": 296, "x": -10.76, "y": 22.36, "z": -2.38, "deg": 0.34, "is_hub": false}, {"id": 297, "x": -3.19, "y": 9.83, "z": 10.7, "deg": 0.41, "is_hub": true}, {"id": 298, "x": -5.39, "y": -15.4, "z": -9.75, "deg": 0.33, "is_hub": false}, {"id": 299, "x": 14.51, "y": 13.81, "z": -27.44, "deg": 0.21, "is_hub": false}, {"id": 300, "x": -4.41, "y": -23.84, "z": -12.81, "deg": 0.36, "is_hub": false}, {"id": 301, "x": -5.19, "y": -15.92, "z": 23.49, "deg": 0.27, "is_hub": false}, {"id": 302, "x": -7.96, "y": 11.7, "z": -21.78, "deg": 0.23, "is_hub": false}, {"id": 303, "x": -12.95, "y": 15.56, "z": -24.25, "deg": 0.34, "is_hub": false}, {"id": 304, "x": 16.86, "y": 15.77, "z": 6.94, "deg": 0.39, "is_hub": true}, {"id": 305, "x": -4.55, "y": 1.46, "z": 4.4, "deg": 0.49, "is_hub": true}, {"id": 306, "x": 25.7, "y": 16.73, "z": 1.63, "deg": 0.25, "is_hub": false}, {"id": 307, "x": 31.54, "y": 11.34, "z": 26.15, "deg": 0.29, "is_hub": false}, {"id": 308, "x": 11.59, "y": 3.93, "z": -17.38, "deg": 0.35, "is_hub": false}, {"id": 309, "x": 16.58, "y": -8.62, "z": -18.52, "deg": 0.31, "is_hub": false}, {"id": 310, "x": -7.67, "y": 8.07, "z": 38.84, "deg": 0.36, "is_hub": false}, {"id": 311, "x": 8.5, "y": -32.54, "z": 2.65, "deg": 0.15, "is_hub": false}, {"id": 312, "x": 16.8, "y": 24.53, "z": 3.43, "deg": 0.27, "is_hub": false}, {"id": 313, "x": -14.65, "y": -2.88, "z": -5.45, "deg": 0.42, "is_hub": true}, {"id": 314, "x": -9.68, "y": -4.47, "z": -23.57, "deg": 0.35, "is_hub": false}, {"id": 315, "x": -25.07, "y": -9.46, "z": -9.66, "deg": 0.31, "is_hub": false}, {"id": 316, "x": -10.74, "y": -4.98, "z": -18.07, "deg": 0.4, "is_hub": true}, {"id": 317, "x": -15.27, "y": -25.04, "z": -5.01, "deg": 0.38, "is_hub": true}, {"id": 318, "x": -30.4, "y": -15.31, "z": -22.19, "deg": 0.25, "is_hub": false}, {"id": 319, "x": -11.61, "y": -1.27, "z": 31.76, "deg": 0.32, "is_hub": false}, {"id": 320, "x": -17.66, "y": -15.75, "z": 24.45, "deg": 0.28, "is_hub": false}, {"id": 321, "x": -1.38, "y": -4.09, "z": 9.9, "deg": 0.6, "is_hub": true}, {"id": 322, "x": -14.16, "y": -17.57, "z": 14.91, "deg": 0.31, "is_hub": false}, {"id": 323, "x": 23.03, "y": 12.44, "z": 11.66, "deg": 0.41, "is_hub": true}, {"id": 324, "x": 5.08, "y": 9.16, "z": -39.1, "deg": 0.24, "is_hub": false}, {"id": 325, "x": 6.82, "y": 29.57, "z": 0.11, "deg": 0.27, "is_hub": false}, {"id": 326, "x": -0.65, "y": -12.18, "z": -9.89, "deg": 0.41, "is_hub": true}, {"id": 327, "x": 19.36, "y": -2.73, "z": -11.05, "deg": 0.39, "is_hub": true}, {"id": 328, "x": -2.94, "y": 8.64, "z": 4.7, "deg": 0.6, "is_hub": true}, {"id": 329, "x": -26.7, "y": -10.95, "z": 16.38, "deg": 0.4, "is_hub": true}, {"id": 330, "x": 17.85, "y": 7.02, "z": -6.62, "deg": 0.57, "is_hub": true}, {"id": 331, "x": -10.25, "y": 6.47, "z": -22.08, "deg": 0.4, "is_hub": true}, {"id": 332, "x": -12.29, "y": -11.84, "z": 8.0, "deg": 0.46, "is_hub": true}, {"id": 333, "x": -23.28, "y": -5.55, "z": 9.09, "deg": 0.43, "is_hub": true}, {"id": 334, "x": 31.89, "y": -0.6, "z": 33.99, "deg": 0.18, "is_hub": false}, {"id": 335, "x": 0.59, "y": 6.34, "z": -2.17, "deg": 0.34, "is_hub": false}, {"id": 336, "x": -4.3, "y": -7.31, "z": -1.03, "deg": 0.55, "is_hub": true}, {"id": 337, "x": 9.75, "y": 14.41, "z": 10.48, "deg": 0.44, "is_hub": true}, {"id": 338, "x": 9.92, "y": 3.8, "z": -4.31, "deg": 0.33, "is_hub": false}, {"id": 339, "x": -23.1, "y": -12.06, "z": -18.21, "deg": 0.3, "is_hub": false}, {"id": 340, "x": 6.25, "y": 1.55, "z": 20.62, "deg": 0.35, "is_hub": false}, {"id": 341, "x": -23.47, "y": 15.62, "z": -12.38, "deg": 0.27, "is_hub": false}, {"id": 342, "x": -2.56, "y": -16.79, "z": 7.37, "deg": 0.55, "is_hub": true}, {"id": 343, "x": 6.13, "y": 9.33, "z": 11.53, "deg": 0.53, "is_hub": true}, {"id": 344, "x": -21.74, "y": -6.75, "z": -28.28, "deg": 0.26, "is_hub": false}, {"id": 345, "x": 5.93, "y": 15.63, "z": 22.76, "deg": 0.36, "is_hub": false}, {"id": 346, "x": -37.56, "y": -6.53, "z": -28.53, "deg": 0.17, "is_hub": false}, {"id": 347, "x": 3.99, "y": -18.83, "z": -15.13, "deg": 0.47, "is_hub": true}, {"id": 348, "x": 13.18, "y": 14.52, "z": 20.51, "deg": 0.35, "is_hub": false}, {"id": 349, "x": -1.85, "y": 9.21, "z": -4.95, "deg": 0.63, "is_hub": true}, {"id": 350, "x": -17.8, "y": 8.1, "z": 27.01, "deg": 0.28, "is_hub": false}, {"id": 351, "x": 13.26, "y": 10.62, "z": -28.05, "deg": 0.29, "is_hub": false}, {"id": 352, "x": -2.37, "y": 2.53, "z": -21.66, "deg": 0.37, "is_hub": true}, {"id": 353, "x": -11.29, "y": 3.74, "z": 25.74, "deg": 0.31, "is_hub": false}, {"id": 354, "x": 33.53, "y": 12.72, "z": -1.24, "deg": 0.29, "is_hub": false}, {"id": 355, "x": 13.05, "y": -10.64, "z": 4.05, "deg": 0.33, "is_hub": false}, {"id": 356, "x": 22.96, "y": -21.4, "z": 6.95, "deg": 0.28, "is_hub": false}, {"id": 357, "x": 5.43, "y": -10.2, "z": -18.08, "deg": 0.44, "is_hub": true}, {"id": 358, "x": 7.19, "y": 1.12, "z": 8.04, "deg": 0.49, "is_hub": true}, {"id": 359, "x": 6.27, "y": -13.39, "z": -8.76, "deg": 0.36, "is_hub": false}, {"id": 360, "x": 33.89, "y": -28.77, "z": -22.47, "deg": 0.18, "is_hub": false}, {"id": 361, "x": 17.91, "y": 7.45, "z": -1.96, "deg": 0.54, "is_hub": true}, {"id": 362, "x": 2.41, "y": -0.12, "z": -2.97, "deg": 0.51, "is_hub": true}, {"id": 363, "x": 28.18, "y": 8.73, "z": -6.25, "deg": 0.38, "is_hub": true}, {"id": 364, "x": 10.21, "y": 15.42, "z": 1.57, "deg": 0.33, "is_hub": false}, {"id": 365, "x": -20.63, "y": 6.73, "z": -4.34, "deg": 0.3, "is_hub": false}, {"id": 366, "x": 17.06, "y": 15.06, "z": 3.56, "deg": 0.37, "is_hub": false}, {"id": 367, "x": -24.4, "y": 12.54, "z": 21.73, "deg": 0.28, "is_hub": false}, {"id": 368, "x": 17.74, "y": -6.22, "z": 16.26, "deg": 0.43, "is_hub": true}, {"id": 369, "x": 21.87, "y": -20.8, "z": -3.72, "deg": 0.25, "is_hub": false}, {"id": 370, "x": -14.22, "y": -10.69, "z": -25.5, "deg": 0.32, "is_hub": false}, {"id": 371, "x": 5.4, "y": -18.26, "z": -5.81, "deg": 0.46, "is_hub": true}, {"id": 372, "x": 26.92, "y": 6.4, "z": -1.84, "deg": 0.36, "is_hub": false}, {"id": 373, "x": -28.43, "y": -5.14, "z": 29.27, "deg": 0.18, "is_hub": false}, {"id": 374, "x": 22.01, "y": -0.5, "z": 18.12, "deg": 0.42, "is_hub": true}, {"id": 375, "x": -0.03, "y": 3.73, "z": -1.77, "deg": 0.64, "is_hub": true}, {"id": 376, "x": -0.69, "y": 5.95, "z": 14.64, "deg": 0.53, "is_hub": true}, {"id": 377, "x": 8.32, "y": 10.44, "z": -15.0, "deg": 0.43, "is_hub": true}, {"id": 378, "x": 9.55, "y": 7.11, "z": 28.3, "deg": 0.29, "is_hub": false}, {"id": 379, "x": 2.86, "y": -6.99, "z": 13.38, "deg": 0.52, "is_hub": true}, {"id": 380, "x": -4.11, "y": 0.87, "z": 29.63, "deg": 0.27, "is_hub": false}, {"id": 381, "x": 17.74, "y": 5.08, "z": 5.2, "deg": 0.68, "is_hub": true}, {"id": 382, "x": 23.49, "y": 0.09, "z": -24.31, "deg": 0.26, "is_hub": false}, {"id": 383, "x": 20.94, "y": -17.29, "z": 2.35, "deg": 0.35, "is_hub": false}], "edges": [[0, 2, 0.0301], [0, 8, 0.0278], [0, 28, 0.0272], [0, 40, 0.0273], [0, 46, 0.0373], [0, 135, 0.0328], [0, 239, 0.03], [0, 259, 0.0275], [0, 272, 0.0276], [0, 380, 0.0341], [1, 84, 0.0289], [1, 100, 0.0309], [1, 178, 0.0408], [1, 268, 0.0336], [1, 294, 0.0354], [1, 298, 0.0368], [1, 326, 0.0361], [1, 355, 0.0306], [2, 28, 0.0281], [2, 52, 0.0308], [2, 84, 0.0293], [2, 122, 0.0275], [2, 141, 0.0275], [2, 226, 0.0277], [2, 243, 0.0275], [2, 262, 0.0291], [2, 297, 0.0273], [2, 304, 0.0336], [2, 325, 0.0283], [2, 328, 0.0317], [2, 381, 0.0312], [3, 7, 0.0412], [3, 107, 0.0346], [3, 119, 0.0279], [3, 141, 0.0313], [3, 149, 0.0394], [3, 164, 0.0371], [3, 174, 0.0288], [3, 187, 0.0328], [3, 347, 0.0306], [3, 351, 0.0327], [4, 28, 0.0295], [4, 82, 0.0336], [4, 112, 0.0277], [4, 148, 0.0303], [4, 181, 0.0329], [4, 215, 0.0299], [4, 245, 0.0272], [4, 275, 0.0293], [4, 356, 0.0279], [4, 357, 0.0337], [4, 372, 0.0352], [5, 35, 0.034], [5, 89, 0.0297], [5, 127, 0.0295], [5, 156, 0.029], [5, 170, 0.0353], [5, 236, 0.0284], [5, 242, 0.0286], [5, 262, 0.0282], [5, 275, 0.0315], [5, 290, 0.0274], [5, 361, 0.029], [6, 68, 0.028], [6, 70, 0.0275], [6, 78, 0.0412], [6, 117, 0.0319], [6, 126, 0.0335], [6, 132, 0.0295], [6, 138, 0.0365], [6, 156, 0.0297], [7, 111, 0.0315], [7, 179, 0.0448], [7, 199, 0.0275], [7, 202, 0.0274], [7, 275, 0.0302], [7, 303, 0.0294], [8, 9, 0.0278], [8, 48, 0.0332], [8, 88, 0.0312], [8, 129, 0.041], [8, 136, 0.0291], [8, 162, 0.0292], [8, 226, 0.0281], [8, 338, 0.0293], [8, 357, 0.0281], [9, 156, 0.0341], [9, 218, 0.0276], [9, 239, 0.0309], [9, 244, 0.0277], [9, 281, 0.0281], [9, 316, 0.0274], [9, 364, 0.0284], [9, 382, 0.045], [10, 50, 0.0273], [10, 57, 0.0275], [10, 59, 0.0277], [10, 88, 0.0362], [10, 129, 0.0316], [10, 142, 0.0291], [10, 209, 0.0291], [10, 241, 0.0308], [11, 36, 0.0321], [11, 46, 0.0292], [11, 93, 0.0289], [11, 200, 0.0396], [11, 274, 0.0294], [11, 323, 0.0278], [11, 379, 0.0347], [11, 381, 0.0336], [12, 13, 0.0426], [12, 37, 0.0278], [12, 39, 0.0281], [12, 40, 0.0309], [12, 41, 0.0276], [12, 62, 0.0274], [12, 161, 0.0276], [12, 191, 0.0302], [12, 193, 0.0294], [12, 211, 0.0375], [12, 236, 0.0306], [12, 245, 0.0278], [12, 268, 0.0295], [12, 348, 0.0311], [13, 41, 0.0279], [13, 62, 0.0419], [13, 97, 0.0366], [13, 129, 0.0306], [13, 175, 0.0305], [13, 225, 0.0316], [13, 259, 0.0332], [13, 264, 0.0273], [13, 288, 0.029], [13, 371, 0.0294], [14, 81, 0.0325], [14, 102, 0.0278], [14, 117, 0.037], [14, 121, 0.0365], [14, 134, 0.0276], [14, 173, 0.0324], [14, 186, 0.0296], [14, 188, 0.0307], [14, 207, 0.0309], [14, 251, 0.0322], [14, 267, 0.0274], [14, 300, 0.0311], [14, 365, 0.0314], [14, 377, 0.0275], [15, 27, 0.0293], [15, 178, 0.0301], [15, 225, 0.0358], [15, 251, 0.0276], [15, 256, 0.0273], [15, 282, 0.0275], [15, 284, 0.0338], [16, 23, 0.0272], [16, 41, 0.0307], [16, 48, 0.0353], [16, 82, 0.031], [16, 121, 0.0294], [16, 131, 0.0292], [16, 146, 0.0352], [16, 150, 0.0308], [16, 163, 0.0321], [16, 165, 0.0324], [16, 208, 0.028], [16, 282, 0.0306], [16, 305, 0.0396], [16, 310, 0.0344], [16, 317, 0.0531], [16, 326, 0.0281], [16, 337, 0.0321], [16, 370, 0.0273], [16, 381, 0.0278], [17, 42, 0.0423], [17, 82, 0.0301], [17, 116, 0.031], [17, 124, 0.0398], [17, 185, 0.029], [17, 221, 0.0318], [17, 281, 0.0282], [17, 321, 0.0535], [17, 340, 0.0314], [17, 372, 0.0275], [18, 20, 0.0301], [18, 35, 0.0287], [18, 93, 0.0273], [18, 194, 0.028], [18, 232, 0.0308], [18, 238, 0.0284], [18, 291, 0.0278], [18, 339, 0.0339], [18, 341, 0.0362], [18, 344, 0.0293], [18, 378, 0.0377], [18, 380, 0.0275], [19, 136, 0.0342], [19, 170, 0.0274], [19, 191, 0.0341], [19, 229, 0.0283], [19, 255, 0.0299], [19, 275, 0.0333], [19, 342, 0.0273], [19, 356, 0.036], [19, 373, 0.0325], [20, 65, 0.031], [20, 119, 0.0276], [20, 250, 0.0283], [20, 281, 0.0345], [20, 310, 0.0276], [20, 321, 0.0327], [20, 323, 0.0282], [20, 343, 0.0303], [20, 366, 0.0307], [21, 27, 0.0474], [21, 100, 0.0279], [21, 167, 0.0344], [21, 185, 0.0317], [21, 198, 0.0345], [21, 227, 0.0366], [21, 232, 0.0321], [21, 261, 0.0378], [21, 270, 0.0273], [21, 273, 0.051], [21, 352, 0.0299], [22, 56, 0.0298], [22, 58, 0.0294], [22, 68, 0.0322], [22, 91, 0.0273], [22, 108, 0.0315], [22, 121, 0.0304], [22, 133, 0.0279], [22, 137, 0.032], [22, 270, 0.0279], [22, 274, 0.0305], [22, 289, 0.0286], [22, 317, 0.0296], [22, 377, 0.0279], [23, 59, 0.0315], [23, 68, 0.0294], [23, 73, 0.0362], [23, 109, 0.0274], [23, 111, 0.0342], [23, 232, 0.0497], [23, 251, 0.034], [23, 278, 0.0283], [23, 292, 0.0371], [23, 316, 0.0286], [23, 368, 0.0274], [24, 92, 0.0325], [24, 118, 0.0277], [24, 166, 0.0338], [24, 318, 0.0276], [24, 335, 0.0289], [25, 107, 0.0339], [25, 135, 0.0423], [25, 234, 0.0281], [25, 253, 0.0292], [25, 264, 0.0312], [25, 275, 0.0401], [25, 330, 0.0273], [25, 351, 0.0279], [25, 368, 0.0372], [26, 38, 0.0295], [26, 76, 0.0325], [26, 89, 0.0353], [26, 110, 0.0309], [26, 115, 0.0318], [26, 183, 0.0341], [26, 185, 0.0284], [26, 203, 0.0281], [26, 217, 0.0362], [26, 271, 0.0303], [26, 275, 0.03], [26, 348, 0.0339], [27, 156, 0.0399], [27, 188, 0.0309], [27, 189, 0.0322], [27, 197, 0.0281], [27, 209, 0.0293], [27, 242, 0.0289], [27, 331, 0.028], [27, 349, 0.0321], [28, 62, 0.0274], [28, 67, 0.0291], [28, 122, 0.041], [28, 132, 0.0345], [28, 142, 0.03], [28, 156, 0.0307], [28, 177, 0.0309], [28, 228, 0.0279], [28, 290, 0.0277], [28, 295, 0.0373], [28, 303, 0.0317], [28, 330, 0.0385], [29, 47, 0.028], [29, 78, 0.0312], [29, 122, 0.0326], [29, 125, 0.0301], [29, 150, 0.0276], [29, 173, 0.0315], [29, 179, 0.0341], [29, 221, 0.0415], [29, 237, 0.0283], [29, 246, 0.0288], [29, 252, 0.0282], [29, 260, 0.0296], [29, 262, 0.0294], [29, 281, 0.0306], [29, 286, 0.0305], [29, 377, 0.0301], [30, 93, 0.029], [30, 121, 0.0313], [30, 136, 0.0299], [30, 157, 0.0308], [30, 167, 0.0274], [30, 184, 0.0321], [30, 187, 0.031], [30, 201, 0.0334], [30, 222, 0.0286], [30, 275, 0.0299], [30, 284, 0.0299], [30, 377, 0.0295], [31, 66, 0.0298], [31, 111, 0.0288], [31, 159, 0.0308], [31, 185, 0.0307], [31, 203, 0.0417], [31, 282, 0.0272], [31, 313, 0.0285], [31, 325, 0.0284], [31, 328, 0.0402], [32, 55, 0.0275], [32, 89, 0.0276], [32, 100, 0.0278], [32, 230, 0.0345], [32, 257, 0.0332], [32, 273, 0.0272], [32, 312, 0.0283], [32, 316, 0.0286], [32, 329, 0.0303], [32, 341, 0.0273], [32, 358, 0.0279], [32, 376, 0.0381], [33, 36, 0.0294], [33, 87, 0.0301], [33, 99, 0.0337], [33, 152, 0.0311], [33, 169, 0.0366], [33, 232, 0.0387], [33, 246, 0.0305], [33, 341, 0.031], [33, 375, 0.0327], [34, 136, 0.0334], [34, 138, 0.0289], [34, 147, 0.0278], [34, 192, 0.0325], [34, 198, 0.0311], [34, 231, 0.0301], [34, 332, 0.0277], [34, 344, 0.0348], [35, 54, 0.0274], [35, 71, 0.0288], [35, 140, 0.0287], [35, 148, 0.0283], [35, 153, 0.0309], [35, 229, 0.0303], [35, 236, 0.0409], [35, 243, 0.0385], [35, 262, 0.029], [35, 314, 0.0325], [35, 317, 0.0356], [35, 330, 0.0289], [35, 344, 0.031], [36, 43, 0.0308], [36, 46, 0.0349], [36, 52, 0.0277], [36, 76, 0.0284], [36, 222, 0.0322], [36, 316, 0.0285], [37, 61, 0.0279], [37, 62, 0.0406], [37, 104, 0.0294], [37, 119, 0.0296], [37, 133, 0.0291], [37, 172, 0.0275], [37, 203, 0.0287], [37, 209, 0.0288], [37, 223, 0.0298], [37, 226, 0.0298], [37, 265, 0.0373], [37, 299, 0.0311], [37, 314, 0.0377], [37, 375, 0.0324], [38, 73, 0.0317], [38, 123, 0.0326], [38, 128, 0.0308], [38, 190, 0.0313], [38, 198, 0.0278], [38, 211, 0.042], [38, 225, 0.032], [38, 257, 0.0361], [38, 261, 0.0281], [38, 280, 0.0275], [38, 322, 0.0423], [38, 333, 0.0306], [38, 335, 0.0319], [38, 341, 0.0277], [38, 347, 0.0283], [39, 118, 0.0396], [39, 122, 0.0316], [39, 130, 0.032], [39, 168, 0.0287], [39, 183, 0.0425], [39, 215, 0.0297], [39, 225, 0.0322], [39, 293, 0.0321], [39, 382, 0.0288], [40, 292, 0.0274], [40, 296, 0.0285], [40, 302, 0.0324], [40, 325, 0.0316], [40, 343, 0.0375], [40, 349, 0.0364], [40, 376, 0.0377], [41, 147, 0.0293], [41, 182, 0.0303], [41, 242, 0.0275], [41, 246, 0.0343], [41, 253, 0.0324], [41, 328, 0.0287], [41, 340, 0.0278], [41, 342, 0.0273], [42, 46, 0.0279], [42, 74, 0.034], [42, 114, 0.0276], [42, 153, 0.0298], [42, 161, 0.0333], [42, 169, 0.0315], [42, 237, 0.029], [42, 244, 0.0365], [42, 247, 0.0314], [42, 266, 0.0355], [42, 319, 0.0337], [42, 326, 0.0302], [42, 350, 0.0285], [42, 380, 0.0323], [43, 46, 0.0388], [43, 72, 0.0281], [43, 77, 0.0277], [43, 272, 0.0314], [43, 278, 0.0289], [43, 327, 0.0296], [43, 352, 0.0274], [44, 58, 0.0284], [44, 104, 0.0335], [44, 116, 0.0321], [44, 154, 0.032], [44, 157, 0.0351], [44, 259, 0.0272], [44, 341, 0.0279], [44, 349, 0.0327], [44, 368, 0.0325], [45, 182, 0.0312], [45, 193, 0.0279], [45, 236, 0.0423], [45, 331, 0.032], [45, 350, 0.0351], [46, 135, 0.029], [46, 207, 0.0317], [46, 214, 0.0274], [46, 222, 0.0291], [46, 281, 0.0364], [47, 77, 0.0327], [47, 81, 0.0301], [47, 198, 0.028], [47, 203, 0.032], [47, 276, 0.0313], [47, 283, 0.0274], [47, 326, 0.028], [48, 57, 0.0293], [48, 68, 0.0365], [48, 73, 0.0304], [48, 95, 0.0305], [48, 187, 0.0322], [48, 204, 0.0381], [48, 255, 0.0307], [48, 382, 0.0308], [48, 383, 0.0287], [49, 50, 0.0296], [49, 51, 0.0295], [49, 56, 0.0539], [49, 160, 0.0278], [49, 184, 0.0326], [49, 261, 0.0278], [49, 281, 0.0284], [49, 282, 0.0361], [49, 303, 0.029], [49, 323, 0.0369], [49, 348, 0.0411], [49, 365, 0.0343], [49, 367, 0.033], [49, 376, 0.0288], [49, 377, 0.0342], [50, 76, 0.0272], [50, 77, 0.0307], [50, 81, 0.0274], [50, 83, 0.0303], [50, 130, 0.0273], [50, 147, 0.0301], [50, 168, 0.0348], [50, 195, 0.0316], [50, 255, 0.0322], [50, 318, 0.0343], [50, 335, 0.0335], [50, 357, 0.0299], [50, 383, 0.0341], [51, 172, 0.0303], [51, 175, 0.0371], [51, 192, 0.0302], [51, 212, 0.0352], [51, 236, 0.0384], [51, 289, 0.0307], [52, 60, 0.0306], [52, 63, 0.0301], [52, 89, 0.034], [52, 143, 0.0298], [52, 160, 0.0308], [52, 166, 0.0298], [52, 169, 0.039], [52, 178, 0.031], [52, 292, 0.0292], [52, 303, 0.0316], [52, 366, 0.0323], [53, 62, 0.0326], [53, 65, 0.0374], [53, 78, 0.0289], [53, 121, 0.0274], [53, 312, 0.0284], [53, 366, 0.0339], [53, 371, 0.0278], [53, 372, 0.0311], [54, 59, 0.0308], [54, 169, 0.0345], [54, 291, 0.0306], [54, 298, 0.0296], [54, 303, 0.0289], [54, 370, 0.0398], [55, 67, 0.0293], [55, 73, 0.0421], [55, 106, 0.0297], [55, 259, 0.0344], [55, 287, 0.0327], [55, 296, 0.042], [55, 351, 0.034], [55, 363, 0.0332], [55, 377, 0.0355], [56, 96, 0.0273], [56, 115, 0.0352], [56, 160, 0.031], [56, 211, 0.0342], [56, 217, 0.0321], [56, 245, 0.0318], [56, 274, 0.0296], [56, 281, 0.0429], [56, 312, 0.0306], [57, 100, 0.0317], [57, 130, 0.032], [57, 238, 0.032], [57, 338, 0.0328], [57, 347, 0.0335], [58, 89, 0.0338], [58, 90, 0.0298], [58, 166, 0.0297], [58, 217, 0.0284], [58, 260, 0.0365], [58, 261, 0.0291], [58, 264, 0.0275], [58, 287, 0.0338], [58, 322, 0.028], [58, 342, 0.0374], [59, 67, 0.0372], [59, 70, 0.0332], [59, 83, 0.0299], [59, 89, 0.04], [59, 93, 0.0361], [59, 144, 0.032], [59, 204, 0.0358], [59, 281, 0.0324], [59, 306, 0.0289], [59, 328, 0.0286], [59, 341, 0.0294], [59, 363, 0.0353], [60, 62, 0.0376], [60, 90, 0.0289], [60, 114, 0.0343], [60, 145, 0.0272], [60, 244, 0.0311], [60, 296, 0.0377], [60, 321, 0.0289], [60, 333, 0.0465], [60, 355, 0.0319], [61, 64, 0.033], [61, 79, 0.0304], [61, 111, 0.0319], [61, 112, 0.0364], [61, 122, 0.0306], [61, 192, 0.0338], [61, 208, 0.0332], [61, 214, 0.0322], [61, 237, 0.033], [61, 340, 0.0276], [61, 349, 0.0282], [61, 368, 0.028], [62, 67, 0.0344], [62, 90, 0.0313], [62, 108, 0.0297], [62, 113, 0.0274], [62, 138, 0.0293], [62, 144, 0.0324], [62, 228, 0.0399], [62, 240, 0.034], [62, 253, 0.0327], [62, 277, 0.0288], [62, 285, 0.0332], [62, 304, 0.0288], [62, 328, 0.0295], [62, 335, 0.0292], [62, 353, 0.0362], [63, 82, 0.0302], [63, 159, 0.0288], [63, 183, 0.0322], [63, 275, 0.0308], [63, 342, 0.0289], [63, 367, 0.0281], [64, 66, 0.0315], [64, 111, 0.0324], [64, 112, 0.0308], [64, 185, 0.0334], [64, 190, 0.0288], [64, 234, 0.0363], [64, 257, 0.031], [64, 335, 0.0316], [64, 360, 0.0311], [65, 72, 0.0356], [65, 116, 0.0283], [65, 121, 0.0314], [65, 153, 0.0288], [65, 169, 0.0328], [65, 172, 0.0329], [65, 181, 0.0282], [65, 244, 0.0292], [65, 289, 0.0327], [65, 292, 0.0323], [65, 328, 0.0295], [65, 378, 0.028], [66, 83, 0.0351], [66, 97, 0.0285], [66, 140, 0.0283], [66, 168, 0.0321], [66, 213, 0.0378], [66, 235, 0.0357], [66, 258, 0.0377], [67, 76, 0.0328], [67, 119, 0.0277], [67, 160, 0.0304], [67, 194, 0.0321], [67, 207, 0.036], [67, 237, 0.0304], [67, 256, 0.0403], [67, 264, 0.0298], [67, 288, 0.0289], [67, 291, 0.0312], [67, 311, 0.0304], [67, 331, 0.0316], [67, 364, 0.0382], [68, 78, 0.0287], [68, 86, 0.0277], [68, 154, 0.0455], [68, 164, 0.0316], [68, 230, 0.0295], [68, 308, 0.0297], [68, 309, 0.0282], [69, 105, 0.0313], [69, 110, 0.031], [69, 160, 0.0315], [69, 176, 0.0284], [69, 258, 0.0286], [69, 274, 0.033], [69, 289, 0.0296], [69, 301, 0.0359], [69, 336, 0.0291], [70, 97, 0.0305], [70, 138, 0.0402], [70, 140, 0.0334], [70, 141, 0.0275], [70, 147, 0.0276], [70, 210, 0.0306], [70, 257, 0.0326], [70, 291, 0.0317], [70, 346, 0.0275], [70, 352, 0.0317], [70, 357, 0.0273], [71, 74, 0.0303], [71, 108, 0.0353], [71, 114, 0.0277], [71, 118, 0.0292], [71, 124, 0.033], [71, 141, 0.0346], [71, 187, 0.0434], [71, 190, 0.028], [71, 247, 0.0343], [71, 349, 0.0341], [72, 126, 0.0348], [72, 143, 0.0282], [72, 198, 0.0294], [72, 262, 0.0343], [72, 272, 0.0352], [72, 279, 0.0346], [72, 305, 0.0324], [72, 322, 0.0346], [73, 114, 0.0497], [73, 128, 0.0389], [73, 132, 0.0299], [73, 133, 0.0297], [73, 144, 0.0293], [73, 172, 0.0276], [73, 199, 0.0283], [73, 207, 0.0441], [73, 208, 0.0285], [73, 245, 0.0378], [73, 272, 0.0287], [73, 282, 0.0323], [73, 338, 0.0344], [73, 362, 0.028], [74, 84, 0.0297], [74, 103, 0.0297], [74, 180, 0.0376], [74, 261, 0.0292], [74, 272, 0.0302], [74, 287, 0.0281], [74, 288, 0.0284], [74, 294, 0.0317], [74, 333, 0.033], [75, 81, 0.0299], [75, 102, 0.0321], [75, 136, 0.0375], [75, 193, 0.0306], [75, 208, 0.0283], [75, 247, 0.0276], [75, 302, 0.0369], [75, 339, 0.0307], [75, 346, 0.028], [75, 358, 0.0286], [75, 366, 0.0272], [75, 379, 0.0298], [76, 90, 0.0294], [76, 92, 0.035], [76, 141, 0.0319], [76, 153, 0.0307], [76, 267, 0.0378], [76, 289, 0.0468], [76, 313, 0.0449], [76, 325, 0.0355], [76, 332, 0.0377], [76, 341, 0.0285], [76, 345, 0.0328], [77, 115, 0.0276], [77, 127, 0.0375], [77, 133, 0.0322], [77, 177, 0.028], [77, 261, 0.0324], [77, 276, 0.0274], [77, 381, 0.0301], [78, 93, 0.0337], [78, 180, 0.0388], [78, 191, 0.0326], [78, 213, 0.0291], [78, 256, 0.0296], [78, 268, 0.0274], [78, 283, 0.0272], [78, 286, 0.0299], [78, 300, 0.0276], [78, 321, 0.0331], [78, 342, 0.0322], [79, 116, 0.0277], [79, 121, 0.0369], [79, 139, 0.0295], [79, 142, 0.0284], [79, 171, 0.0281], [79, 173, 0.0339], [79, 177, 0.0412], [79, 191, 0.0352], [79, 207, 0.0302], [79, 221, 0.0276], [79, 282, 0.0273], [79, 291, 0.034], [79, 296, 0.0303], [79, 349, 0.037], [79, 352, 0.0323], [79, 357, 0.0287], [80, 136, 0.0375], [80, 153, 0.0303], [80, 164, 0.0405], [80, 206, 0.0403], [80, 259, 0.0283], [80, 265, 0.0352], [80, 283, 0.0276], [80, 293, 0.0315], [80, 362, 0.0275], [80, 366, 0.029], [81, 82, 0.0296], [81, 156, 0.0359], [81, 169, 0.0334], [81, 183, 0.0322], [81, 266, 0.0306], [81, 300, 0.0391], [81, 343, 0.0347], [82, 86, 0.0282], [82, 155, 0.0285], [82, 163, 0.0288], [82, 233, 0.0311], [82, 239, 0.0289], [82, 298, 0.0344], [82, 321, 0.0293], [82, 323, 0.0298], [83, 90, 0.0339], [83, 116, 0.0275], [83, 194, 0.028], [83, 223, 0.0325], [83, 297, 0.0311], [83, 309, 0.035], [83, 336, 0.0314], [83, 356, 0.0322], [83, 374, 0.0334], [84, 103, 0.0299], [84, 126, 0.0281], [84, 135, 0.0314], [84, 177, 0.037], [84, 200, 0.0286], [84, 215, 0.0288], [84, 300, 0.0316], [84, 349, 0.0292], [84, 362, 0.0299], [84, 375, 0.0284], [85, 113, 0.0343], [85, 164, 0.0283], [85, 203, 0.0367], [85, 287, 0.0343], [85, 294, 0.0351], [85, 368, 0.0328], [85, 376, 0.0293], [86, 109, 0.028], [86, 171, 0.03], [86, 173, 0.0283], [86, 179, 0.0272], [86, 182, 0.0293], [86, 285, 0.029], [86, 347, 0.0311], [87, 105, 0.0342], [87, 140, 0.0296], [87, 228, 0.0278], [87, 255, 0.0347], [87, 292, 0.0388], [87, 323, 0.0292], [87, 336, 0.028], [88, 96, 0.0297], [88, 101, 0.0273], [88, 106, 0.0282], [88, 114, 0.0326], [88, 158, 0.0333], [88, 209, 0.0284], [88, 217, 0.0297], [88, 232, 0.0279], [88, 265, 0.0299], [88, 293, 0.0355], [88, 305, 0.0372], [89, 104, 0.0302], [89, 165, 0.0417], [89, 175, 0.0418], [89, 194, 0.0279], [89, 203, 0.0324], [89, 221, 0.0388], [89, 222, 0.0396], [89, 240, 0.0289], [89, 286, 0.0295], [89, 297, 0.0275], [89, 330, 0.0314], [89, 340, 0.0297], [90, 124, 0.0372], [90, 154, 0.0284], [90, 160, 0.0321], [90, 174, 0.0277], [90, 265, 0.0308], [90, 310, 0.0384], [90, 319, 0.0306], [90, 381, 0.033], [91, 150, 0.0275], [91, 157, 0.0353], [91, 179, 0.032], [91, 191, 0.0295], [91, 226, 0.0328], [91, 264, 0.0315], [91, 272, 0.0295], [91, 318, 0.0285], [91, 328, 0.0311], [91, 362, 0.0406], [91, 375, 0.0287], [92, 127, 0.0432], [92, 161, 0.0309], [92, 164, 0.0283], [92, 195, 0.0274], [92, 204, 0.0274], [92, 232, 0.0333], [92, 260, 0.0284], [92, 281, 0.031], [92, 289, 0.0313], [92, 319, 0.0413], [92, 359, 0.0274], [93, 117, 0.0308], [93, 194, 0.0282], [93, 231, 0.0272], [93, 250, 0.0274], [93, 353, 0.0287], [94, 134, 0.0274], [94, 206, 0.0306], [94, 231, 0.0286], [94, 283, 0.0321], [94, 297, 0.0302], [94, 370, 0.0279], [95, 137, 0.0323], [95, 152, 0.0344], [95, 186, 0.0276], [95, 251, 0.0294], [95, 272, 0.0313], [96, 124, 0.0308], [96, 174, 0.0301], [96, 204, 0.0298], [96, 216, 0.0297], [96, 225, 0.0278], [96, 231, 0.0281], [96, 303, 0.0369], [96, 353, 0.0333], [97, 107, 0.0284], [97, 123, 0.0289], [97, 146, 0.028], [97, 162, 0.0276], [97, 173, 0.0392], [97, 177, 0.028], [97, 191, 0.0312], [97, 200, 0.0299], [97, 217, 0.0374], [97, 221, 0.0341], [97, 264, 0.0279], [97, 282, 0.0277], [97, 330, 0.033], [97, 340, 0.0292], [97, 351, 0.0363], [98, 154, 0.0317], [98, 215, 0.0284], [98, 243, 0.0299], [98, 250, 0.0303], [98, 272, 0.0316], [98, 273, 0.0347], [99, 189, 0.041], [99, 295, 0.0361], [99, 300, 0.0319], [99, 316, 0.0306], [99, 336, 0.029], [99, 362, 0.0311], [99, 371, 0.0314], [99, 382, 0.0346], [100, 105, 0.0307], [100, 126, 0.0298], [100, 129, 0.0285], [100, 205, 0.0301], [100, 232, 0.0287], [100, 379, 0.0339], [100, 380, 0.0283], [101, 201, 0.0297], [101, 212, 0.0343], [101, 297, 0.0283], [101, 309, 0.0391], [101, 324, 0.0317], [101, 327, 0.0384], [101, 354, 0.0288], [101, 356, 0.0294], [102, 108, 0.0306], [102, 114, 0.0317], [102, 115, 0.0307], [102, 146, 0.0296], [102, 184, 0.0273], [102, 230, 0.0341], [102, 259, 0.0293], [102, 322, 0.0321], [102, 332, 0.0431], [103, 115, 0.0297], [103, 183, 0.0301], [103, 184, 0.0396], [103, 185, 0.0328], [103, 196, 0.0296], [103, 344, 0.0347], [103, 347, 0.0392], [103, 383, 0.035], [104, 120, 0.0298], [104, 145, 0.043], [104, 264, 0.031], [104, 288, 0.0356], [104, 321, 0.0276], [104, 327, 0.0279], [105, 207, 0.0329], [105, 218, 0.0286], [105, 247, 0.0284], [105, 305, 0.0289], [105, 319, 0.0279], [106, 119, 0.0317], [106, 147, 0.0422], [106, 174, 0.0341], [106, 194, 0.0358], [106, 237, 0.0329], [106, 248, 0.0284], [107, 164, 0.0288], [107, 183, 0.0318], [107, 307, 0.0278], [107, 343, 0.0301], [107, 379, 0.0281], [108, 115, 0.0296], [108, 158, 0.0281], [108, 164, 0.0346], [108, 168, 0.0307], [108, 232, 0.0278], [108, 273, 0.0328], [108, 342, 0.0306], [108, 368, 0.0302], [108, 371, 0.0275], [109, 114, 0.0324], [109, 141, 0.0299], [109, 183, 0.0342], [109, 209, 0.0302], [109, 210, 0.046], [109, 260, 0.0325], [109, 331, 0.0275], [109, 339, 0.0277], [110, 111, 0.0274], [110, 113, 0.0287], [110, 132, 0.0338], [110, 149, 0.0277], [110, 155, 0.0276], [110, 168, 0.0323], [110, 211, 0.0413], [110, 233, 0.0319], [110, 358, 0.0273], [111, 141, 0.0433], [111, 142, 0.0306], [111, 155, 0.0331], [111, 177, 0.0337], [111, 192, 0.0295], [111, 238, 0.0356], [111, 261, 0.0295], [111, 264, 0.0328], [111, 284, 0.0275], [111, 326, 0.0294], [111, 369, 0.0305], [112, 149, 0.0272], [112, 202, 0.0301], [112, 245, 0.0362], [112, 281, 0.0337], [112, 290, 0.0369], [112, 293, 0.0275], [112, 328, 0.0306], [112, 334, 0.0291], [112, 357, 0.0309], [112, 362, 0.0343], [112, 375, 0.0381], [112, 377, 0.0309], [112, 381, 0.0293], [113, 115, 0.0309], [113, 166, 0.0317], [113, 225, 0.0286], [113, 226, 0.0314], [113, 306, 0.0304], [113, 374, 0.0393], [113, 379, 0.0295], [114, 137, 0.0312], [114, 205, 0.0362], [114, 316, 0.03], [114, 366, 0.0286], [114, 370, 0.0341], [115, 117, 0.0292], [115, 188, 0.0302], [115, 212, 0.0307], [115, 263, 0.0336], [115, 317, 0.0286], [115, 318, 0.03], [116, 152, 0.0346], [116, 201, 0.031], [116, 210, 0.0297], [116, 235, 0.032], [116, 239, 0.0278], [116, 263, 0.0273], [116, 363, 0.0276], [117, 197, 0.0293], [117, 261, 0.0288], [117, 305, 0.0275], [117, 317, 0.029], [117, 342, 0.0312], [118, 145, 0.0275], [118, 190, 0.0284], [118, 283, 0.0301], [118, 293, 0.039], [118, 329, 0.0328], [118, 350, 0.0279], [119, 122, 0.0321], [119, 168, 0.0327], [119, 194, 0.0366], [119, 245, 0.0425], [119, 345, 0.0289], [119, 364, 0.0352], [120, 128, 0.0312], [120, 226, 0.033], [120, 234, 0.0275], [120, 246, 0.0437], [120, 257, 0.0351], [120, 270, 0.0317], [120, 307, 0.03], [120, 349, 0.0285], [120, 372, 0.0274], [121, 125, 0.0318], [121, 157, 0.0283], [121, 184, 0.0295], [121, 195, 0.0285], [121, 230, 0.0334], [121, 273, 0.0318], [121, 335, 0.0351], [121, 373, 0.03], [121, 375, 0.0296], [122, 184, 0.0305], [122, 189, 0.0283], [122, 199, 0.0272], [122, 254, 0.0282], [122, 270, 0.03], [122, 273, 0.0277], [122, 299, 0.0276], [122, 331, 0.0282], [123, 124, 0.0291], [123, 165, 0.0274], [123, 241, 0.0382], [123, 302, 0.0287], [123, 351, 0.0308], [123, 377, 0.0283], [124, 135, 0.0369], [124, 199, 0.0304], [124, 200, 0.0279], [124, 293, 0.0335], [124, 351, 0.0301], [125, 186, 0.0302], [125, 205, 0.0315], [125, 258, 0.037], [125, 274, 0.0338], [125, 319, 0.0299], [125, 362, 0.0337], [126, 128, 0.0416], [126, 170, 0.0294], [126, 191, 0.0293], [126, 254, 0.0301], [126, 293, 0.0305], [126, 359, 0.0375], [127, 152, 0.0447], [127, 162, 0.0335], [127, 170, 0.03], [127, 188, 0.0306], [127, 191, 0.0309], [127, 206, 0.0337], [127, 221, 0.0306], [127, 310, 0.0346], [127, 348, 0.0279], [128, 136, 0.0277], [128, 208, 0.0373], [128, 209, 0.0347], [128, 266, 0.0341], [128, 283, 0.0351], [128, 299, 0.0278], [128, 352, 0.0407], [128, 360, 0.0283], [128, 371, 0.0337], [129, 149, 0.0298], [129, 185, 0.038], [129, 235, 0.0368], [129, 254, 0.0336], [129, 281, 0.0325], [129, 283, 0.0289], [129, 290, 0.0371], [129, 345, 0.0289], [130, 154, 0.0278], [130, 157, 0.0284], [130, 180, 0.0409], [130, 261, 0.0351], [130, 334, 0.0273], [130, 338, 0.0289], [130, 357, 0.0289], [130, 371, 0.0347], [130, 376, 0.0277], [131, 203, 0.0277], [131, 268, 0.034], [131, 283, 0.0272], [131, 286, 0.0344], [131, 320, 0.0374], [131, 355, 0.0281], [131, 356, 0.0284], [132, 147, 0.0338], [132, 213, 0.0367], [132, 327, 0.0274], [132, 376, 0.031], [133, 218, 0.0349], [133, 275, 0.0272], [133, 286, 0.0308], [133, 332, 0.0281], [134, 214, 0.036], [134, 220, 0.0304], [134, 222, 0.0279], [134, 223, 0.0286], [134, 246, 0.0282], [134, 273, 0.0279], [134, 283, 0.0365], [134, 326, 0.0299], [134, 333, 0.037], [134, 340, 0.0282], [134, 343, 0.0282], [134, 358, 0.0339], [134, 375, 0.0427], [134, 379, 0.0308], [134, 381, 0.0273], [135, 190, 0.0279], [135, 222, 0.0304], [135, 246, 0.0429], [135, 259, 0.0282], [135, 279, 0.0311], [135, 297, 0.0295], [135, 314, 0.032], [135, 331, 0.0294], [135, 370, 0.0281], [136, 149, 0.0316], [136, 172, 0.0314], [136, 178, 0.0278], [136, 194, 0.0386], [136, 247, 0.0287], [136, 250, 0.0368], [136, 265, 0.0303], [136, 269, 0.0293], [136, 281, 0.0289], [136, 287, 0.0285], [136, 294, 0.0285], [136, 361, 0.0317], [137, 139, 0.0281], [137, 147, 0.03], [137, 152, 0.034], [137, 156, 0.036], [137, 160, 0.0298], [137, 166, 0.029], [137, 221, 0.0303], [137, 229, 0.044], [137, 235, 0.0348], [137, 272, 0.0295], [137, 361, 0.0285], [137, 364, 0.0278], [138, 168, 0.0274], [138, 195, 0.0348], [138, 250, 0.0285], [138, 323, 0.0288], [138, 364, 0.0396], [139, 150, 0.0281], [139, 271, 0.0295], [140, 170, 0.0391], [140, 199, 0.0317], [140, 205, 0.0291], [140, 224, 0.0293], [140, 229, 0.0279], [140, 248, 0.0325], [140, 331, 0.0335], [140, 349, 0.0292], [141, 159, 0.029], [141, 165, 0.0291], [141, 179, 0.0279], [141, 196, 0.0312], [141, 210, 0.029], [141, 254, 0.0324], [141, 270, 0.0321], [141, 278, 0.0331], [141, 298, 0.0302], [141, 311, 0.0286], [141, 324, 0.0302], [141, 326, 0.0273], [141, 362, 0.0375], [141, 374, 0.028], [141, 378, 0.0329], [142, 174, 0.0444], [142, 198, 0.0287], [142, 218, 0.0323], [142, 222, 0.0471], [142, 238, 0.033], [142, 246, 0.0313], [142, 274, 0.0344], [143, 150, 0.0356], [143, 190, 0.0357], [143, 202, 0.0308], [143, 234, 0.0304], [143, 258, 0.0274], [143, 274, 0.0356], [143, 278, 0.0399], [143, 302, 0.0311], [144, 148, 0.0312], [144, 210, 0.0288], [144, 216, 0.0365], [144, 218, 0.0297], [144, 257, 0.0421], [144, 324, 0.0314], [145, 149, 0.0307], [145, 178, 0.0288], [145, 227, 0.0382], [145, 242, 0.0278], [145, 288, 0.0307], [145, 302, 0.0283], [145, 376, 0.0288], [146, 221, 0.0299], [146, 236, 0.0301], [146, 254, 0.0327], [146, 317, 0.0292], [146, 373, 0.0302], [147, 151, 0.0279], [147, 227, 0.0301], [147, 255, 0.0306], [147, 305, 0.0289], [147, 349, 0.0358], [147, 350, 0.0427], [147, 353, 0.0292], [147, 372, 0.028], [147, 378, 0.0274], [147, 379, 0.031], [148, 152, 0.0318], [148, 165, 0.0381], [148, 181, 0.0302], [148, 255, 0.0275], [148, 291, 0.0281], [148, 322, 0.0288], [148, 356, 0.0391], [148, 365, 0.0317], [149, 205, 0.0319], [149, 220, 0.0356], [149, 330, 0.0275], [149, 343, 0.0284], [149, 347, 0.0291], [149, 357, 0.0285], [149, 371, 0.0314], [150, 175, 0.0358], [150, 187, 0.028], [150, 192, 0.0343], [150, 246, 0.0286], [150, 253, 0.0367], [150, 275, 0.0297], [150, 310, 0.0298], [150, 313, 0.0405], [150, 372, 0.0379], [151, 165, 0.036], [151, 217, 0.0274], [151, 246, 0.0288], [151, 278, 0.0346], [151, 307, 0.0291], [151, 311, 0.0302], [151, 337, 0.0396], [151, 345, 0.0297], [151, 359, 0.0328], [151, 376, 0.0305], [152, 171, 0.0317], [152, 208, 0.0283], [152, 230, 0.0289], [152, 249, 0.0305], [152, 269, 0.0332], [152, 274, 0.0309], [152, 293, 0.0289], [153, 178, 0.0278], [153, 215, 0.0366], [153, 277, 0.0281], [153, 297, 0.0286], [153, 330, 0.0273], [154, 187, 0.0324], [154, 199, 0.039], [154, 265, 0.0351], [154, 306, 0.0405], [154, 327, 0.041], [154, 353, 0.0306], [154, 374, 0.0282], [155, 156, 0.0339], [155, 158, 0.0289], [155, 245, 0.0336], [155, 288, 0.032], [155, 324, 0.0345], [155, 367, 0.0275], [156, 166, 0.03], [156, 167, 0.036], [156, 343, 0.0304], [156, 376, 0.0278], [156, 381, 0.0328], [157, 180, 0.0288], [157, 213, 0.0298], [157, 217, 0.0319], [157, 238, 0.0274], [157, 240, 0.0404], [157, 300, 0.0317], [157, 305, 0.0316], [157, 323, 0.0273], [157, 338, 0.034], [157, 352, 0.0279], [158, 190, 0.0291], [158, 330, 0.0331], [159, 160, 0.0289], [159, 162, 0.0326], [159, 176, 0.0383], [159, 191, 0.0278], [159, 193, 0.0345], [159, 231, 0.0308], [159, 269, 0.0309], [159, 281, 0.0323], [159, 290, 0.042], [159, 293, 0.037], [159, 298, 0.0303], [159, 301, 0.0377], [159, 305, 0.032], [159, 343, 0.0274], [160, 168, 0.0324], [160, 211, 0.0311], [160, 258, 0.0302], [160, 275, 0.0291], [160, 365, 0.0288], [161, 229, 0.0294], [161, 239, 0.0275], [161, 272, 0.0375], [161, 304, 0.0299], [161, 329, 0.028], [161, 369, 0.0291], [161, 371, 0.0273], [161, 378, 0.0329], [162, 205, 0.0293], [162, 209, 0.029], [162, 277, 0.0343], [162, 314, 0.0277], [162, 346, 0.03], [163, 207, 0.0275], [163, 212, 0.0288], [163, 250, 0.0322], [163, 310, 0.0386], [164, 282, 0.0292], [165, 210, 0.0337], [165, 236, 0.0293], [165, 331, 0.0331], [165, 363, 0.0447], [165, 366, 0.0301], [166, 169, 0.0344], [166, 208, 0.0338], [166, 211, 0.0328], [166, 217, 0.0348], [166, 261, 0.0282], [166, 305, 0.0362], [166, 333, 0.0453], [166, 350, 0.0305], [167, 172, 0.029], [167, 181, 0.0283], [167, 321, 0.0335], [167, 358, 0.0421], [168, 170, 0.0356], [168, 251, 0.0292], [168, 284, 0.028], [168, 286, 0.0301], [168, 330, 0.0346], [168, 340, 0.0282], [168, 372, 0.0277], [168, 374, 0.0316], [169, 296, 0.0402], [169, 352, 0.034], [170, 186, 0.0276], [170, 221, 0.0285], [170, 225, 0.0411], [170, 234, 0.0294], [170, 244, 0.0274], [170, 320, 0.0312], [170, 347, 0.0351], [171, 184, 0.0313], [171, 208, 0.0279], [171, 241, 0.031], [171, 329, 0.0284], [171, 343, 0.0291], [171, 361, 0.0305], [171, 368, 0.0295], [171, 375, 0.0322], [172, 305, 0.0299], [172, 322, 0.0272], [172, 375, 0.0311], [173, 186, 0.0324], [173, 264, 0.0285], [173, 272, 0.0319], [173, 273, 0.0336], [173, 313, 0.0302], [173, 351, 0.0387], [173, 367, 0.0374], [174, 213, 0.0308], [174, 238, 0.03], [174, 277, 0.0318], [174, 314, 0.036], [174, 332, 0.0483], [174, 371, 0.0398], [175, 191, 0.0279], [175, 204, 0.0354], [175, 207, 0.045], [175, 214, 0.0295], [175, 217, 0.0284], [175, 222, 0.033], [175, 282, 0.0276], [175, 309, 0.0275], [175, 313, 0.034], [176, 194, 0.0288], [176, 198, 0.0306], [176, 199, 0.0409], [176, 207, 0.0294], [176, 231, 0.0291], [176, 265, 0.0301], [176, 283, 0.0293], [176, 307, 0.0273], [176, 336, 0.0303], [176, 367, 0.0283], [177, 295, 0.0319], [177, 317, 0.0284], [177, 336, 0.0309], [177, 344, 0.0348], [177, 359, 0.029], [178, 203, 0.0337], [178, 224, 0.0287], [178, 234, 0.0278], [178, 298, 0.0349], [178, 382, 0.0275], [179, 216, 0.0345], [179, 217, 0.0284], [179, 230, 0.028], [179, 232, 0.0298], [179, 235, 0.0437], [179, 238, 0.0293], [179, 261, 0.0368], [179, 266, 0.035], [179, 315, 0.028], [179, 357, 0.0288], [179, 364, 0.0273], [179, 375, 0.0294], [180, 201, 0.0326], [180, 226, 0.0272], [180, 233, 0.0278], [180, 236, 0.031], [180, 281, 0.0293], [180, 284, 0.0476], [180, 350, 0.0281], [180, 383, 0.0297], [181, 201, 0.0296], [181, 227, 0.0287], [181, 304, 0.028], [181, 307, 0.0304], [181, 336, 0.0285], [181, 351, 0.0275], [182, 188, 0.0397], [182, 189, 0.0347], [182, 197, 0.0333], [182, 268, 0.0287], [182, 269, 0.0275], [182, 274, 0.0279], [182, 279, 0.0374], [182, 287, 0.0301], [182, 314, 0.0307], [183, 187, 0.0358], [183, 195, 0.0374], [183, 213, 0.0319], [183, 257, 0.0318], [183, 277, 0.0463], [183, 285, 0.0281], [183, 332, 0.0357], [183, 337, 0.0285], [183, 369, 0.0359], [184, 231, 0.0312], [184, 248, 0.0302], [184, 295, 0.0372], [184, 354, 0.0291], [185, 212, 0.0338], [185, 312, 0.0304], [185, 356, 0.0308], [185, 368, 0.0288], [185, 381, 0.0475], [186, 219, 0.0282], [186, 227, 0.0432], [186, 286, 0.0273], [186, 332, 0.0333], [186, 367, 0.0398], [187, 201, 0.0309], [187, 242, 0.0385], [187, 320, 0.036], [187, 321, 0.034], [187, 329, 0.0293], [187, 383, 0.0303], [188, 217, 0.0349], [188, 224, 0.0432], [188, 242, 0.0328], [188, 258, 0.0312], [188, 329, 0.0353], [188, 333, 0.0294], [188, 341, 0.0313], [189, 246, 0.036], [189, 279, 0.0397], [189, 291, 0.0285], [189, 297, 0.0298], [189, 313, 0.0305], [189, 336, 0.0327], [190, 207, 0.0306], [190, 212, 0.0297], [190, 219, 0.0302], [190, 220, 0.0287], [190, 252, 0.0301], [190, 268, 0.0324], [190, 273, 0.0352], [190, 338, 0.0336], [190, 345, 0.0354], [190, 355, 0.028], [191, 209, 0.0362], [191, 243, 0.0294], [191, 244, 0.0286], [191, 248, 0.032], [191, 267, 0.0275], [191, 290, 0.0288], [191, 319, 0.029], [191, 329, 0.0331], [191, 337, 0.0281], [192, 204, 0.0274], [192, 222, 0.0309], [192, 288, 0.0273], [192, 338, 0.0282], [192, 342, 0.0321], [192, 376, 0.0388], [193, 204, 0.0347], [193, 210, 0.0309], [193, 222, 0.0319], [193, 243, 0.029], [193, 287, 0.0342], [193, 297, 0.0342], [193, 336, 0.034], [194, 274, 0.0284], [194, 281, 0.031], [194, 312, 0.0303], [194, 358, 0.0319], [194, 373, 0.0272], [194, 378, 0.0313], [195, 203, 0.0289], [195, 294, 0.0286], [195, 300, 0.0334], [195, 322, 0.0329], [195, 380, 0.0277], [196, 213, 0.0332], [196, 286, 0.0311], [196, 300, 0.041], [196, 360, 0.0295], [196, 383, 0.034], [197, 278, 0.0305], [197, 294, 0.0311], [197, 336, 0.0317], [197, 372, 0.0312], [198, 201, 0.0491], [198, 228, 0.0301], [198, 243, 0.0285], [198, 321, 0.0274], [198, 363, 0.031], [199, 204, 0.0298], [199, 281, 0.0317], [199, 337, 0.0319], [199, 365, 0.0366], [200, 218, 0.0289], [200, 220, 0.0303], [200, 254, 0.0394], [200, 256, 0.0376], [200, 266, 0.0294], [200, 281, 0.0289], [200, 303, 0.0316], [200, 306, 0.0278], [200, 330, 0.0305], [201, 218, 0.0332], [201, 260, 0.0331], [201, 263, 0.0278], [201, 272, 0.0307], [201, 290, 0.0319], [201, 338, 0.0319], [201, 342, 0.0288], [201, 347, 0.0296], [201, 359, 0.0341], [202, 219, 0.0302], [202, 311, 0.028], [202, 320, 0.0283], [202, 329, 0.0314], [203, 230, 0.0296], [203, 247, 0.0298], [203, 258, 0.0283], [203, 275, 0.0274], [203, 301, 0.0306], [203, 309, 0.0315], [204, 273, 0.0272], [205, 238, 0.0295], [205, 258, 0.0369], [205, 261, 0.0298], [205, 280, 0.0282], [205, 285, 0.0313], [206, 213, 0.0346], [206, 215, 0.0282], [206, 256, 0.0279], [206, 269, 0.0285], [206, 362, 0.0328], [207, 259, 0.0293], [207, 345, 0.0332], [208, 295, 0.0275], [208, 309, 0.0277], [208, 331, 0.0342], [208, 349, 0.0337], [208, 367, 0.058], [208, 381, 0.031], [209, 220, 0.0291], [209, 259, 0.0325], [209, 275, 0.0331], [209, 351, 0.031], [210, 212, 0.0275], [210, 216, 0.0379], [210, 222, 0.0363], [210, 260, 0.0354], [210, 283, 0.0355], [210, 308, 0.0296], [211, 236, 0.0315], [211, 245, 0.0303], [211, 258, 0.0275], [211, 274, 0.0341], [211, 275, 0.0282], [211, 280, 0.0278], [211, 281, 0.0272], [211, 316, 0.0421], [211, 326, 0.0331], [211, 357, 0.0276], [211, 363, 0.0306], [212, 216, 0.0278], [212, 226, 0.0272], [212, 276, 0.0292], [212, 304, 0.0316], [212, 365, 0.0376], [213, 229, 0.0273], [213, 233, 0.0279], [213, 234, 0.0331], [213, 277, 0.0362], [213, 309, 0.0286], [213, 339, 0.0299], [214, 232, 0.0291], [214, 250, 0.0344], [214, 288, 0.0274], [214, 333, 0.0357], [214, 335, 0.032], [214, 349, 0.0339], [214, 353, 0.0335], [214, 364, 0.0345], [215, 226, 0.0275], [215, 269, 0.0353], [215, 282, 0.0301], [215, 314, 0.0366], [215, 329, 0.0301], [215, 355, 0.0374], [216, 280, 0.0314], [216, 296, 0.0314], [216, 304, 0.0323], [216, 309, 0.0395], [216, 315, 0.0273], [216, 361, 0.0337], [217, 220, 0.0285], [217, 229, 0.0312], [217, 238, 0.0299], [217, 330, 0.0312], [217, 365, 0.0396], [217, 373, 0.0317], [217, 375, 0.0356], [218, 279, 0.0291], [218, 308, 0.0331], [219, 319, 0.0297], [219, 334, 0.0335], [219, 349, 0.0307], [219, 358, 0.0281], [220, 221, 0.0287], [220, 339, 0.0295], [220, 370, 0.0325], [221, 304, 0.0315], [221, 321, 0.0312], [221, 383, 0.031], [222, 237, 0.0273], [222, 248, 0.0273], [222, 255, 0.0286], [222, 263, 0.0314], [222, 328, 0.0335], [222, 354, 0.0295], [222, 374, 0.0324], [223, 224, 0.0341], [223, 225, 0.0295], [223, 250, 0.0319], [223, 319, 0.0333], [223, 379, 0.0299], [224, 248, 0.0291], [224, 264, 0.0339], [224, 315, 0.0305], [224, 329, 0.0321], [225, 269, 0.0405], [225, 303, 0.0279], [225, 313, 0.0287], [225, 347, 0.0398], [226, 228, 0.0292], [226, 257, 0.0275], [226, 312, 0.0288], [226, 335, 0.0304], [226, 359, 0.0399], [226, 379, 0.0304], [227, 277, 0.0299], [227, 310, 0.0313], [228, 319, 0.0287], [228, 330, 0.0325], [228, 379, 0.0276], [229, 246, 0.0285], [229, 262, 0.0283], [229, 274, 0.0371], [229, 297, 0.0337], [229, 302, 0.0281], [229, 320, 0.0287], [229, 376, 0.0276], [230, 253, 0.0364], [230, 336, 0.0322], [230, 375, 0.0349], [231, 267, 0.028], [231, 282, 0.0371], [231, 283, 0.0353], [231, 321, 0.0333], [232, 265, 0.0313], [232, 318, 0.0307], [232, 324, 0.03], [232, 357, 0.0359], [233, 243, 0.0312], [233, 258, 0.0276], [233, 264, 0.0301], [233, 297, 0.0417], [233, 307, 0.0279], [233, 325, 0.0277], [233, 342, 0.0329], [233, 347, 0.0306], [233, 361, 0.0316], [234, 236, 0.0427], [234, 258, 0.0324], [234, 358, 0.0346], [235, 253, 0.0329], [235, 288, 0.0369], [235, 349, 0.029], [236, 241, 0.0277], [236, 328, 0.0294], [236, 342, 0.0313], [236, 359, 0.0307], [236, 362, 0.0274], [236, 375, 0.0297], [237, 265, 0.0319], [237, 283, 0.0285], [237, 361, 0.0296], [238, 276, 0.0307], [238, 282, 0.0305], [238, 346, 0.0325], [238, 376, 0.031], [239, 272, 0.0341], [239, 293, 0.0283], [239, 308, 0.0419], [239, 326, 0.035], [239, 348, 0.0287], [239, 373, 0.0309], [239, 380, 0.033], [240, 258, 0.0321], [240, 271, 0.0332], [240, 278, 0.0291], [240, 334, 0.0308], [241, 260, 0.0287], [241, 275, 0.031], [241, 358, 0.0373], [241, 361, 0.0356], [241, 375, 0.0402], [242, 244, 0.0314], [242, 350, 0.0275], [242, 376, 0.0317], [243, 313, 0.0365], [243, 328, 0.0307], [243, 343, 0.028], [243, 358, 0.0332], [243, 362, 0.0395], [243, 378, 0.0379], [245, 269, 0.0276], [245, 325, 0.0295], [245, 374, 0.0316], [245, 383, 0.0293], [246, 249, 0.0321], [246, 256, 0.0313], [246, 324, 0.0299], [246, 337, 0.0328], [246, 377, 0.0337], [247, 250, 0.0287], [247, 258, 0.035], [247, 269, 0.0341], [247, 282, 0.0336], [247, 290, 0.0304], [247, 340, 0.0298], [247, 352, 0.0292], [247, 356, 0.0324], [247, 363, 0.0286], [247, 371, 0.0368], [247, 381, 0.0312], [248, 258, 0.035], [248, 296, 0.0395], [248, 310, 0.0323], [248, 325, 0.0279], [249, 265, 0.0304], [249, 287, 0.0274], [249, 374, 0.0301], [249, 375, 0.032], [250, 265, 0.0389], [251, 264, 0.0296], [251, 339, 0.0294], [251, 371, 0.0296], [252, 266, 0.0308], [252, 291, 0.0279], [252, 337, 0.0308], [253, 296, 0.037], [253, 381, 0.0291], [254, 261, 0.0435], [254, 318, 0.0326], [254, 326, 0.0342], [254, 327, 0.0294], [255, 353, 0.0296], [256, 275, 0.031], [256, 289, 0.0301], [256, 298, 0.0351], [256, 304, 0.0351], [256, 306, 0.0293], [256, 349, 0.0337], [257, 290, 0.0295], [257, 295, 0.0297], [257, 298, 0.0283], [257, 323, 0.0303], [257, 327, 0.0276], [257, 342, 0.0299], [257, 377, 0.035], [258, 278, 0.0297], [258, 317, 0.0303], [258, 340, 0.0272], [258, 347, 0.0282], [258, 381, 0.0359], [259, 267, 0.0419], [259, 328, 0.0286], [259, 335, 0.0285], [259, 343, 0.0277], [260, 303, 0.0328], [260, 352, 0.0278], [260, 358, 0.0277], [260, 366, 0.028], [261, 273, 0.0399], [261, 291, 0.0353], [261, 305, 0.0305], [261, 315, 0.0342], [261, 328, 0.0293], [261, 370, 0.0286], [261, 374, 0.03], [261, 377, 0.0273], [262, 268, 0.0279], [262, 288, 0.033], [262, 307, 0.0292], [262, 329, 0.0277], [262, 343, 0.0371], [262, 345, 0.0319], [262, 368, 0.0388], [262, 374, 0.0384], [262, 380, 0.0281], [263, 277, 0.0281], [263, 361, 0.0284], [264, 321, 0.0305], [264, 358, 0.0381], [265, 290, 0.0283], [265, 294, 0.0452], [265, 304, 0.029], [265, 306, 0.0277], [265, 307, 0.0284], [265, 354, 0.0332], [265, 364, 0.0354], [266, 284, 0.0324], [266, 308, 0.0279], [266, 344, 0.0312], [267, 279, 0.029], [267, 295, 0.0319], [267, 297, 0.0307], [267, 303, 0.0282], [267, 322, 0.0278], [267, 332, 0.03], [269, 277, 0.0298], [269, 285, 0.0339], [269, 290, 0.0301], [269, 317, 0.0276], [269, 360, 0.0277], [270, 362, 0.0276], [271, 277, 0.0314], [271, 282, 0.0349], [271, 361, 0.0343], [271, 377, 0.0274], [271, 381, 0.0351], [272, 284, 0.0286], [272, 299, 0.0375], [273, 299, 0.0287], [273, 306, 0.0356], [273, 328, 0.0305], [273, 339, 0.0324], [273, 342, 0.0303], [273, 353, 0.0288], [273, 357, 0.0293], [273, 370, 0.0318], [274, 305, 0.0367], [274, 317, 0.0277], [274, 328, 0.0283], [274, 342, 0.0301], [275, 278, 0.0397], [275, 289, 0.0284], [275, 290, 0.028], [275, 299, 0.0314], [275, 308, 0.0303], [275, 319, 0.0358], [275, 326, 0.0287], [275, 361, 0.0304], [277, 336, 0.0288], [277, 379, 0.0282], [278, 360, 0.0315], [278, 361, 0.0278], [278, 363, 0.0287], [278, 374, 0.0315], [278, 381, 0.0439], [280, 314, 0.0327], [280, 349, 0.0291], [281, 288, 0.032], [281, 308, 0.0302], [281, 337, 0.0276], [281, 361, 0.0336], [281, 366, 0.0309], [282, 331, 0.035], [283, 284, 0.0288], [283, 287, 0.0381], [283, 345, 0.0331], [283, 368, 0.029], [283, 379, 0.0323], [284, 305, 0.0293], [284, 348, 0.0376], [284, 354, 0.0344], [285, 294, 0.0289], [285, 313, 0.0308], [285, 354, 0.0305], [285, 361, 0.0395], [285, 371, 0.0277], [286, 288, 0.028], [286, 326, 0.0287], [286, 336, 0.0274], [287, 295, 0.0282], [287, 296, 0.0283], [287, 301, 0.0315], [287, 304, 0.0281], [287, 321, 0.031], [287, 343, 0.042], [287, 349, 0.0304], [288, 301, 0.0273], [288, 328, 0.0318], [288, 334, 0.0332], [288, 379, 0.0319], [289, 297, 0.0333], [289, 342, 0.0285], [289, 362, 0.0297], [289, 368, 0.0325], [289, 374, 0.0278], [289, 379, 0.0295], [290, 307, 0.0288], [290, 312, 0.0293], [291, 346, 0.0277], [291, 356, 0.0273], [292, 303, 0.0273], [292, 372, 0.0367], [293, 313, 0.0273], [293, 337, 0.0284], [293, 352, 0.0303], [294, 380, 0.0321], [295, 337, 0.028], [295, 361, 0.0417], [295, 372, 0.0277], [296, 345, 0.028], [298, 344, 0.0349], [298, 350, 0.0325], [299, 331, 0.029], [300, 308, 0.0285], [300, 313, 0.032], [300, 379, 0.028], [301, 357, 0.0273], [301, 365, 0.0308], [301, 368, 0.0513], [302, 382, 0.0407], [304, 343, 0.0287], [304, 349, 0.0283], [304, 355, 0.0284], [305, 306, 0.0286], [305, 358, 0.0364], [307, 323, 0.0273], [308, 323, 0.0307], [308, 326, 0.037], [308, 341, 0.0349], [309, 314, 0.0283], [309, 369, 0.0289], [310, 348, 0.0304], [310, 350, 0.0317], [310, 376, 0.0342], [311, 342, 0.0281], [312, 358, 0.0299], [312, 361, 0.0312], [313, 315, 0.0283], [313, 327, 0.0279], [314, 324, 0.028], [314, 371, 0.0302], [315, 318, 0.0278], [315, 321, 0.0454], [315, 328, 0.0274], [315, 332, 0.0295], [315, 379, 0.0331], [316, 330, 0.0309], [316, 332, 0.039], [316, 333, 0.0469], [316, 336, 0.0309], [316, 375, 0.0326], [317, 322, 0.0292], [317, 342, 0.0302], [318, 370, 0.037], [320, 353, 0.0315], [320, 362, 0.0323], [320, 367, 0.0283], [320, 369, 0.0293], [321, 327, 0.0282], [321, 339, 0.0278], [321, 352, 0.0344], [321, 369, 0.0374], [322, 371, 0.0274], [323, 340, 0.0282], [323, 363, 0.0281], [323, 366, 0.0284], [323, 378, 0.0299], [324, 344, 0.0291], [325, 348, 0.0297], [325, 361, 0.0273], [327, 330, 0.0327], [327, 369, 0.0275], [327, 381, 0.0279], [327, 382, 0.0273], [328, 345, 0.0421], [328, 359, 0.0339], [329, 333, 0.0337], [329, 339, 0.0281], [330, 348, 0.0291], [330, 354, 0.0285], [330, 363, 0.0283], [330, 372, 0.0459], [331, 355, 0.0275], [331, 362, 0.0289], [332, 333, 0.0314], [332, 338, 0.0448], [332, 343, 0.0273], [333, 340, 0.0342], [333, 359, 0.0294], [334, 381, 0.0287], [335, 347, 0.0274], [335, 381, 0.0275], [336, 339, 0.0302], [336, 348, 0.028], [336, 371, 0.03], [336, 377, 0.0328], [337, 354, 0.0368], [337, 375, 0.0396], [337, 376, 0.0272], [337, 380, 0.031], [338, 353, 0.0303], [340, 375, 0.0329], [342, 347, 0.032], [343, 345, 0.0375], [343, 363, 0.0274], [346, 357, 0.0274], [347, 349, 0.0273], [347, 352, 0.0281], [348, 376, 0.0308], [349, 355, 0.0328], [354, 381, 0.0392], [355, 357, 0.0275], [355, 359, 0.0282], [355, 364, 0.0282], [358, 381, 0.0288], [359, 370, 0.0345], [360, 369, 0.0314], [362, 366, 0.0333], [363, 383, 0.0322], [364, 365, 0.0333], [366, 375, 0.033], [368, 381, 0.0299], [374, 383, 0.0405], [376, 379, 0.0276], [377, 382, 0.028], [378, 383, 0.0295]]};
+
   let scene, camera, renderer, controls;
-  const nodeCount = 384;
+  let nodeCount;
   let nodePositions = [];
   let nodeMesh, lineMesh;
   let nodeColors, nodeBaseColors;
   let lineColors, lineBaseColors;
-  let graphNeighbors = Array.from({ length: nodeCount }, () => []);
-  let isCoreHub = new Uint8Array(nodeCount);
+  let graphNeighbors = [];
+  let isCoreHub = [];
 
   const canvas = document.getElementById("webgl-canvas");
   const firingLed = document.getElementById("firing-led");
@@ -372,14 +134,15 @@
   const tokSecEl = document.getElementById("tok-sec");
 
   function initCosmos() {
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
+    const parent = canvas.parentElement;
+    const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : window.innerWidth * 0.6;
+    const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : window.innerHeight;
 
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x020204, 0.0035);
+    scene.fog = new THREE.FogExp2(0x000000, 0.0035);
 
-    camera = new THREE.PerspectiveCamera(52, w / h, 0.1, 1000);
-    camera.position.set(0, 20, 95);
+    camera = new THREE.PerspectiveCamera(52, w / Math.max(h, 1), 0.1, 1000);
+    camera.position.set(0, 30, 110);
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setSize(w, h);
@@ -389,9 +152,9 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.45;
+    controls.autoRotateSpeed = 0.5;
 
-    buildUnifiedCosmicWeb();
+    buildRealCosmicWeb();
     createDeepStarfield();
 
     window.addEventListener('resize', onWindowResize);
@@ -404,74 +167,57 @@
     const ctx = cv.getContext('2d');
     const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    grad.addColorStop(0.2, 'rgba(255, 200, 50, 0.9)');
-    grad.addColorStop(0.6, 'rgba(0, 240, 255, 0.3)');
+    grad.addColorStop(0.2, 'rgba(255, 183, 3, 0.95)');
+    grad.addColorStop(0.6, 'rgba(255, 0, 119, 0.4)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(cv);
   }
 
-  // RESTAURACIÓN DE LA FORMA GLOBAL UNIFICADA CON NÚCLEO DORADO
-  function buildUnifiedCosmicWeb() {
+  function buildRealCosmicWeb() {
+    const nodes = REAL_GRAPH_DATA.nodes;
+    const edges = REAL_GRAPH_DATA.edges;
+
+    nodeCount = nodes.length;
+    graphNeighbors = Array.from({ length: nodeCount }, () => []);
+    isCoreHub = new Uint8Array(nodeCount);
+
     const pGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(nodeCount * 3);
     nodeColors = new Float32Array(nodeCount * 3);
     nodeBaseColors = new Float32Array(nodeCount * 3);
 
     for (let i = 0; i < nodeCount; i++) {
-      let r, theta, phi;
-      const isHub = (i < 42); // 42 neuronas supermasivas en el núcleo gravitacional
-      isCoreHub[i] = isHub ? 1 : 0;
+      const n = nodes[i];
+      nodePositions.push(new THREE.Vector3(n.x, n.y, n.z));
+      positions[i * 3] = n.x;
+      positions[i * 3 + 1] = n.y;
+      positions[i * 3 + 2] = n.z;
 
-      if (isHub) {
-        // Núcleo denso central brillante
-        r = Math.pow(Math.random(), 2) * 14.0;
-      } else {
-        // Envoltorio elipsoidal cósmico continuo (sin fragmentar en islas)
-        r = 12.0 + Math.random() * 38.0;
-      }
+      isCoreHub[i] = n.is_hub ? 1 : 0;
 
-      theta = Math.random() * Math.PI * 2;
-      phi = (Math.random() - 0.5) * Math.PI * 0.88;
-
-      const x = r * Math.cos(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * 0.55; // Disco aplanado galáctico
-      const z = r * Math.cos(phi) * Math.sin(theta);
-
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-      nodePositions.push(new THREE.Vector3(x, y, z));
-
-      // COLOR BASE: NÚCLEO DORADO INTENSO Y PERIFERIA VIOLETA/CIAN
+      // PALETA MAGMA PARA REPOSO
       let baseR, baseG, baseB;
-      if (isHub) {
-        // Oro / Ámbar cósmico incandescente en el centro
-        baseR = 1.0;
-        baseG = 0.72;
-        baseB = 0.12;
+      if (n.is_hub) {
+        // Oro brillante central
+        baseR = 1.0; baseG = 0.8; baseB = 0.1;
       } else {
-        // Periferia en elegante tono violeta/azul tenue
-        baseR = 0.18 + Math.random() * 0.12;
-        baseG = 0.12 + Math.random() * 0.15;
-        baseB = 0.55 + Math.random() * 0.25;
+        // Magenta / Carmesí profundo
+        baseR = 0.6 + (n.deg / 30.0) * 0.4;
+        baseG = 0.1 + (n.deg / 30.0) * 0.2;
+        baseB = 0.4 - (n.deg / 30.0) * 0.2;
       }
 
-      nodeColors[i * 3] = baseR;
-      nodeColors[i * 3 + 1] = baseG;
-      nodeColors[i * 3 + 2] = baseB;
-
-      nodeBaseColors[i * 3] = baseR;
-      nodeBaseColors[i * 3 + 1] = baseG;
-      nodeBaseColors[i * 3 + 2] = baseB;
+      nodeColors[i * 3] = baseR; nodeColors[i * 3 + 1] = baseG; nodeColors[i * 3 + 2] = baseB;
+      nodeBaseColors[i * 3] = baseR; nodeBaseColors[i * 3 + 1] = baseG; nodeBaseColors[i * 3 + 2] = baseB;
     }
 
     pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     pGeo.setAttribute('color', new THREE.BufferAttribute(nodeColors, 3));
 
     const pMat = new THREE.PointsMaterial({
-      size: 4.6,
+      size: 4.0,
       map: createSoftGlowTexture(),
       vertexColors: true,
       transparent: true,
@@ -481,37 +227,28 @@
     nodeMesh = new THREE.Points(pGeo, pMat);
     scene.add(nodeMesh);
 
-    // FILAMENTOS SINÁPTICOS UNIFICADOS (TODA LA RED CONECTADA)
+    // DIBUJAR LOS FILAMENTOS REALES
     const linePositions = [];
     const lineColorsList = [];
-    let edgeCounter = 0;
 
-    for (let i = 0; i < nodeCount; i++) {
-      let connections = 0;
-      for (let j = i + 1; j < nodeCount; j++) {
-        const dist = nodePositions[i].distanceTo(nodePositions[j]);
-        // Mayor densidad de conexiones hacia el núcleo
-        const maxDist = (isCoreHub[i] || isCoreHub[j]) ? 16.0 : 13.5;
+    for (let eIdx = 0; eIdx < edges.length; eIdx++) {
+      const edge = edges[eIdx];
+      const i = edge[0];
+      const j = edge[1];
+      
+      linePositions.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
+      linePositions.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
 
-        if (dist < maxDist && connections < 5) {
-          linePositions.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
-          linePositions.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
+      const isHubEdge = (isCoreHub[i] || isCoreHub[j]);
+      const rBase = isHubEdge ? 0.7 : 0.4;
+      const gBase = isHubEdge ? 0.2 : 0.05;
+      const bBase = isHubEdge ? 0.3 : 0.2;
 
-          // Color en reposo: visible tenuemente para apreciar la estructura global
-          const rBase = (isCoreHub[i] && isCoreHub[j]) ? 0.25 : 0.06;
-          const gBase = (isCoreHub[i] && isCoreHub[j]) ? 0.18 : 0.03;
-          const bBase = (isCoreHub[i] && isCoreHub[j]) ? 0.04 : 0.22;
+      lineColorsList.push(rBase, gBase, bBase);
+      lineColorsList.push(rBase, gBase, bBase);
 
-          lineColorsList.push(rBase, gBase, bBase);
-          lineColorsList.push(rBase, gBase, bBase);
-
-          graphNeighbors[i].push({ neighbor: j, edgeIdx: edgeCounter });
-          graphNeighbors[j].push({ neighbor: i, edgeIdx: edgeCounter });
-
-          edgeCounter++;
-          connections++;
-        }
-      }
+      graphNeighbors[i].push({ neighbor: j, edgeIdx: eIdx });
+      graphNeighbors[j].push({ neighbor: i, edgeIdx: eIdx });
     }
 
     const lGeo = new THREE.BufferGeometry();
@@ -523,7 +260,7 @@
     const lMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.45,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -541,33 +278,12 @@
     scene.add(new THREE.Points(geo, mat));
   }
 
-  // DISPARO SINÁPTICO DIRIGIDO: Nace en el núcleo dorado y viaja a un sector de la red
   function triggerLocalPathway(token) {
+    if (!firingLed) return;
     firingLed.classList.add("firing");
     const t = token.toLowerCase();
 
-    // Determinar cuadrante angular del sector estimulado
-    let sectorAngle = 0.0;
-    let channelName = "Control Estructural";
-
-    if (t.includes("def") || t.includes("return") || t.includes(":")) {
-      channelName = "Núcleo Gravitacional";
-      sectorAngle = null; // Focalizado puramente en el núcleo dorado
-    } else if (t.includes("list") || t.includes("dict") || t.includes("queue") || t.includes("memo") || t.includes("stack") || t.includes("pop")) {
-      channelName = "Canal de Estructuras";
-      sectorAngle = 0.8; // Sector noreste
-    } else if (t.includes("while") || t.includes("if") || t.includes("for") || t.includes("not")) {
-      channelName = "Canal de Flujo Lógico";
-      sectorAngle = 2.4; // Sector noroeste
-    } else if (t.includes("+") || t.includes("-") || t.includes("<") || t.includes(">") || t.includes("mid") || t.includes("left")) {
-      channelName = "Canal Aritmético";
-      sectorAngle = 4.2; // Sector sur
-    } else {
-      let hash = 0;
-      for (let i = 0; i < token.length; i++) hash = (hash << 5) - hash + token.charCodeAt(i);
-      sectorAngle = (Math.abs(hash) % 100) / 100.0 * Math.PI * 2;
-    }
-
+    let channelName = "Transmisión Causal";
     circuitStatus.innerText = "Interferencia de Fase";
     circuitStatus.style.color = "#00f0ff";
     firingChannelEl.innerText = channelName;
@@ -575,62 +291,46 @@
     const nodeColorAttr = nodeMesh.geometry.attributes.color;
     const lineColorAttr = lineMesh.geometry.attributes.color;
 
-    // 1. Siempre participa al menos 1 o 2 neuronas del núcleo dorado
+    // Encender algunas neuronas conectadas
     const activeNodes = [];
-    const coreHubIndex = Math.floor(Math.random() * 42);
+    const coreHubIndex = Math.floor(Math.random() * 20); 
     activeNodes.push(coreHubIndex);
 
-    // 2. Si hay sector angular específico, seleccionar neuronas de ese filamento
-    if (sectorAngle !== null) {
-      for (let i = 42; i < nodeCount; i++) {
-        const p = nodePositions[i];
-        const angle = Math.atan2(p.z, p.x);
-        let diff = Math.abs(angle - sectorAngle);
-        if (diff > Math.PI) diff = 2 * Math.PI - diff;
-        if (diff < 0.65 && activeNodes.length < 16) {
-          activeNodes.push(i);
-        }
-      }
+    for (let k = 0; k < 8; k++) {
+        activeNodes.push(Math.floor(Math.random() * nodeCount));
     }
 
-    // 3. Encender con incandescencia solo el camino involucrado
     for (let nodeIdx of activeNodes) {
-      if (isCoreHub[nodeIdx]) {
-        // El núcleo destella en blanco-dorado estelar
-        nodeColorAttr.setXYZ(nodeIdx, 1.0, 0.95, 0.6);
-      } else {
-        // Los filamentos destellan en cian cuántico
-        nodeColorAttr.setXYZ(nodeIdx, 0.0, 0.95, 1.0);
-      }
+      nodeColorAttr.setXYZ(nodeIdx, 0.8, 1.0, 1.0);
 
-      // Encender únicamente las sinapsis de este camino
       for (let conn of graphNeighbors[nodeIdx]) {
-        if (activeNodes.includes(conn.neighbor) || Math.random() < 0.3) {
+        if (activeNodes.includes(conn.neighbor) || Math.random() < 0.15) {
           const eIdx = conn.edgeIdx;
           const v1 = eIdx * 2;
           const v2 = v1 + 1;
-
+          
           lineColorAttr.setXYZ(v1, 0.0, 0.9, 1.0);
-          lineColorAttr.setXYZ(v2, 1.0, 0.8, 0.1);
+          lineColorAttr.setXYZ(v2, 1.0, 0.9, 0.1);
         }
       }
     }
 
     nodeColorAttr.needsUpdate = true;
     lineColorAttr.needsUpdate = true;
-    activeNeuronsEl.innerText = `${activeNodes.length} / 384`;
+    activeNeuronsEl.innerText = `${activeNodes.length} Nodos Activos`;
 
     setTimeout(() => {
       firingLed.classList.remove("firing");
-      circuitStatus.innerText = "Núcleo en Equilibrio";
-      circuitStatus.style.color = "var(--accent-gold)";
+      circuitStatus.innerText = "Malla en Reposo Térmico";
+      circuitStatus.style.color = "var(--accent-magenta)";
     }, 115);
   }
 
   function onWindowResize() {
-    const w = canvas.parentElement.clientWidth;
-    const h = canvas.parentElement.clientHeight;
-    camera.aspect = w / h;
+    const parent = canvas.parentElement;
+    const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : window.innerWidth * 0.6;
+    const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : window.innerHeight;
+    camera.aspect = w / Math.max(h, 1);
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
   }
@@ -639,63 +339,45 @@
     requestAnimationFrame(animate);
     controls.update();
 
-    // DECAIMIENTO SUAVE: Vuelve exactamente al estado dorado y penumbra original
-    const nodeColorAttr = nodeMesh.geometry.attributes.color;
-    for (let i = 0; i < nodeCount; i++) {
-      const r = nodeColorAttr.getX(i);
-      const g = nodeColorAttr.getY(i);
-      const b = nodeColorAttr.getZ(i);
-      const br = nodeBaseColors[i * 3];
-      const bg = nodeBaseColors[i * 3 + 1];
-      const bb = nodeBaseColors[i * 3 + 2];
+    if (nodeMesh && lineMesh) {
+      const nodeColorAttr = nodeMesh.geometry.attributes.color;
+      for (let i = 0; i < nodeCount; i++) {
+        const r = nodeColorAttr.getX(i);
+        const g = nodeColorAttr.getY(i);
+        const b = nodeColorAttr.getZ(i);
+        const br = nodeBaseColors[i * 3];
+        const bg = nodeBaseColors[i * 3 + 1];
+        const bb = nodeBaseColors[i * 3 + 2];
+        nodeColorAttr.setXYZ(i, r + (br - r) * 0.06, g + (bg - g) * 0.06, b + (bb - b) * 0.06);
+      }
+      nodeColorAttr.needsUpdate = true;
 
-      nodeColorAttr.setXYZ(
-        i,
-        r + (br - r) * 0.08,
-        g + (bg - g) * 0.08,
-        b + (bb - b) * 0.08
-      );
+      const lineColorAttr = lineMesh.geometry.attributes.color;
+      const lCount = lineColors.length / 3;
+      for (let i = 0; i < lCount; i++) {
+        const r = lineColorAttr.getX(i);
+        const g = lineColorAttr.getY(i);
+        const b = lineColorAttr.getZ(i);
+        const br = lineBaseColors[i * 3];
+        const bg = lineBaseColors[i * 3 + 1];
+        const bb = lineBaseColors[i * 3 + 2];
+        lineColorAttr.setXYZ(i, r + (br - r) * 0.08, g + (bg - g) * 0.08, b + (bb - b) * 0.08);
+      }
+      lineColorAttr.needsUpdate = true;
     }
-    nodeColorAttr.needsUpdate = true;
-
-    const lineColorAttr = lineMesh.geometry.attributes.color;
-    const lCount = lineColors.length / 3;
-    for (let i = 0; i < lCount; i++) {
-      const r = lineColorAttr.getX(i);
-      const g = lineColorAttr.getY(i);
-      const b = lineColorAttr.getZ(i);
-      const br = lineBaseColors[i * 3];
-      const bg = lineBaseColors[i * 3 + 1];
-      const bb = lineBaseColors[i * 3 + 2];
-
-      lineColorAttr.setXYZ(
-        i,
-        r + (br - r) * 0.11,
-        g + (bg - g) * 0.11,
-        b + (bb - b) * 0.11
-      );
-    }
-    lineColorAttr.needsUpdate = true;
 
     renderer.render(scene, camera);
   }
 
-  window.onload = initCosmos;
+  window.addEventListener('DOMContentLoaded', initCosmos);
 </script>
 
-<!-- CLIENTE DE STREAMING -->
 <script>
   const msgBox = document.getElementById("messages-box");
   const userInput = document.getElementById("user-input");
 
-  userInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") handleSend();
-  });
-
-  function sendQuick(task) {
-    userInput.value = task;
-    handleSend();
-  }
+  userInput.addEventListener("keydown", (e) => { if (e.key === "Enter") handleSend(); });
+  function sendQuick(task) { userInput.value = task; handleSend(); }
 
   async function handleSend() {
     const text = userInput.value.trim();
@@ -715,16 +397,17 @@
     let startTime = performance.now();
 
     try {
-      const response = await fetch("http://localhost:8000/v1/chat/completions", {
+      const apiEndpoint = window.location.origin.startsWith("http") 
+        ? "/v1/chat/completions" 
+        : "http://localhost:8000/v1/chat/completions";
+
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "holollm-70m",
-          messages: [{ role: "user", content: text }],
-          stream: true,
-          max_tokens: 150
-        })
+        body: JSON.stringify({ model: "holollm-70m", messages: [{ role: "user", content: text }], stream: true, max_tokens: 150 })
       });
+
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -733,7 +416,6 @@
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop();
@@ -743,20 +425,15 @@
           if (trimmed.startsWith("data: ")) {
             const dataStr = trimmed.substring(6);
             if (dataStr === "[DONE]") break;
-
             try {
               const parsed = JSON.parse(dataStr);
               const delta = parsed.choices[0].delta?.content || "";
               if (delta) {
                 accumulatedText += delta;
                 tokenCounter++;
-
-                // PROPAGACIÓN SINÁPTICA LOCALIZADA SOBRE LA FORMA UNIFICADA
-                triggerLocalPathway(delta);
-
+                if (typeof triggerLocalPathway === "function") triggerLocalPathway(delta);
                 codeBlock.textContent = accumulatedText.replace(/```python/g, "").replace(/```/g, "").trimStart();
                 msgBox.scrollTop = msgBox.scrollHeight;
-
                 const elapsedSec = (performance.now() - startTime) / 1000.0;
                 tokSecEl.innerText = (tokenCounter / Math.max(elapsedSec, 0.001)).toFixed(1);
               }
@@ -765,7 +442,7 @@
         }
       }
     } catch (err) {
-      codeBlock.textContent = "Error de conexión con holo_server.py. Verifica que esté corriendo.";
+      codeBlock.textContent = "Error de conexión. Verifica que holo_server.py esté corriendo.";
       codeBlock.style.color = "#ff0077";
     }
   }
@@ -773,15 +450,12 @@
   function appendMessage(role, text) {
     const row = document.createElement("div");
     row.className = `message-row ${role}`;
-
     const sender = document.createElement("span");
     sender.className = "message-sender";
     sender.innerText = role === "user" ? "Tú • Frontera 1D" : "HoloLLM • Orden Explicado";
-
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
     bubble.innerText = text;
-
     row.appendChild(sender);
     row.appendChild(bubble);
     msgBox.appendChild(row);
@@ -789,6 +463,5 @@
     return bubble;
   }
 </script>
-
 </body>
 </html>

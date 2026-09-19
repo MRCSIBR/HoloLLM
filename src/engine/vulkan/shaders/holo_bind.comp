@@ -1,0 +1,56 @@
+#version 450
+/*
+ * SHADER: holo_bind.comp
+ * PROYECTO: HoloLLM (Vulkan Engine)
+ * DESCRIPCIÓN: Compute Shader para el Enlazamiento Holográfico de Tony Plate.
+ * MATEMÁTICA: B_t = F(V) ⊙ conj(F(K))
+ */
+
+// Tamaño del grupo de hilos (optimizado para arquitecturas AMD GCN/Polaris)
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+// Buffers de entrada (Frecuencias de Valor y Clave Unitaria)
+layout(set = 0, binding = 0) readonly buffer VReal { float v_real[]; };
+layout(set = 0, binding = 1) readonly buffer VImag { float v_imag[]; };
+layout(set = 0, binding = 2) readonly buffer KReal { float k_real[]; };
+layout(set = 0, binding = 3) readonly buffer KImag { float k_imag[]; };
+
+// Buffers de salida y estado acumulado
+layout(set = 0, binding = 4) writeonly buffer BReal { float b_real[]; };
+layout(set = 0, binding = 5) writeonly buffer BImag { float b_imag[]; };
+layout(set = 0, binding = 6) buffer StateReal { float s_real[]; };
+layout(set = 0, binding = 7) buffer StateImag { float s_imag[]; };
+
+// Parámetro de decaimiento (Horizonte temporal)
+layout(push_constant) uniform Constants {
+    float decay;
+    uint total_elements;
+} params;
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    
+    // Control de límites
+    if (idx >= params.total_elements) return;
+
+    // 1. Extraer los componentes complejos
+    float vr = v_real[idx];
+    float vi = v_imag[idx];
+    
+    // La clave unitaria K ya viene proyectada al toro |F(K)| = 1
+    float kr = k_real[idx];
+    float ki = k_imag[idx]; // Al hacer conjugada, este signo se invierte abajo
+    
+    // 2. Multiplicación Compleja con la Conjugada de K: (vr + vi*i) * (kr - ki*i)
+    // Parte Real = (vr * kr) - (vi * -ki) = vr*kr + vi*ki
+    // Parte Imag = (vr * -ki) + (vi * kr) = vi*kr - vr*ki
+    float out_r = (vr * kr) + (vi * ki);
+    float out_i = (vi * kr) - (vr * ki);
+    
+    b_real[idx] = out_r;
+    b_imag[idx] = out_i;
+    
+    // 3. Actualización de la Memoria Holográfica O(1) en el mismo Shader
+    s_real[idx] = (s_real[idx] * params.decay) + out_r;
+    s_imag[idx] = (s_imag[idx] * params.decay) + out_i;
+}

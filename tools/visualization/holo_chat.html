@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HoloLLM • Red Cósmica Unificada en el Orden Implicado</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #020204;
+      --panel-bg: rgba(6, 8, 14, 0.85);
+      --border-glow: rgba(0, 240, 255, 0.18);
+      --accent-cyan: #00f0ff;
+      --accent-magenta: #ff0077;
+      --accent-gold: #ffb703;
+      --text-main: #e2e8f0;
+      --text-dim: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+    }
+
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* CHAT IZQUIERDO: ORDEN EXPLICADO */
+    .chat-panel {
+      width: 40%;
+      min-width: 420px;
+      height: 100%;
+      background: var(--panel-bg);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--border-glow);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.75);
+    }
+
+    .panel-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid var(--accent-cyan);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .edition-link {
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-gold);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--accent-gold);
+      margin-left: 0.5rem;
+    }
+
+    .metrics-bar {
+      display: flex;
+      gap: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .metric-pill {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .metric-val {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      scroll-behavior: smooth;
+    }
+
+    .messages-container::-webkit-scrollbar { width: 5px; }
+    .messages-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      max-width: 92%;
+    }
+
+    .message-row.user { align-self: flex-end; }
+    .message-row.assistant { align-self: flex-start; width: 100%; }
+
+    .message-sender {
+      font-size: 0.7rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .message-bubble {
+      padding: 0.85rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .user .message-bubble {
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: #fff;
+    }
+
+    .assistant .message-bubble {
+      background: rgba(14, 18, 28, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      width: 100%;
+    }
+
+    pre code {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: #050608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 0.6rem;
+      overflow-x: auto;
+      color: #4ade80;
+      line-height: 1.45;
+    }
+
+    .quick-actions {
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .quick-actions::-webkit-scrollbar { display: none; }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: rgba(0, 240, 255, 0.12);
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+
+    .input-wrapper {
+      padding: 1.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--accent-cyan); }
+
+    .send-btn {
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 0 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+
+    .send-btn:hover { opacity: 0.85; }
+
+    /* CANVAS 3D DERECHO: ORDEN IMPLICADO */
+    .cosmos-panel {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .cosmos-hud {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(6, 8, 14, 0.8);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      pointer-events: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .hud-title {
+      color: var(--accent-cyan);
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .indicator-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      box-shadow: 0 0 6px var(--accent-gold);
+      transition: all 0.15s ease;
+    }
+
+    .indicator-led.firing {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 14px var(--accent-cyan);
+      transform: scale(1.3);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <div class="chat-panel">
+    <div class="panel-header">
+      <div class="brand-title">
+        HoloLLM
+        <span class="brand-badge">O(1) CAUSAL</span>
+        <a href="/gamma" class="edition-link">Ver Fermi Gamma-Ray 🛰️</a>
+      </div>
+      <div class="metrics-bar">
+        <div class="metric-pill">KV-Cache: <span class="metric-val">0.00 KB</span></div>
+        <div class="metric-pill">Speed: <span class="metric-val" id="tok-sec">0.0</span> t/s</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messages-box">
+      <div class="message-row assistant">
+        <span class="message-sender">HoloLLM Core • Orden Explicado</span>
+        <div class="message-bubble">
+          Estructura cósmica unificada en resonancia. A la derecha puedes ver el <strong>núcleo supermasivo dorado central</strong> rodeado por la red sináptica. 
+          Al consultar un algoritmo, verás cómo la energía emerge del núcleo y viaja exclusivamente por los filamentos que codifican ese concepto.
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action-btn" onclick="sendQuick('fibonacci')">fibonacci</button>
+      <button class="action-btn" onclick="sendQuick('factorial')">factorial</button>
+      <button class="action-btn" onclick="sendQuick('binary search')">binary search</button>
+      <button class="action-btn" onclick="sendQuick('reverse list')">reverse list</button>
+      <button class="action-btn" onclick="sendQuick('bfs')">bfs</button>
+      <button class="action-btn" onclick="sendQuick('kadane')">kadane</button>
+    </div>
+
+    <div class="input-wrapper">
+      <input type="text" id="user-input" class="chat-input" placeholder="Escribe un algoritmo (ej: 'factorial', 'bfs')..." autocomplete="off">
+      <button id="send-btn" class="send-btn" onclick="handleSend()">ENVIAR</button>
+    </div>
+  </div>
+
+  <div class="cosmos-panel">
+    <div class="cosmos-hud">
+      <div class="hud-title">🌌 ORDEN IMPLICADO (ℂ)</div>
+      <div class="hud-indicator">
+        <div class="indicator-led" id="firing-led"></div>
+        <span id="circuit-status" style="color:var(--accent-gold)">Núcleo en Equilibrio</span>
+      </div>
+      <div>Estructura: <span style="color:var(--accent-gold)">Núcleo Gravitacional + Velo</span></div>
+      <div>Dimensiones: <span style="color:var(--accent-cyan)">384 (12 cabezas)</span></div>
+      <div>Canal de Fase: <span id="firing-channel" style="color:#4ade80">Modo Causal O(1)</span></div>
+      <div>Foco Sináptico: <span id="active-neurons-count" style="color:#fff">42 Núcleo / 384</span></div>
+      <div style="font-size:0.68rem; color:var(--text-dim); margin-top:0.4rem;">Arrastra para rotar • Rueda para zoom</div>
+    </div>
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+</div>
+
+<!-- THREE.JS BLINDADO CONTRA DIMENSIONES NULAS Y ERRORES DE PROYECCIÓN -->
+<script>
+  let scene, camera, renderer, controls;
+  const nodeCount = 384;
+  let nodePositions = [];
+  let nodeMesh, lineMesh;
+  let nodeColors, nodeBaseColors;
+  let lineColors, lineBaseColors;
+  let graphNeighbors = Array.from({ length: nodeCount }, () => []);
+  let isCoreHub = new Uint8Array(nodeCount);
+
+  const canvas = document.getElementById("webgl-canvas");
+  const firingLed = document.getElementById("firing-led");
+  const circuitStatus = document.getElementById("circuit-status");
+  const firingChannelEl = document.getElementById("firing-channel");
+  const activeNeuronsEl = document.getElementById("active-neurons-count");
+  const tokSecEl = document.getElementById("tok-sec");
+
+  function initCosmos() {
+    // Blindaje contra clientWidth == 0
+    const parent = canvas.parentElement;
+    const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : window.innerWidth * 0.6;
+    const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : window.innerHeight;
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020204, 0.0035);
+
+    camera = new THREE.PerspectiveCamera(52, w / Math.max(h, 1), 0.1, 1000);
+    camera.position.set(0, 20, 95);
+
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.45;
+
+    buildUnifiedCosmicWeb();
+    createDeepStarfield();
+
+    window.addEventListener('resize', onWindowResize);
+    animate();
+  }
+
+  function createSoftGlowTexture() {
+    const cv = document.createElement('canvas');
+    cv.width = 64; cv.height = 64;
+    const ctx = cv.getContext('2d');
+    const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    grad.addColorStop(0.2, 'rgba(255, 200, 50, 0.95)');
+    grad.addColorStop(0.6, 'rgba(0, 240, 255, 0.35)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  function buildUnifiedCosmicWeb() {
+    const pGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(nodeCount * 3);
+    nodeColors = new Float32Array(nodeCount * 3);
+    nodeBaseColors = new Float32Array(nodeCount * 3);
+
+    nodePositions = [];
+    for (let i = 0; i < nodeCount; i++) {
+      let r, theta, phi;
+      const isHub = (i < 42);
+      isCoreHub[i] = isHub ? 1 : 0;
+
+      if (isHub) {
+        r = Math.pow(Math.random(), 2) * 14.0;
+      } else {
+        r = 12.0 + Math.random() * 38.0;
+      }
+
+      theta = Math.random() * Math.PI * 2;
+      phi = (Math.random() - 0.5) * Math.PI * 0.88;
+
+      const x = r * Math.cos(phi) * Math.cos(theta);
+      const y = r * Math.sin(phi) * 0.55;
+      const z = r * Math.cos(phi) * Math.sin(theta);
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+      nodePositions.push(new THREE.Vector3(x, y, z));
+
+      let baseR, baseG, baseB;
+      if (isHub) {
+        baseR = 1.0; baseG = 0.75; baseB = 0.12;
+      } else {
+        baseR = 0.18 + Math.random() * 0.12;
+        baseG = 0.12 + Math.random() * 0.15;
+        baseB = 0.55 + Math.random() * 0.25;
+      }
+
+      nodeColors[i * 3] = baseR;
+      nodeColors[i * 3 + 1] = baseG;
+      nodeColors[i * 3 + 2] = baseB;
+
+      nodeBaseColors[i * 3] = baseR;
+      nodeBaseColors[i * 3 + 1] = baseG;
+      nodeBaseColors[i * 3 + 2] = baseB;
+    }
+
+    pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(nodeColors, 3));
+
+    const pMat = new THREE.PointsMaterial({
+      size: 4.8,
+      map: createSoftGlowTexture(),
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    nodeMesh = new THREE.Points(pGeo, pMat);
+    scene.add(nodeMesh);
+
+    // FILAMENTOS SINÁPTICOS
+    graphNeighbors = Array.from({ length: nodeCount }, () => []);
+    const linePositions = [];
+    const lineColorsList = [];
+    let edgeCounter = 0;
+
+    for (let i = 0; i < nodeCount; i++) {
+      let connections = 0;
+      for (let j = i + 1; j < nodeCount; j++) {
+        const dist = nodePositions[i].distanceTo(nodePositions[j]);
+        const maxDist = (isCoreHub[i] || isCoreHub[j]) ? 16.0 : 13.5;
+
+        if (dist < maxDist && connections < 5) {
+          linePositions.push(nodePositions[i].x, nodePositions[i].y, nodePositions[i].z);
+          linePositions.push(nodePositions[j].x, nodePositions[j].y, nodePositions[j].z);
+
+          const rBase = (isCoreHub[i] && isCoreHub[j]) ? 0.25 : 0.06;
+          const gBase = (isCoreHub[i] && isCoreHub[j]) ? 0.18 : 0.03;
+          const bBase = (isCoreHub[i] && isCoreHub[j]) ? 0.04 : 0.22;
+
+          lineColorsList.push(rBase, gBase, bBase);
+          lineColorsList.push(rBase, gBase, bBase);
+
+          graphNeighbors[i].push({ neighbor: j, edgeIdx: edgeCounter });
+          graphNeighbors[j].push({ neighbor: i, edgeIdx: edgeCounter });
+
+          edgeCounter++;
+          connections++;
+        }
+      }
+    }
+
+    const lGeo = new THREE.BufferGeometry();
+    lGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    lineColors = new Float32Array(lineColorsList);
+    lineBaseColors = new Float32Array(lineColorsList);
+    lGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+
+    const lMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    lineMesh = new THREE.LineSegments(lGeo, lMat);
+    scene.add(lineMesh);
+  }
+
+  function createDeepStarfield() {
+    const count = 1000;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 450;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ color: 0x475569, size: 0.65, transparent: true, opacity: 0.35 });
+    scene.add(new THREE.Points(geo, mat));
+  }
+
+  // DISPARO SINÁPTICO LOCALIZADO POR TOKEN
+  function triggerLocalPathway(token) {
+    if (!firingLed) return;
+    firingLed.classList.add("firing");
+    const t = token.toLowerCase();
+
+    let sectorAngle = 0.0;
+    let channelName = "Control Estructural";
+
+    if (t.includes("def") || t.includes("return") || t.includes(":")) {
+      channelName = "Núcleo Gravitacional";
+      sectorAngle = null;
+    } else if (t.includes("list") || t.includes("dict") || t.includes("queue") || t.includes("memo") || t.includes("stack") || t.includes("pop")) {
+      channelName = "Canal de Estructuras";
+      sectorAngle = 0.8;
+    } else if (t.includes("while") || t.includes("if") || t.includes("for") || t.includes("not")) {
+      channelName = "Canal de Flujo Lógico";
+      sectorAngle = 2.4;
+    } else if (t.includes("+") || t.includes("-") || t.includes("<") || t.includes(">") || t.includes("mid") || t.includes("left")) {
+      channelName = "Canal Aritmético";
+      sectorAngle = 4.2;
+    } else {
+      let hash = 0;
+      for (let i = 0; i < token.length; i++) hash = (hash << 5) - hash + token.charCodeAt(i);
+      sectorAngle = ((Math.abs(hash) % 100) / 100.0) * Math.PI * 2;
+    }
+
+    circuitStatus.innerText = "Interferencia de Fase";
+    circuitStatus.style.color = "#00f0ff";
+    firingChannelEl.innerText = channelName;
+
+    const nodeColorAttr = nodeMesh.geometry.attributes.color;
+    const lineColorAttr = lineMesh.geometry.attributes.color;
+
+    const activeNodes = [];
+    const coreHubIndex = Math.floor(Math.random() * 42);
+    activeNodes.push(coreHubIndex);
+
+    if (sectorAngle !== null) {
+      for (let i = 42; i < nodeCount; i++) {
+        const p = nodePositions[i];
+        const angle = Math.atan2(p.z, p.x);
+        let diff = Math.abs(angle - sectorAngle);
+        if (diff > Math.PI) diff = 2 * Math.PI - diff;
+        if (diff < 0.65 && activeNodes.length < 16) {
+          activeNodes.push(i);
+        }
+      }
+    }
+
+    for (let nodeIdx of activeNodes) {
+      if (isCoreHub[nodeIdx]) {
+        nodeColorAttr.setXYZ(nodeIdx, 1.0, 0.95, 0.6);
+      } else {
+        nodeColorAttr.setXYZ(nodeIdx, 0.0, 0.95, 1.0);
+      }
+
+      for (let conn of graphNeighbors[nodeIdx]) {
+        if (activeNodes.includes(conn.neighbor) || Math.random() < 0.3) {
+          const eIdx = conn.edgeIdx;
+          const v1 = eIdx * 2;
+          const v2 = v1 + 1;
+          lineColorAttr.setXYZ(v1, 0.0, 0.9, 1.0);
+          lineColorAttr.setXYZ(v2, 1.0, 0.8, 0.1);
+        }
+      }
+    }
+
+    nodeColorAttr.needsUpdate = true;
+    lineColorAttr.needsUpdate = true;
+    activeNeuronsEl.innerText = `${activeNodes.length} / 384`;
+
+    setTimeout(() => {
+      firingLed.classList.remove("firing");
+      circuitStatus.innerText = "Núcleo en Equilibrio";
+      circuitStatus.style.color = "var(--accent-gold)";
+    }, 115);
+  }
+
+  function onWindowResize() {
+    const parent = canvas.parentElement;
+    const w = (parent && parent.clientWidth > 10) ? parent.clientWidth : window.innerWidth * 0.6;
+    const h = (parent && parent.clientHeight > 10) ? parent.clientHeight : window.innerHeight;
+    camera.aspect = w / Math.max(h, 1);
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    if (nodeMesh && lineMesh) {
+      const nodeColorAttr = nodeMesh.geometry.attributes.color;
+      for (let i = 0; i < nodeCount; i++) {
+        const r = nodeColorAttr.getX(i);
+        const g = nodeColorAttr.getY(i);
+        const b = nodeColorAttr.getZ(i);
+        const br = nodeBaseColors[i * 3];
+        const bg = nodeBaseColors[i * 3 + 1];
+        const bb = nodeBaseColors[i * 3 + 2];
+
+        nodeColorAttr.setXYZ(
+          i,
+          r + (br - r) * 0.08,
+          g + (bg - g) * 0.08,
+          b + (bb - b) * 0.08
+        );
+      }
+      nodeColorAttr.needsUpdate = true;
+
+      const lineColorAttr = lineMesh.geometry.attributes.color;
+      const lCount = lineColors.length / 3;
+      for (let i = 0; i < lCount; i++) {
+        const r = lineColorAttr.getX(i);
+        const g = lineColorAttr.getY(i);
+        const b = lineColorAttr.getZ(i);
+        const br = lineBaseColors[i * 3];
+        const bg = lineBaseColors[i * 3 + 1];
+        const bb = lineBaseColors[i * 3 + 2];
+
+        lineColorAttr.setXYZ(
+          i,
+          r + (br - r) * 0.11,
+          g + (bg - g) * 0.11,
+          b + (bb - b) * 0.11
+        );
+      }
+      lineColorAttr.needsUpdate = true;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('DOMContentLoaded', initCosmos);
+</script>
+
+<!-- CLIENTE DE STREAMING ROBUSTO Y RELATIVO -->
+<script>
+  const msgBox = document.getElementById("messages-box");
+  const userInput = document.getElementById("user-input");
+
+  userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleSend();
+  });
+
+  function sendQuick(task) {
+    userInput.value = task;
+    handleSend();
+  }
+
+  async function handleSend() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    userInput.value = "";
+
+    appendMessage("user", text);
+
+    const assistantBubble = appendMessage("assistant", "");
+    const codeContainer = document.createElement("pre");
+    const codeBlock = document.createElement("code");
+    codeContainer.appendChild(codeBlock);
+    assistantBubble.appendChild(codeContainer);
+
+    let accumulatedText = "";
+    let tokenCounter = 0;
+    let startTime = performance.now();
+
+    try {
+      // Endpoint dinámico relativo: funciona en localhost, 127.0.0.1 y puertos custom
+      const apiEndpoint = window.location.origin.startsWith("http") 
+        ? "/v1/chat/completions" 
+        : "http://localhost:8000/v1/chat/completions";
+
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "holollm-70m",
+          messages: [{ role: "user", content: text }],
+          stream: true,
+          max_tokens: 150
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("data: ")) {
+            const dataStr = trimmed.substring(6);
+            if (dataStr === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              const delta = parsed.choices[0].delta?.content || "";
+              if (delta) {
+                accumulatedText += delta;
+                tokenCounter++;
+
+                // Iluminar la trayectoria sináptica en 3D
+                if (typeof triggerLocalPathway === "function") {
+                  triggerLocalPathway(delta);
+                }
+
+                codeBlock.textContent = accumulatedText.replace(/```python/g, "").replace(/```/g, "").trimStart();
+                msgBox.scrollTop = msgBox.scrollHeight;
+
+                const elapsedSec = (performance.now() - startTime) / 1000.0;
+                tokSecEl.innerText = (tokenCounter / Math.max(elapsedSec, 0.001)).toFixed(1);
+              }
+            } catch (err) {}
+          }
+        }
+      }
+    } catch (err) {
+      codeBlock.textContent = "Error de conexión con el servidor. Verifica que python holo_server.py esté corriendo.";
+      codeBlock.style.color = "#ff0077";
+    }
+  }
+
+  function appendMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = `message-row ${role}`;
+
+    const sender = document.createElement("span");
+    sender.className = "message-sender";
+    sender.innerText = role === "user" ? "Tú • Frontera 1D" : "HoloLLM • Orden Explicado";
+
+    const bubble = document.createElement("div");
+    bubble.className = "message-bubble";
+    bubble.innerText = text;
+
+    row.appendChild(sender);
+    row.appendChild(bubble);
+    msgBox.appendChild(row);
+    msgBox.scrollTop = msgBox.scrollHeight;
+    return bubble;
+  }
+</script>
+
+</body>
+</html>
