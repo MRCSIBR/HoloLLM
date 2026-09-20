@@ -10,8 +10,16 @@ import os
 import sys
 import time
 import argparse
-import readline
 import torch
+
+# Soporte multiplataforma para historial de consola
+try:
+    import readline
+except ImportError:
+    # En Windows, si no tienen pyreadline3 instalado, simplemente ignoramos readline
+    # para que la app no colapse y puedan escribir igualmente.
+    pass
+
 from transformers import AutoTokenizer
 
 from src.models.holo_causal_lm import HoloCausalLM

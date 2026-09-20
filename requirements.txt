@@ -1,7 +1,19 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Núcleo de IA y Matemáticas
 torch>=2.1.0
 numpy>=1.24.0
 transformers>=4.36.0
 huggingface_hub>=0.20.0
 tqdm>=4.66.0
 ipywidgets>=8.1.0
+
+# Servidor API / Web (holo_server.py)
+fastapi>=0.100.0
+uvicorn>=0.22.0
+sse-starlette>=1.6.1
+pydantic>=2.0.0
+requests>=2.31.0
+
+# Compatibilidad de terminal interactiva en Windows (holo.py)
+pyreadline3>=3.4.1; sys_platform == "win32"
