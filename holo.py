@@ -110,11 +110,17 @@ class HoloCLI:
 
         
         if not os.path.exists(CONFIG["checkpoint_path"]):
+            import platform
             print(f"\n{YELLOW}Error: No se encontró el archivo de pesos en '{CONFIG['checkpoint_path']}'.{RESET}")
-            print(f"\n{CYAN}Por favor, descarga el modelo oficial ejecutando los siguientes comandos en tu terminal:{RESET}\n")
-            print(f"{BOLD}mkdir -p checkpoints{RESET}")
-            print(f"{BOLD}curl -L -o checkpoints/holo_deep_distilled_75m.pt \\")
-            print(f"  https://github.com/MRCSIBR/HoloLLM/releases/download/v1.0.0-poc/holo_deep_distilled_75m.pt{RESET}\n")
+            print(f"\n{CYAN}Por favor, descarga el modelo oficial ejecutando este comando en tu terminal:{RESET}\n")
+            
+            if platform.system() == "Windows":
+                print(f"{BOLD}mkdir checkpoints -ErrorAction SilentlyContinue{RESET}")
+                print(f"{BOLD}curl.exe -L -o checkpoints/holo_deep_distilled_75m.pt https://github.com/MRCSIBR/HoloLLM/releases/download/v1.0.0-poc/holo_deep_distilled_75m.pt{RESET}\n")
+            else:
+                print(f"{BOLD}mkdir -p checkpoints{RESET}")
+                print(f"{BOLD}curl -L -o checkpoints/holo_deep_distilled_75m.pt https://github.com/MRCSIBR/HoloLLM/releases/download/v1.0.0-poc/holo_deep_distilled_75m.pt{RESET}\n")
+            
             sys.exit(1)
         
         ckpt = torch.load(CONFIG["checkpoint_path"], map_location=self.device)
