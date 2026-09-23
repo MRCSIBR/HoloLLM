@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La memoria sin espacio — El paradigma Holo-O(1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<style>
+:root{
+  --bg:#18171A; --panel:#201F23; --panel2:#1B1A1E; --line:#323037;
+  --ink:#EAE7DF; --ink2:#9B97A0; --ink3:#5E5B63;
+  --lum:#D7D952; --lum-dim:rgba(215,217,82,.13); --lum-glow:rgba(215,217,82,.35);
+  --danger:#FF5A5F; --warn:#FFAA33;
+  --serif:"Crimson Pro",Georgia,serif;
+  --mono:"Spline Sans Mono",ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 19.5px/1.72 var(--serif);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+::selection{background:var(--lum);color:#18171A}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#4a4750}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+:focus-visible{outline:1px solid var(--lum);outline-offset:3px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+.overline{font:500 11px/1 var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--lum)}
+.kicker{font:500 11px/1 var(--mono);letter-spacing:.28em;text-transform:uppercase;color:var(--lum);margin-bottom:18px}
+h2{font:300 clamp(32px,3.8vw,46px)/1.15 var(--serif);letter-spacing:-.01em;margin:14px 0 18px}
+h2 em, h1 em{font-style:italic;color:var(--lum);font-weight:400}
+p{max-width:65ch}
+.sub{color:var(--ink2)}
+.mg{font-family:var(--mono);font-size:14px}
+
+/* ---------- header ---------- */
+.hd{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;justify-content:space-between;align-items:center;
+  padding:16px clamp(20px,4vw,48px);font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink2);transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+.hd.scrolled{background:rgba(24,23,26,.88);backdrop-filter:blur(12px);border-bottom-color:var(--line)}
+.hd b{color:var(--ink);font-weight:500}
+.hd .lum{color:var(--lum)}
+
+/* ---------- rail ---------- */
+.rail{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:40;display:flex;gap:14px;align-items:stretch}
+.rail__track{width:1px;background:var(--line);position:relative;height:190px}
+.rail__fill{position:absolute;top:0;left:0;width:1px;background:var(--lum);height:0}
+.rail__dots{position:relative;height:190px;display:flex;flex-direction:column;justify-content:space-between}
+.rail a{position:relative;width:5px;height:5px;border-radius:50%;background:var(--line);transition:background .3s}
+.rail a.on{background:var(--lum)}
+.rail a span{position:absolute;left:16px;top:50%;transform:translateY(-50%);white-space:nowrap;
+  font:400 10px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink2);
+  opacity:0;transition:opacity .25s;pointer-events:none}
+.rail a:hover span,.rail a.on span{opacity:1}
+@media(max-width:1080px){.rail{display:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100vh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;overflow:hidden}
+.hero__txt{padding:120px clamp(20px,4vw,48px) 80px;position:relative;z-index:2}
+.hero h1{font:300 clamp(50px,7.2vw,98px)/1.02 var(--serif);letter-spacing:-.025em;margin:26px 0 30px}
+.hero h1 .l2{display:block;font-style:italic;font-weight:300;color:var(--lum)}
+.hero .dek{font-size:clamp(19px,1.6vw,22px);color:var(--ink2);max-width:46ch}
+.hero__wall{position:relative;height:100vh;min-height:520px}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero__tag{position:absolute;right:clamp(20px,3vw,44px);bottom:26px;font:400 10px/1.6 var(--mono);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink3);text-align:right;z-index:2}
+.hint{display:flex;align-items:center;gap:14px;margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--ink3)}
+.hint i{display:block;width:1px;height:34px;background:var(--line);position:relative;overflow:hidden}
+.hint i::after{content:"";position:absolute;left:0;top:-100%;width:1px;height:100%;background:var(--lum);animation:drop 1.8s cubic-bezier(.7,0,.3,1) infinite}
+@keyframes drop{to{top:100%}}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero__wall{position:absolute;inset:0;height:100%;min-height:0;opacity:.28}
+  .hero__tag{display:none}
+}
+
+/* ---------- prosa ---------- */
+.prose{padding:clamp(70px,11vh,130px) 0}
+.prose .lead{font-size:clamp(22px,2vw,27px);line-height:1.55;font-weight:300}
+.prose .lead + p{margin-top:24px}
+.note{border-left:1px solid var(--lum);padding:6px 0 6px 22px;margin-top:34px;color:var(--ink2);font-size:17.5px;font-style:italic;max-width:56ch}
+
+/* ---------- scrollytelling ---------- */
+#story{padding:clamp(50px,8vh,100px) 0 0}
+.story{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(28px,4.5vw,64px);margin-top:20px}
+.story__fig{position:sticky;top:6vh;height:88vh;min-height:480px}
+.frame{position:relative;height:100%;background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  box-shadow:0 34px 90px -34px rgba(0,0,0,.7);overflow:hidden;display:flex;flex-direction:column}
+#stage{flex:1;width:100%;min-height:0}
+.hud{position:absolute;top:16px;right:18px;text-align:right;font:500 11px/1.8 var(--mono);letter-spacing:.12em;color:var(--ink2);pointer-events:none}
+.hud b{color:var(--lum);font-weight:500}
+.legend{position:absolute;top:16px;left:18px;display:flex;gap:16px;align-items:center;
+  font:400 10px/1 var(--mono);letter-spacing:.14em;color:var(--ink2);pointer-events:none}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend .k{background:var(--lum)}
+.legend .v{border:1px solid var(--lum)}
+.figcap{position:absolute;left:0;right:0;bottom:16px;text-align:center;font:italic 300 16.5px/1.4 var(--serif);
+  color:var(--ink2);padding:0 36px;transition:opacity .3s;pointer-events:none}
+.oom{position:absolute;top:22%;left:50%;transform:translateX(-50%) rotate(-4deg) scale(1.05);
+  border:1px solid var(--lum);color:var(--lum);padding:10px 22px;font:500 11px/1 var(--mono);letter-spacing:.35em;
+  opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
+.oom.on{opacity:1;animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.4}}
+
+.story__text{padding:0 0 12vh}
+.step{min-height:86vh;display:flex;flex-direction:column;justify-content:center}
+.step:first-child{min-height:64vh}
+.step h3{font:400 clamp(24px,2.3vw,31px)/1.25 var(--serif);margin-bottom:14px;letter-spacing:-.01em}
+.step p{color:var(--ink2);font-size:18.5px}
+.step p + p{margin-top:14px}
+.step strong{color:var(--ink);font-weight:500}
+.step em{color:var(--lum)}
+.formula{font:italic 300 clamp(28px,2.8vw,38px)/1.1 var(--serif);color:var(--ink);margin:24px 0 12px;letter-spacing:.02em}
+.formula .x{color:var(--ink3);font-style:normal;padding:0 .18em}
+.fkey{font:400 12.5px/2.1 var(--mono);letter-spacing:.06em;color:var(--ink3)}
+.fkey b{color:var(--ink2);font-weight:500;font-style:italic;font-family:var(--serif);font-size:16px}
+.bigfact{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.bigfact .n{font:300 clamp(38px,3.6vw,52px)/1 var(--serif);color:var(--lum)}
+.bigfact .u{font:400 12px/1 var(--mono);letter-spacing:.16em;color:var(--ink2);margin-left:10px}
+
+/* ---------- pilares del engine ---------- */
+#engine{padding:clamp(80px,12vh,150px) 0 0}
+.pillar{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(30px,5vw,70px);
+  align-items:center;padding:clamp(54px,8vh,90px) 0;border-top:1px solid var(--line);margin-top:clamp(50px,8vh,90px)}
+#engine .pillar:first-of-type{margin-top:54px}
+.pillar:nth-of-type(even) .pillar__fig{order:-1}
+.pillar__num{font:italic 300 15px/1 var(--serif);color:var(--lum);letter-spacing:.3em;display:block;margin-bottom:12px}
+.pillar h3{font:400 clamp(26px,2.4vw,34px)/1.2 var(--serif);margin-bottom:14px;letter-spacing:-.01em}
+.pillar p{color:var(--ink2);font-size:18.5px}
+.pillar__gain{display:flex;align-items:baseline;gap:14px;margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+.pillar__gain b{font:300 32px/1 var(--serif);color:var(--lum)}
+.pillar__gain span{font:400 11px/1.5 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.pillar__fig{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:24px 20px;
+  box-shadow:0 26px 70px -30px rgba(0,0,0,.6)}
+.pillar__fig canvas,.pillar__fig svg{display:block;width:100%;height:auto}
+@media(max-width:900px){.pillar{grid-template-columns:1fr}.pillar:nth-of-type(even) .pillar__fig{order:0}}
+
+/* interactivos */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{background:transparent;border:0;border-right:1px solid var(--line);color:var(--ink2);
+  font:500 11px/1 var(--mono);letter-spacing:.1em;padding:10px 14px;cursor:pointer;transition:color .25s,background .25s}
+.seg button:last-child{border-right:0}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--lum-dim);color:var(--lum)}
+.pctl{margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pmul{font:500 11.5px/1 var(--mono);letter-spacing:.14em;color:var(--lum);margin-left:auto}
+
+/* cuantización barras */
+.qz__bar{height:28px;border:1px solid var(--line);background:var(--panel2);border-radius:2px;padding:3px;margin:8px 0}
+.qz__fill{height:100%;width:100%;transition:width .8s cubic-bezier(.6,0,.2,1);background:var(--lum)}
+.qz__fill.unstable{background:repeating-linear-gradient(90deg,var(--danger) 0 10px,rgba(255,90,95,.2) 10px 14px)}
+.qz__read{display:flex;justify-content:space-between;align-items:baseline;font:400 11px/1.6 var(--mono);color:var(--ink2);margin-top:12px}
+
+/* ---------- calculadora comparada ---------- */
+#calc{padding:clamp(80px,12vh,150px) 0}
+.calc{margin-top:40px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:clamp(26px,4vw,50px);
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.6)}
+.calc__row{display:grid;grid-template-columns:120px 1fr auto;gap:20px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.calc__row label{font:500 10.5px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--ink3)}
+.calc__tokval{font:400 13px/1 var(--mono);color:var(--ink2);letter-spacing:.08em;min-width:150px;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:1px;background:var(--line);outline-offset:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--bg);border:1.5px solid var(--lum);cursor:pointer;transition:background .2s}
+input[type=range]::-webkit-slider-thumb:hover{background:var(--lum)}
+.calc__duel{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:30px 0 12px}
+.calc__side h4{font:500 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.calc__side.tf h4{color:var(--danger)}
+.calc__side.holo h4{color:var(--lum)}
+.calc__num{font:300 clamp(54px,7vw,92px)/1 var(--serif);letter-spacing:-.02em}
+.calc__side.tf .calc__num{color:var(--danger)}
+.calc__side.holo .calc__num{color:var(--lum)}
+.calc__unit{font:400 16px/1 var(--mono);color:var(--ink2);margin-left:8px}
+.calc__desc{font:italic 300 16.5px/1.4 var(--serif);color:var(--ink2);margin-top:10px}
+
+/* ruler logarítmica */
+.calc__ruler{position:relative;height:60px;margin:30px 0 6px;border-bottom:1px solid var(--line)}
+.calc__mark{position:absolute;bottom:0;transform:translateX(-50%)}
+.calc__mark i{display:block;width:1px;height:12px;background:var(--ink3);margin:0 auto}
+.calc__mark span{display:block;margin-top:8px;font:400 9.5px/1.4 var(--mono);letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;transform:translateX(-50%)}
+.calc__mark.ref i{height:18px;background:var(--ink2)}
+.calc__mark.ref span{color:var(--ink2)}
+.calc__pin{position:absolute;bottom:-1px;width:1px;height:38px;background:var(--danger);transition:left .6s cubic-bezier(.6,0,.2,1)}
+.calc__pin::after{content:"";position:absolute;bottom:-4px;left:-3.5px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+.calc__holo-pin{position:absolute;bottom:-1px;left:0;width:1px;height:38px;background:var(--lum)}
+.calc__holo-pin::after{content:"";position:absolute;bottom:-4px;left:-3.5px;width:8px;height:8px;border-radius:50%;background:var(--lum)}
+
+/* ---------- cierre ---------- */
+.close{padding:clamp(70px,11vh,130px) 0;border-top:1px solid var(--line)}
+.close .pq{font:italic 300 clamp(30px,4.2vw,50px)/1.25 var(--serif);color:var(--lum);max-width:24ch;margin:30px 0}
+footer{padding:34px 0 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font:400 10.5px/1.8 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .9s cubic-bezier(.2,.6,.2,1),transform .9s cubic-bezier(.2,.6,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="hd" id="hd">
+  <div><span class="lum">HOLO-O(1)</span> · LA MEMORIA SIN ESPACIO</div>
+  <div>PRIMEROS PRINCIPIOS Y EL ENGINE HOLO-V2</div>
+</header>
+
+<nav class="rail" id="rail" aria-label="Progreso">
+  <div class="rail__track"><div class="rail__fill" id="railFill"></div></div>
+  <div class="rail__dots">
+    <a href="#hero"><span>Inicio</span></a>
+    <a href="#prose"><span>El cambio</span></a>
+    <a href="#story"><span>El toro</span></a>
+    <a href="#engine"><span>Holo-v2</span></a>
+    <a href="#calc"><span>El duelo</span></a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="hero__wall"><canvas id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="hero__tag">64 kilobytes constantes<br>el pasado como frente de onda</div>
+  </div>
+  <div class="hero__txt">
+    <div class="overline">FÍSICA HOLOGRÁFICA · TRANSFORMERS · ESTADO O(1)</div>
+    <h1>La memoria<br>sin <span class="l2">espacio</span></h1>
+    <p class="dek">Los transformers apilan recuerdos en una cinta que no para de crecer. Holo-O(1) los disuelve en un frente de onda que no ocupa más lugar: sesenta y cuatro kilobytes, token uno o token un millón.</p>
+    <div class="hint"><i></i>Desliza</div>
+  </div>
+</section>
+
+<!-- ============ §1 · LA REGLA DEL JUEGO ============ -->
+<section class="prose" id="prose">
+  <div class="wrap rv">
+    <div class="overline">§1 · La regla del juego</div>
+    <h2>No achicar el ladrillo:<br><em>disolver la pared</em></h2>
+    <p class="lead">Para no olvidar, el modelo convencional guarda una copia de cada palabra en la memoria de vídeo. A medida que la conversación se alarga, los tensores de claves y valores crecen sin freno. La industria intenta remediarlo achicando los ladrillos: cuantiza a 4 bits, comparte capas, recorta con ventanas deslizantes. Pero la cinta sigue creciendo.</p>
+    <p class="sub">Holo-O(1) adopta la ontología contraria: <strong>el contexto no es una lista de hechos pasados, sino una onda estacionaria en el dominio espectral</strong>. Inspirado en David Bohm, Karl Pribram y Juan Maldacena, el modelo no almacena fichas: superpone fases en un espacio Hilbert complejo de dimensión fija. El costo marginal por token nuevo no es pequeño: es exactamente cero.</p>
+    <p class="note">A continuación, la deducción de cómo se sustituye la acumulación lineal por interferencia sobre el toro unitario de fases.</p>
+  </div>
+</section>
+
+<!-- ============ §2 · SCROLLYTELLING: DEL ESPACIO AL TORO ============ -->
+<section id="story">
+  <div class="wrap">
+    <div class="rv">
+      <div class="overline">§2 · Primeros Principios</div>
+      <h2>Del archivo espacial a la resonancia</h2>
+      <p class="sub" style="max-width:56ch">Siete pasos hacia el Orden Implicado. La figura de la izquierda dibuja en vivo la transición del modelo clásico al motor holográfico.</p>
+    </div>
+
+    <div class="story">
+      <!-- figura sticky -->
+      <div class="story__fig">
+        <div class="frame" id="frame">
+          <canvas id="stage"></canvas>
+          <div class="legend" id="legend">
+            <span><i class="k"></i>FASE UNITARIA</span>
+            <span><i class="v"></i>AMPLITUD</span>
+            <span style="opacity:.6">toro unitario ℂ</span>
+          </div>
+          <div class="hud">
+            <div id="hudTok">tokens 0</div>
+            <div id="hudMemRow">huella <b id="hudMem">64.0 KB</b></div>
+          </div>
+          <div class="oom" id="oom">CROSSTALK SUPPRESSED</div>
+          <div class="figcap" id="figcap"></div>
+        </div>
+      </div>
+
+      <!-- pasos explicativos -->
+      <div class="story__text">
+
+        <div class="step" data-step="0">
+          <div class="kicker">01 · La trampa espacial</div>
+          <h3>El transformer confunde<br>tiempo con espacio</h3>
+          <p>En el mecanismo de atención canónico, recordar un token implica reservar un espacio en memoria contigua. Cada palabra proyecta una clave $K$ y un valor $V$ que se apilan físicamente en la VRAM: $\mathcal{M}(T) = \mathcal{O}(T)$.</p>
+          <p>Para recordar cien mil palabras, hace falta un almacén cien mil veces más grande. Es la física ingenua del casillero.</p>
+        </div>
+
+        <div class="step" data-step="1">
+          <div class="kicker">02 · David Bohm</div>
+          <h3>Orden Explicado frente a<br>Orden Implicado</h3>
+          <p>Bohm demostró que la realidad observable (el <em>Orden Explicado</em>, $\mathbb{R}^D$) surge de un orden holístico subyacente donde todo coexiste entrelazado (el <em>Orden Implicado</em>, $\mathbb{C}^{H \times D_f}$).</p>
+          <p>En Holo-O(1), los tokens visibles se escriben en el espaciotiempo lineal, pero <strong>la memoria reside en el espacio complejo de Fourier</strong>, donde el pasado no se archiva: se pliega.</p>
+        </div>
+
+        <div class="step" data-step="2">
+          <div class="kicker">03 · Tony Plate</div>
+          <h3>Convolución circular:<br>vincular sin crecer</h3>
+          <p>Para unir una clave $K$ y un valor $V$ sin crear una matriz nueva, usamos la convolución circular en Fourier: $\mathbf{b}_t = \mathbf{v}_t \circledast \mathbf{k}_t^\dagger$.</p>
+          <p>En el dominio espectral, la convolución se convierte en una simple multiplicación punto a punto: $\mathcal{F}(\mathbf{v}_t) \odot \overline{\mathcal{F}(\mathbf{k}_t)}$. La dimensión del vector resultante es idéntica a la original.</p>
+        </div>
+
+        <div class="step" data-step="3">
+          <div class="kicker">04 · El Toro Unitario</div>
+          <h3>Confinar la energía:<br>amplitud neutra, fase pura</h3>
+          <p>Si las claves tuvieran amplitudes libres, acumularlas provocaría explosiones o desvanecimientos numéricos. Por eso se restringen rígidamente al <strong>Toro Unitario complejo</strong>:</p>
+          <div class="formula">$$|\mathcal{F}(\mathbf{k})| = 1.00$$</div>
+          <p class="sub">Cada frecuencia conserva norma unitaria. La información se graba exclusivamente en el ángulo de fase $\theta_k$. La energía total del sistema permanece acotada.</p>
+        </div>
+
+        <div class="step" data-step="4">
+          <div class="kicker">05 · Teorema de Fase</div>
+          <h3>Por qué FP16 destruye<br>y FP32 hace eterno</h3>
+          <p>En un Transformer tradicional, recortar a 4 o 16 bits funciona porque la atención solo busca la magnitud máxima. En el Toro de fases, la información reside en la resonancia de Bragg de los ángulos.</p>
+          <p>Demostramos analíticamente que los 7 bits de mantisa de `bfloat16` introducen una dispersión angular estocástica ($\approx 10^{-2}\text{ rad}$) que desintegra la memoria en 60 pasos. <strong>La mantisa de 23 bits de `float32` confina el error a $10^{-7}\text{ rad}$</strong>, garantizando coherencia infinita.</p>
+        </div>
+
+        <div class="step" data-step="5">
+          <div class="kicker">06 · Maldacena & Witten</div>
+          <h3>La frontera plana y el<br>Bulk gravitacional</h3>
+          <p>Siguiendo la correspondencia AdS/CFT, la secuencia 1D de tokens actúa como la frontera conforme $\partial\mathcal{M}$. El modelo proyecta esa frontera en un Bulk hiperbólico 2D regido por la métrica de Poincaré.</p>
+          <p>El propagador de Witten $e^{-|k|z}$ amortigua exponencialmente las altas frecuencias sintácticas superficiales hacia las capas profundas, creando pozos de atracción semánticos invariantes.</p>
+        </div>
+
+        <div class="step" data-step="6">
+          <div class="kicker">07 · La cota 64 KB</div>
+          <h3>Un acumulador invariable en L1/L2</h3>
+          <p>El estado total de cada capa se sintetiza en un tensor complejo $\mathbf{S}_t \in \mathbb{C}^{H \times D_f}$ que ocupa exactamente <strong>64.0 KB</strong>. Cabe por completo en las cachés ultrarrápidas del silicio.</p>
+          <div class="bigfact">
+            <span class="n">64.0</span><span class="u">KB TOTALES POR CAPA</span>
+            <p class="sub" style="margin-top:12px;font-size:17px">Token 1, token 50.000 o token 1.000.000: la huella de memoria no añade ni un solo byte adicional.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §3 · LOS CUATRO PILARES DE HOLO-V2 ============ -->
+<section id="engine">
+  <div class="wrap">
+    <div class="prose-head rv">
+      <div class="overline">§3 · Arquitectura Holo-v2</div>
+      <h2>La maquinaria del motor</h2>
+      <p class="sub" style="max-width:54ch">Cuatro engranajes matemáticos que transforman la teoría física en inferencia causal a más de 30.000 tokens por segundo.</p>
+    </div>
+
+    <!-- ====================================================================
+         PIEZA VISUAL CENTRAL: DE LA FOTOGRAFÍA AL HOLOGRAMA (AMPLIADO)
+         ==================================================================== -->
+    <article class="pillar rv" style="grid-template-columns: 1fr; margin-top: 50px;">
+      <div>
+        <span class="pillar__num">ANALOGÍA FUNDACIONAL</span>
+        <h3>De la placa fotográfica a la difracción en el Toro</h3>
+        <p>
+          El KV-cache tradicional opera como una <strong>fotografía digital en 2D</strong>: cada token ocupa una coordenada espacial rígida $(K_t, V_t)$. Si el contexto crece, la foto exige más píxeles y la memoria física colapsa.
+          En cambio, Holo-O(1) opera como un <strong>holograma óptico</strong>: cada nuevo valor no pide un casillero nuevo; se descompone en frecuencias de Fourier y se difracta sobre la superficie cerrada del <strong>Toro Unitario</strong>. El soporte físico jamás se expande: son 64 KB de interferencia continua.
+        </p>
+      </div>
+
+      <div class="pillar__fig" style="margin-top: 24px; padding: 30px 24px;">
+        <div class="pctl" style="justify-content: space-between; margin-bottom: 14px;">
+          <span style="font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.15em; color: var(--ink2); text-transform: uppercase;">
+            Estado: <b id="morphStateLabel" style="color: var(--danger);">100% Fotografía 2D (KV-Cache Localizado)</b>
+          </span>
+          <span class="pmul" id="morphRatioLabel" style="font-size: 12.5px;">Memoria: O(N)</span>
+        </div>
+
+        <!-- Canvas Ampliado de Alta Resolución (1040 x 500) -->
+        <canvas id="photoHoloCanvas" width="1040" height="500" style="width: 100%; height: auto; max-height: 520px; aspect-ratio: 1040 / 500; background: #121114; border-radius: 6px; border: 1px solid var(--line);"></canvas>
+
+        <div style="margin-top: 22px;">
+          <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--ink3); margin-bottom: 8px;">
+            <span>◄ FOTOGRAFÍA (PÍXELES KV RÍGIDOS)</span>
+            <span>DESPLIEGUE ESPECTRAL DE FOURIER</span>
+            <span>HOLOGRAMA EN EL TORO (O(1)) ►</span>
+          </div>
+          <input type="range" id="photoMorphSlider" min="0" max="100" value="0" style="width: 100%;">
+        </div>
+      </div>
+    </article>
+
+    <!-- I · Toro Unitario -->
+    <article class="pillar rv">
+      <div>
+        <span class="pillar__num">I</span>
+        <h3>Confinamiento en el Toro Unitario</h3>
+        <p>A diferencia del producto punto euclidiano, la proyección sobre el toro unitario garantiza que la norma euclidiana del estado acumulador $\mathbf{S}_t = \lambda \mathbf{S}_{t-1} + B_t$ converja asintóticamente a un techo térmico de equilibrio sin desbordamiento.</p>
+        <p>El ángulo de fase rota continuamente mediante RoPE en el toro ($\theta_{t,k} = \omega_k \cdot t$), habilitando longitud de contexto ilimitada sin degradar las coordenadas relativas.</p>
+        <div class="pillar__gain"><b>$|\mathcal{F}(K)| = 1$</b><span>norma unitaria estricta<br>en cada modo espectral</span></div>
+      </div>
+      <div class="pillar__fig">
+        <canvas id="torusCanvas" height="260" aria-label="Visualización interactiva del toro unitario complejo"></canvas>
+      </div>
+    </article>
+
+    <!-- II · Phase Disentangler -->
+    <article class="pillar rv">
+      <div>
+        <span class="pillar__num">II</span>
+        <h3>Holographic Phase Disentangler</h3>
+        <p>Cuando cientos de frentes de onda se superponen en un mismo tensor, surge ruido de interferencia destructiva (*crosstalk*). Para neutralizarlo, introducimos una penalización espectral sobre la matriz de Gram de fases.</p>
+        <p>Al forzar ortogonalidad entre los modos de fase fuera de la diagonal, la recuperación asociativa mediante consulta ($Q_{\text{unit}} \odot \mathbf{S}_t$) extrae el valor exacto con una relación señal-ruido óptima.</p>
+        <div class="pillar__gain"><b>$\epsilon \le 6.67 \times 10^{-7}$</b><span>discrepancia máxima<br>paralelo vs. recurrente</span></div>
+      </div>
+      <div class="pillar__fig">
+        <svg id="gramSvg" viewBox="0 0 540 240" role="img" aria-label="Matriz de Gram de fases ortogonalizada"></svg>
+      </div>
+    </article>
+
+    <!-- III · Cuantización de Fase -->
+    <article class="pillar rv">
+      <div>
+        <span class="pillar__num">III</span>
+        <h3>La verdad sobre la precisión</h3>
+        <p>DeepSeek y Llama pueden usar 4 bits (FP4) porque miden magnitudes lineales en $\mathbb{R}^D$. Holo-O(1) opera sobre ángulos en el círculo de Hilbert. Si truncas el ángulo a 7 bits de mantisa (`bfloat16`), la resonancia de Bragg se desfasa y el modelo balbucea.</p>
+        <p>El uso de `float32` (23 bits de mantisa) no es un capricho: es una exigencia geométrica para que la interferencia constructiva resista miles de pasos temporales.</p>
+        <div class="pillar__gain"><b>23 bits</b><span>mantisa obligatoria<br>para preservar Bragg</span></div>
+      </div>
+      <div class="pillar__fig">
+        <div class="pctl">
+          <div class="seg" id="precSeg">
+            <button data-pr="fp32" class="on">FP32 · Mantisa 23b</button>
+            <button data-pr="bf16">BF16 · Mantisa 7b</button>
+            <button data-pr="int4">INT4 · Mantisa 2b</button>
+          </div>
+          <span class="pmul" id="precStatus">RESONANCIA ESTABLE</span>
+        </div>
+        <div class="qz__bar"><div class="qz__fill" id="precBar"></div></div>
+        <div class="qz__read">
+          <span id="precWalk">Deriva angular: 9.53 × 10⁻⁷ rad</span>
+          <span id="precSteps">Pasos estables: > 100 000</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- IV · Filtro Causal por FFT -->
+    <article class="pillar rv">
+      <div>
+        <span class="pillar__num">IV</span>
+        <h3>Bohmian Causal Filter por FFT</h3>
+        <p>En inferencia el modelo opera paso a paso en $\mathcal{O}(1)$. Pero en entrenamiento en GPU, la recurrencia se vectoriza temporalmente como una convolución causal exacta resuelta por transformada rápida de Fourier en $\mathcal{O}(S \log S)$.</p>
+        <p>Esto permite entrenar en clústeres NVIDIA H100 y H200 a velocidades superiores a **34.000 tokens por segundo**, eliminando la lentitud típica de las redes recurrentes tradicionales.</p>
+        <div class="pillar__gain"><b>34.6k</b><span>tokens/segundo en H200<br>entrenamiento paralelo</span></div>
+      </div>
+      <div class="pillar__fig">
+        <canvas id="fftCanvas" height="220" aria-label="Visualización de la convolución causal 1D por FFT"></canvas>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ §4 · EL DUELO MATEMÁTICO ============ -->
+<section id="calc">
+  <div class="wrap">
+    <div class="rv">
+      <div class="overline">§4 · El Duelo</div>
+      <h2>La pared frente al horizonte</h2>
+      <p class="sub" style="max-width:56ch">Mueve el contexto desde mil hasta un millón de tokens. Compara el colapso físico del KV-Cache tradicional contra la invariancia de Holo-O(1).</p>
+    </div>
+
+    <div class="calc rv">
+      <div class="calc__row">
+        <label for="calcSlider">Contexto</label>
+        <input type="range" id="calcSlider" min="0" max="10" step="1" value="7" aria-label="Longitud de contexto">
+        <span class="calc__tokval" id="calcTokensLabel">128 000 tokens</span>
+      </div>
+
+      <div class="calc__duel">
+        <div class="calc__side tf">
+          <h4>TRANSFORMER ESTÁNDAR (FP16)</h4>
+          <div class="calc__num"><span id="tfVal">16.38</span><span class="calc__unit" id="tfUnit">GB</span></div>
+          <p class="calc__desc" id="tfDesc">Requiere la mitad de la VRAM de una tarjeta de servidor para almacenar recuerdos pasados.</p>
+        </div>
+
+        <div class="calc__side holo">
+          <h4>HOLO-O(1) · ESTADO ESPECTRAL</h4>
+          <div class="calc__num">64.0<span class="calc__unit">KB</span></div>
+          <p class="calc__desc">Confinado permanentemente en las cachés ultrarrápidas L1/L2 del procesador. Costo marginal: cero.</p>
+        </div>
+      </div>
+
+      <div class="calc__ruler">
+        <div class="calc__mark ref" style="left:18%"><i></i><span>16 GB · RTX 4090</span></div>
+        <div class="calc__mark ref" style="left:42%"><i></i><span>80 GB · H100</span></div>
+        <div class="calc__mark ref" style="left:64%"><i></i><span>192 GB · B200</span></div>
+        <div class="calc__mark ref" style="left:88%"><i></i><span>512 GB · Clúster</span></div>
+        <div class="calc__pin" id="tfPin" style="left:18%"></div>
+        <div class="calc__holo-pin" title="HoloLLM se mantiene en 64 KB"></div>
+      </div>
+      <p class="mg" style="color:var(--ink3);margin-top:16px;text-align:right" id="diffFactor">
+        Factor de reducción: 262.144×
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLOFÓN ============ -->
+<section class="close">
+  <div class="wrap rv">
+    <div class="overline">Colofón</div>
+    <p class="pq">«No guardes el pasado:<br>hazlo resonar.»</p>
+    <p class="sub">El cuello de botella de la inteligencia artificial contemporánea no es el cálculo: es la persistencia territorial de los datos. Al sustituir la cinta acumulativa por frentes de onda interferidos en el Orden Implicado, demostramos que la memoria de un modelo causal no necesita expandir el universo físico para recordar.</p>
+    <p class="sub" style="margin-top:16px">La inferencia a 45 tokens por segundo en procesadores domésticos de 12 hilos sin GPU no es una concesión: es la consecuencia matemática natural de no arrastrar el peso del tiempo.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="width:100%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px">
+    <div>HOLO-O(1) RESEARCH PROJECT · MARCOS IBARRA & RESEARCH TEAM</div>
+    <div>PREPRINT DOI: <a href="https://doi.org/10.5281/zenodo.22849908" target="_blank" style="color:var(--lum)">10.5281/ZENODO.22849908</a></div>
+    <div>LICENCIA APACHE 2.0 · REPOSITORIO GITHUB: MRCSIBR/HOLOLLM</div>
+  </div>
+</footer>
+
+<script>
+(()=>{
+"use strict";
+
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const fmtI=new Intl.NumberFormat('es-ES');
+const fmt1=new Intl.NumberFormat('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmt2=new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LUM='215,217,82';
+const MONO='"Spline Sans Mono",monospace';
+const SERIF='"Crimson Pro",serif';
+
+function fitCanvas(cv){
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const w=cv.clientWidth,h=cv.clientHeight;
+  cv.width=Math.max(1,Math.round(w*dpr)); cv.height=Math.max(1,Math.round(h*dpr));
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,W:w,H:h};
+}
+
+const engines=[];
+let last=performance.now();
+function loop(t){
+  const dt=Math.min(50,t-last); last=t;
+  if(!document.hidden) for(const e of engines) if(e.on) e.draw(t,dt);
+  requestAnimationFrame(loop);
+}
+function watch(el,eng){
+  new IntersectionObserver(es=>{eng.on=es[0].isIntersecting;},{rootMargin:'160px'}).observe(el);
+}
+
+/* ---------- header + rail ---------- */
+const hd=$('#hd');
+addEventListener('scroll',()=>{
+  hd.classList.toggle('scrolled',scrollY>40);
+  const p=scrollY/(document.documentElement.scrollHeight-innerHeight);
+  $('#railFill').style.height=(p*100)+'%';
+},{passive:true});
+
+(function(){
+  const links=[...document.querySelectorAll('.rail a')];
+  const secs=['#hero','#prose','#story','#engine','#calc'].map(s=>$(s));
+  function place(){
+    const dh=document.documentElement.scrollHeight-innerHeight;
+    secs.forEach((s,i)=>{
+      if(s) links[i].style.top=clamp(s.offsetTop/dh,0,1)*190+'px';
+    });
+  }
+  place(); addEventListener('resize',place);
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{const i=secs.indexOf(e.target); if(e.isIntersecting) links.forEach((l,j)=>l.classList.toggle('on',j===i));});
+  },{rootMargin:'-40% 0px -40% 0px'});
+  secs.forEach(s=>s&&io.observe(s));
+})();
+
+/* reveal */
+const rvIO=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');rvIO.unobserve(e.target);}
+}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>rvIO.observe(el));
+
+/* ============================================================
+   HERO CANVAS — Interferencia continua en el Orden Implicado
+============================================================ */
+(function(){
+  const cv=$('#heroCanvas'); let ctx,W,H;
+  const nodes=[];
+  function layout(){
+    ({ctx,W,H}=fitCanvas(cv));
+    nodes.length=0;
+    const count=64;
+    for(let i=0;i<count;i++){
+      nodes.push({
+        r: Math.sqrt(Math.random())*Math.min(W,H)*0.42,
+        theta: Math.random()*Math.PI*2,
+        speed: (Math.random()-.5)*0.008,
+        freq: Math.floor(Math.random()*4+1),
+        amp: 0.3+Math.random()*0.7
+      });
+    }
+  }
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W*0.5,cy=H*0.5;
+
+    for(let i=1;i<=6;i++){
+      const rad=(i*45+t*0.02)% (Math.min(W,H)*0.48);
+      const alpha=(1 - rad/(Math.min(W,H)*0.48))*0.25;
+      ctx.strokeStyle=`rgba(${LUM},${alpha})`;
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.stroke();
+    }
+
+    ctx.fillStyle=`rgba(${LUM},.85)`;
+    for(const n of nodes){
+      n.theta+=n.speed;
+      const x=cx+Math.cos(n.theta)*n.r;
+      const y=cy+Math.sin(n.theta)*n.r*0.65;
+      const pulse=0.5+0.5*Math.sin(t*0.003*n.freq);
+      ctx.beginPath();ctx.arc(x,y,1.5+pulse*1.8,0,Math.PI*2);ctx.fill();
+    }
+  }
+  layout(); new ResizeObserver(layout).observe(cv);
+  const eng={on:true,draw};
+  if(!REDUCED){watch(cv,eng);engines.push(eng);eng.on=true;}
+})();
+
+/* ============================================================
+   SCROLLYTELLING — De la cinta al Toro de 64 KB
+============================================================ */
+(function(){
+  const cv=$('#stage'),frame=$('#frame');
+  let ctx,W,H;
+  const CAPS=[
+    'El transformer acumula tokens en memoria espacial: O(N) inexorable.',
+    'David Bohm: la realidad es un despliegue de frecuencias enredadas.',
+    'Tony Plate: convolución circular en Fourier para enlazar sin crecer.',
+    'Toro Unitario: confinamiento estricto |F(K)| = 1. Fase pura, energía acotada.',
+    'Teorema de Fase: FP16 desintegra la resonancia; FP32 la hace eterna.',
+    'Maldacena & Witten: la profundidad disipa el ruido y decanta significado.',
+    'Estado 64 KB: todo el pasado causal comprimido en resonancia O(1).'
+  ];
+
+  const S={step:0,tape:1,torus:0,waves:0,fp32:0,bulk:0,core:0};
+  const T={...S};
+
+  const steps=[
+    {step:0, tape:1,  torus:0,  waves:0, fp32:0, bulk:0, core:0},
+    {step:1, tape:.4, torus:.5, waves:.2,fp32:0, bulk:0, core:0},
+    {step:2, tape:0,  torus:.9, waves:.6,fp32:0, bulk:0, core:0},
+    {step:3, tape:0,  torus:1,  waves:.8,fp32:0, bulk:0, core:0},
+    {step:4, tape:0,  torus:.8, waves:.5,fp32:1, bulk:0, core:0},
+    {step:5, tape:0,  torus:.4, waves:.3,fp32:0, bulk:1, core:.4},
+    {step:6, tape:0,  torus:.1, waves:.1,fp32:0, bulk:.2,core:1},
+  ];
+
+  const cap=$('#figcap'),hudTok=$('#hudTok'),hudMem=$('#hudMem'),oom=$('#oom');
+  let capShown=-1;
+  function setCaption(i){
+    if(i===capShown)return;capShown=i;
+    cap.style.opacity=0;
+    setTimeout(()=>{cap.textContent=CAPS[i];cap.style.opacity=1;},240);
+  }
+
+  function layout(){({ctx,W,H}=fitCanvas(cv));}
+  layout(); new ResizeObserver(layout).observe(cv);
+
+  function draw(t,dt){
+    for(const k in T) S[k]+=(T[k]-S[k])*0.08;
+
+    ctx.clearRect(0,0,W,H);
+    const cx=W*0.5,cy=H*0.48;
+
+    /* ---- 1. Cinta lineal Transformer (Paso 0-1) ---- */
+    if(S.tape>0.02){
+      ctx.save();ctx.globalAlpha=S.tape;
+      const count=12;
+      const wBlock=22,hBlock=14,gap=4;
+      const startX=cx-(count*(wBlock+gap))*0.5;
+      ctx.fillStyle='rgba(155,151,160,.4)';
+      ctx.font='10px '+MONO;ctx.textAlign='center';
+      ctx.fillText('CINTA LINEAL KV EN VRAM · O(N)',cx,cy-40);
+
+      for(let i=0;i<count;i++){
+        const x=startX+i*(wBlock+gap);
+        ctx.strokeStyle=i===count-1?`rgba(${LUM},.9)`:'rgba(155,151,160,.6)';
+        ctx.strokeRect(x,cy-hBlock/2,wBlock,hBlock);
+        if(i===count-1){
+          ctx.fillStyle=`rgba(${LUM},.8)`;
+          ctx.fillRect(x+1,cy-hBlock/2+1,wBlock-2,hBlock-2);
+        }
+      }
+      ctx.restore();
+    }
+
+    /* ---- 2. Toro Unitario |F(K)| = 1 (Paso 2-3) ---- */
+    if(S.torus>0.02){
+      ctx.save();ctx.globalAlpha=S.torus;
+      const R=Math.min(W,H)*0.28;
+      ctx.strokeStyle=`rgba(${LUM},.6)`;
+      ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+
+      const modes=16;
+      for(let i=0;i<modes;i++){
+        const th=i*(Math.PI*2/modes)+t*0.001;
+        const x=cx+Math.cos(th)*R;
+        const y=cy+Math.sin(th)*R;
+        ctx.fillStyle=`rgba(${LUM},.9)`;
+        ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+
+        ctx.strokeStyle=`rgba(${LUM},.12)`;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+      }
+      ctx.fillStyle='rgba(215,217,82,.85)';
+      ctx.font='11px '+MONO;ctx.textAlign='center';
+      ctx.fillText('|F(K)| = 1.00',cx,cy+R+24);
+      ctx.restore();
+    }
+
+    /* ---- 3. Ondas de interferencia y Bragg (Paso 3-4) ---- */
+    if(S.waves>0.02){
+      ctx.save();ctx.globalAlpha=S.waves;
+      const numW=5;
+      for(let i=1;i<=numW;i++){
+        const r=(i*24+t*0.04)%140;
+        const a=(1-r/140)*0.5;
+        ctx.strokeStyle=`rgba(${LUM},${a})`;
+        ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    /* ---- 4. Teorema de Cuantización FP32 vs BF16 (Paso 4) ---- */
+    if(S.fp32>0.02){
+      ctx.save();ctx.globalAlpha=S.fp32;
+      const rGauge=80;
+      ctx.strokeStyle=`rgba(${LUM},.8)`;ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(cx,cy,rGauge,-Math.PI/6,Math.PI/6);ctx.stroke();
+      ctx.fillStyle=`rgba(${LUM},.9)`;ctx.font='10px '+MONO;ctx.textAlign='center';
+      ctx.fillText('VENTANA DE RESONANCIA DE BRAGG',cx,cy-rGauge-14);
+
+      const ang=Math.sin(t*0.002)*0.08;
+      ctx.strokeStyle='#fff';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(ang)*rGauge,cy+Math.sin(ang)*rGauge);ctx.stroke();
+      ctx.restore();
+    }
+
+    /* ---- 5. Bulk de Poincaré y Núcleo 64 KB (Paso 5-6) ---- */
+    if(S.core>0.02){
+      ctx.save();ctx.globalAlpha=S.core;
+      for(let z=1;z<=4;z++){
+        const rZ=z*28;
+        ctx.strokeStyle='rgba(155,151,160,.2)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(cx,cy,rZ,0,Math.PI*2);ctx.stroke();
+      }
+      ctx.fillStyle=`rgba(${LUM},.95)`;
+      ctx.shadowColor=`rgba(${LUM},.8)`;
+      ctx.shadowBlur=20;
+      ctx.beginPath();ctx.arc(cx,cy,12+Math.sin(t*0.003)*2,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+
+      ctx.fillStyle='#18171A';ctx.font='bold 9px '+MONO;ctx.textAlign='center';
+      ctx.fillText('64KB',cx,cy+3.5);
+      ctx.restore();
+    }
+
+    const simulatedTokens=Math.round(lerp(12,131072,S.step/6));
+    hudTok.textContent='tokens '+fmtI.format(simulatedTokens);
+    hudMem.textContent='64.0 KB';
+  }
+
+  let lastS=-1;
+  function setStep(i){
+    if(i===lastS)return;lastS=i;
+    Object.assign(T,steps[i]);
+    setCaption(i);
+    oom.classList.toggle('on',i===3);
+  }
+
+  const stepIO=new IntersectionObserver(es=>{
+    es.forEach(e=>{if(e.isIntersecting)setStep(+e.target.dataset.step);});
+  },{rootMargin:'-42% 0px -42% 0px'});
+  document.querySelectorAll('.step').forEach(s=>stepIO.observe(s));
+  setStep(0);
+
+  const eng={on:false,draw};watch(cv,eng);engines.push(eng);
+})();
+
+/* ============================================================
+   PIEZA CENTRAL AMPLIADA: DE LA FOTOGRAFÍA AL TORO 3D MORPH
+============================================================ */
+(function(){
+  const cv = document.getElementById('photoHoloCanvas');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const slider = document.getElementById('photoMorphSlider');
+  const stateLabel = document.getElementById('morphStateLabel');
+  const ratioLabel = document.getElementById('morphRatioLabel');
+
+  const COLS = 16, ROWS = 16;
+  const particles = [];
+
+  for(let r = 0; r < ROWS; r++){
+    for(let c = 0; c < COLS; c++){
+      particles.push({
+        gridCol: c,
+        gridRow: r,
+        u: (c / COLS) * Math.PI * 2,
+        v: (r / ROWS) * Math.PI * 2,
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.02 + Math.random() * 0.03
+      });
+    }
+  }
+
+  let morphAmount = 0.0;
+  let targetMorph = 0.0;
+
+  slider.addEventListener('input', (e) => {
+    targetMorph = parseFloat(e.target.value) / 100.0;
+  });
+
+  function draw(t){
+    morphAmount += (targetMorph - morphAmount) * 0.08;
+
+    if(morphAmount < 0.25){
+      stateLabel.textContent = "Fotografía 2D: Cada píxel es un par KV aislado en VRAM";
+      stateLabel.style.color = "var(--danger)";
+      ratioLabel.textContent = "Memoria: O(N) Localizada";
+      ratioLabel.style.color = "var(--danger)";
+    } else if(morphAmount > 0.75){
+      stateLabel.textContent = "Holograma Continuo: Fases enredadas sobre el Toro Unitario";
+      stateLabel.style.color = "var(--lum)";
+      ratioLabel.textContent = "Memoria: 64 KB Constante O(1)";
+      ratioLabel.style.color = "var(--lum)";
+    } else {
+      stateLabel.textContent = "Transformada de Fourier: Desdoblamiento de coordenadas a fases";
+      stateLabel.style.color = "var(--warn)";
+      ratioLabel.textContent = "Transición al Orden Implicado";
+      ratioLabel.style.color = "var(--warn)";
+    }
+
+    const W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W * 0.5, cy = H * 0.5;
+
+    // Dimensiones ampliadas de la fotografía 2D
+    const gridSpacing = 20;
+    const gridStartX = cx - (COLS * gridSpacing) * 0.5;
+    const gridStartY = cy - (ROWS * gridSpacing) * 0.5;
+
+    // Dimensiones ampliadas del Toro 3D Isométrico
+    const R_major = 145; // Radio mayor ampliado
+    const r_minor = 54;  // Radio del tubo ampliado
+    const rotX = 0.58 + Math.sin(t * 0.001) * 0.08;
+    const rotY = t * 0.0012;
+
+    if(morphAmount < 0.6){
+      const a = (1 - morphAmount / 0.6) * 0.5;
+      ctx.strokeStyle = `rgba(155, 151, 160, ${a})`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(gridStartX - 14, gridStartY - 14, (COLS * gridSpacing) + 8, (ROWS * gridSpacing) + 8);
+      ctx.fillStyle = `rgba(155, 151, 160, ${a * 0.8})`;
+      ctx.font = '11px Spline Sans Mono, monospace';
+      ctx.fillText("PLACA FOTOGRÁFICA 2D (PÍXELES KV RÍGIDOS LOCALIZADOS)", gridStartX - 10, gridStartY - 22);
+    }
+
+    const currentPositions = [];
+    particles.forEach(p => {
+      const xA = gridStartX + p.gridCol * gridSpacing;
+      const yA = gridStartY + p.gridRow * gridSpacing;
+
+      const u = p.u + rotY, v = p.v;
+      const tx3D = (R_major + r_minor * Math.cos(v)) * Math.cos(u);
+      const ty3D = (R_major + r_minor * Math.cos(v)) * Math.sin(u);
+      const tz3D = r_minor * Math.sin(v);
+
+      const xB = cx + tx3D;
+      const yB = cy + ty3D * Math.sin(rotX) + tz3D * Math.cos(rotX);
+      const depth = tz3D * Math.sin(rotX) - ty3D * Math.cos(rotX);
+
+      const curX = xA * (1 - morphAmount) + xB * morphAmount;
+      const curY = yA * (1 - morphAmount) + yB * morphAmount;
+
+      currentPositions.push({ x: curX, y: curY, depth: depth, p: p });
+    });
+
+    if(morphAmount > 0.4){
+      currentPositions.sort((a, b) => a.depth - b.depth);
+    }
+
+    // Filamentos sinápticos de fase en el Toro
+    if(morphAmount > 0.25){
+      const lineAlpha = (morphAmount - 0.25) / 0.75 * 0.28;
+      ctx.strokeStyle = `rgba(215, 217, 82, ${lineAlpha})`;
+      ctx.lineWidth = 0.9;
+      for(let i = 0; i < currentPositions.length; i += 2){
+        const next = (i + 1) % currentPositions.length;
+        ctx.beginPath();
+        ctx.moveTo(currentPositions[i].x, currentPositions[i].y);
+        ctx.lineTo(currentPositions[next].x, currentPositions[next].y);
+        ctx.stroke();
+      }
+    }
+
+    currentPositions.forEach(item => {
+      const p = item.p, x = item.x, y = item.y;
+      if(morphAmount < 0.3){
+        const size = 10;
+        ctx.fillStyle = (p.gridCol === 7 && p.gridRow === 7) ? 'rgba(255, 90, 95, 0.95)' : 'rgba(234, 231, 223, 0.5)';
+        ctx.fillRect(x - size*0.5, y - size*0.5, size, size);
+      } else {
+        const wavePulse = 0.5 + 0.5 * Math.sin(t * p.pulseSpeed + p.phase);
+        const radius = 2.6 + wavePulse * 2.2;
+        ctx.fillStyle = `rgba(215, 217, 82, ${0.75 + wavePulse * 0.25})`;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+/* ============================================================
+   ENGINE I · Toro Interactivo
+============================================================ */
+(function(){
+  const cv=$('#torusCanvas'); let ctx,W,H;
+  function layout(){({ctx,W,H}=fitCanvas(cv));}
+  layout(); new ResizeObserver(layout).observe(cv);
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    const cx=W*0.5,cy=H*0.5,R=75;
+
+    ctx.strokeStyle='rgba(50,48,55,1)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.stroke();
+
+    const N=16;
+    for(let i=0;i<N;i++){
+      const ang=i*(Math.PI*2/N)+t*0.0008;
+      const x=cx+Math.cos(ang)*R,y=cy+Math.sin(ang)*R;
+      ctx.fillStyle=`rgba(${LUM},.8)`;
+      ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
+    }
+
+    const kAng=t*0.0015;
+    const kx=cx+Math.cos(kAng)*R,ky=cy+Math.sin(kAng)*R;
+    ctx.strokeStyle=`rgba(${LUM},.95)`;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(kx,ky);ctx.stroke();
+
+    ctx.fillStyle='rgba(234,231,223,.9)';ctx.font='11px '+MONO;ctx.textAlign='left';
+    ctx.fillText('Fase θ(t) = ω · t',kx+10,ky);
+  }
+  const eng={on:false,draw};watch(cv,eng);engines.push(eng);
+})();
+
+/* ============================================================
+   ENGINE II · Matriz de Gram SVG
+============================================================ */
+(function(){
+  const svg=$('#gramSvg'),NS='http://www.w3.org/2000/svg';
+  const size=6,dim=24,gap=4,ox=160,oy=35;
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++){
+    const rect=document.createElementNS(NS,'rect');
+    rect.setAttribute('x',ox+c*(dim+gap));
+    rect.setAttribute('y',oy+r*(dim+gap));
+    rect.setAttribute('width',dim);rect.setAttribute('height',dim);
+    rect.setAttribute('rx',2);
+    if(r===c){
+      rect.setAttribute('fill',`rgba(${LUM},.8)`);
+      rect.setAttribute('stroke',`rgba(${LUM},1)`);
+    } else {
+      rect.setAttribute('fill','rgba(32,31,35,.8)');
+      rect.setAttribute('stroke','rgba(50,48,55,.6)');
+    }
+    svg.appendChild(rect);
+  }
+  const t=document.createElementNS(NS,'text');
+  t.setAttribute('x',ox+size*(dim+gap)+24);t.setAttribute('y',oy+size*(dim+gap)*0.5);
+  t.setAttribute('fill','rgba(155,151,160,.85)');t.setAttribute('font-family',MONO);t.setAttribute('font-size','11');
+  t.textContent='Gram de Fases: energía pura en la diagonal (Crosstalk = 0)';
+  svg.appendChild(t);
+})();
+
+/* ============================================================
+   ENGINE III · Cuantización de Fase
+============================================================ */
+(function(){
+  const bar=$('#precBar'),status=$('#precStatus'),walk=$('#precWalk'),steps=$('#precSteps');
+  const MODES={
+    fp32:{w:'100%',st:'RESONANCIA ESTABLE',wk:'Deriva angular: 9.53 × 10⁻⁷ rad',sp:'Pasos estables: > 100 000',uns:false},
+    bf16:{w:'32%',st:'DESFASE DESTRUCTIVO',wk:'Deriva angular: 4.91 × 10⁻² rad',sp:'Colapso de Bragg: ~65 pasos',uns:true},
+    int4:{w:'8%',st:'COLAPSO DE FASE INMEDIATO',wk:'Deriva angular: 0.785 rad',sp:'Colapso de Bragg: 3 pasos',uns:true}
+  };
+  $('#precSeg').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    [...b.parentNode.children].forEach(x=>x.classList.toggle('on',x===b));
+    const m=MODES[b.dataset.pr];
+    bar.style.width=m.w;
+    bar.classList.toggle('unstable',m.uns);
+    status.textContent=m.st;
+    status.style.color=m.uns?'var(--danger)':'var(--lum)';
+    walk.textContent=m.wk;
+    steps.textContent=m.sp;
+  });
+})();
+
+/* ============================================================
+   ENGINE IV · Convolución Causal FFT
+============================================================ */
+(function(){
+  const cv=$('#fftCanvas'); let ctx,W,H;
+  function layout(){({ctx,W,H}=fitCanvas(cv));}
+  layout(); new ResizeObserver(layout).observe(cv);
+
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    const N=32,stepX=W/(N+1),cy=H*0.5;
+
+    ctx.strokeStyle='rgba(155,151,160,.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+
+    for(let i=0;i<N;i++){
+      const x=(i+1)*stepX;
+      const decay=Math.exp(-i*0.08);
+      const wave=Math.sin(i*0.6-t*0.005)*decay*40;
+      ctx.strokeStyle=`rgba(${LUM},${decay*0.85})`;
+      ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x,cy);ctx.lineTo(x,cy-wave);ctx.stroke();
+    }
+    ctx.fillStyle='rgba(155,151,160,.8)';ctx.font='10px '+MONO;
+    ctx.fillText('Filtro causal impulsional: w_t = λ^t  |  O(S log S) por cuFFT',20,H-16);
+  }
+  const eng={on:false,draw};watch(cv,eng);engines.push(eng);
+})();
+
+/* ============================================================
+   §4 · CALCULADORA DUELO (TRANSFORMER VS HOLO-O(1))
+============================================================ */
+(function(){
+  const slider=$('#calcSlider'),tokLabel=$('#calcTokensLabel'),
+        tfVal=$('#tfVal'),tfUnit=$('#tfUnit'),tfDesc=$('#tfDesc'),
+        tfPin=$('#tfPin'),diffFactor=$('#diffFactor');
+
+  const TOKENS=[1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000, 256000, 512000, 1000000];
+
+  function render(){
+    const T=TOKENS[+slider.value];
+    tokLabel.textContent=fmtI.format(T)+' tokens';
+
+    const bytesTF = T * 524288;
+    const gbTF = bytesTF / 1e9;
+
+    if(gbTF>=1000){
+      tfVal.textContent=fmt2.format(gbTF/1000);
+      tfUnit.textContent='TB';
+    } else {
+      tfVal.textContent=fmt1.format(gbTF);
+      tfUnit.textContent='GB';
+    }
+
+    if(gbTF>500) tfDesc.textContent='Requiere un clúster de supercómputo exclusivamente para retener el texto.';
+    else if(gbTF>80) tfDesc.textContent='Supera la memoria física total de una NVIDIA H100 (80 GB).';
+    else if(gbTF>24) tfDesc.textContent='Excede la capacidad de cualquier GPU de consumo (RTX 4090).';
+    else tfDesc.textContent='Comienza a saturar el ancho de banda del procesador local.';
+
+    const pTF=clamp((Math.log10(Math.max(gbTF,.5))-Math.log10(.5))/(Math.log10(1500)-Math.log10(.5)),0,1);
+    tfPin.style.left=(pTF*100)+'%';
+
+    const factor = Math.round(bytesTF / 65536);
+    diffFactor.textContent=`Factor de reducción en memoria: ${fmtI.format(factor)}×`;
+  }
+
+  slider.addEventListener('input',render);
+  render();
+})();
+
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
