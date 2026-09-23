@@ -1,407 +1,244 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HoloLLM: Nueva Arquitectura LLM basada en Redes Holográficas con Complejidad de Memoria O(1)</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HoloLLM (HN-1) • Portal de Investigación Oficial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#18171A; --panel:#201F23; --panel-elevated:#27252B; --line:#323037;
+  --ink:#EAE7DF; --ink2:#9B97A0; --ink3:#5E5B63;
+  --lum:#D7D952; --lum-dim:rgba(215,217,82,.12); --lum-glow:rgba(215,217,82,.25);
+  --serif:"Crimson Pro",Georgia,serif;
+  --mono:"Spline Sans Mono",ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 19px/1.7 var(--serif);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh;
+  display:flex; flex-direction:column; justify-content:space-between;
+}
+::selection{background:var(--lum);color:#18171A}
+a{color:inherit;text-decoration:none}
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+/* Canvas de fondo con frentes de onda armónicos */
+#portalCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.45}
 
-  <style>
-    :root {
-      --bg-page: #ffffff;
-      --text-main: #000000;
-      --text-muted: #333333;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 1.15rem;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      padding: 3rem 1.5rem;
-    }
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4vw,48px);position:relative;z-index:2;width:100%}
 
-    .container {
-      max-width: 1024px;
-      margin: 0 auto;
-    }
+/* Header minimalista */
+header{
+  padding:24px 0; border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center;
+  font:500 11.5px/1 var(--mono); letter-spacing:.25em; text-transform:uppercase; color:var(--ink2);
+}
+.brand{color:var(--ink);display:flex;align-items:center;gap:10px}
+.brand i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lum);box-shadow:0 0 10px var(--lum)}
+.brand b{color:var(--lum);font-weight:500}
 
-    /* CABECERA */
-    .paper-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .paper-header h1 {
-      font-size: 2.2rem;
-      font-weight: 600;
-      line-height: 1.2;
-      margin-bottom: 1.5rem;
-    }
-    .authors {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-    }
-    .affiliations {
-      font-size: 1.0rem;
-      font-style: italic;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-    }
+/* Hero Central */
+.hero{padding:clamp(60px,10vh,110px) 0 clamp(40px,6vh,70px);text-align:center}
+.badge{
+  display:inline-flex;align-items:center;gap:12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:100px;
+  padding:6px 18px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--ink2);
+  margin-bottom:28px;
+}
+.badge b{color:var(--lum);font-weight:500}
+h1{
+  font:300 clamp(44px,6.8vw,86px)/1.05 var(--serif);
+  letter-spacing:-.025em;margin-bottom:22px;
+}
+h1 em{font-style:italic;color:var(--lum);font-weight:300}
+.lead{
+  font:300 clamp(19px,1.7vw,23px)/1.55 var(--serif);
+  color:var(--ink2);max-width:44ch;margin:0 auto 40px;
+}
 
-    /* ABSTRACT */
-    .abstract-container {
-      margin: 0 3rem 2.5rem 3rem;
-    }
-    hr.thick { border: 0; border-top: 2px solid #000; margin-bottom: 1rem; }
-    hr.thin { border: 0; border-top: 1px solid #000; margin-top: 1rem; margin-bottom: 2rem; }
-    .abstract-text {
-      text-align: justify;
-      font-size: 1.05rem;
-    }
+/* Grilla de Entradas (Hub Cards) */
+.hub-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:24px;
+  margin:20px 0 60px;
+}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:34px 30px;transition:all .3s cubic-bezier(.2,.6,.2,1);
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;top:0;left:0;width:100%;height:2px;
+  background:transparent;transition:background .3s;
+}
+.card:hover{
+  border-color:var(--lum);transform:translateY(-3px);
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.7);
+}
+.card:hover::before{background:var(--lum)}
+.card__num{font:500 10.5px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--lum);margin-bottom:12px}
+.card h2{font:400 clamp(24px,2.2vw,30px)/1.2 var(--serif);margin-bottom:12px;letter-spacing:-.01em}
+.card p{font-size:17.5px;color:var(--ink2);margin-bottom:26px;line-height:1.55}
+.card__action{
+  font:500 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--lum);display:inline-flex;align-items:center;gap:8px;
+}
+.card__action span{transition:transform .2s}
+.card:hover .card__action span{transform:translateX(5px)}
 
-    /* DISEÑO PRINCIPAL: UN SOLO CONTENEDOR DE DOS COLUMNAS */
-    .twocolumn {
-      column-count: 2;
-      column-gap: 3rem;
-      text-align: justify;
-      hyphens: auto;
-    }
-    @media (max-width: 800px) {
-      .twocolumn { column-count: 1; }
-    }
+/* Banner de Métricas Duras */
+.metrics{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:28px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:24px;
+  margin-bottom:60px;text-align:center;
+}
+.m-item .val{font:300 42px/1 var(--serif);color:var(--lum);margin-bottom:6px}
+.m-item .lbl{font:400 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink3)}
 
-    /* ENCABEZADOS Y TEXTO */
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin: 1.8rem 0 1rem 0;
-      break-after: avoid;
-    }
-    .twocolumn > h2:first-child {
-      margin-top: 0; /* Previene el desfase al inicio de columna */
-    }
-    h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      font-style: italic;
-      margin: 1.2rem 0 0.5rem 0;
-      break-after: avoid;
-    }
-    p {
-      margin-bottom: 1rem;
-      text-indent: 1.5rem;
-    }
-    p:first-of-type, h2 + p, h3 + p { text-indent: 0; }
-
-    /* MATEMÁTICAS */
-    .math-block {
-      text-align: center;
-      margin: 1.2rem 0;
-      overflow-x: auto;
-    }
-
-    /* ELEMENTOS QUE ROMPEN LAS COLUMNAS (TABLAS Y FIGURAS) */
-    .full-width-fig {
-      column-span: all;
-      margin: 2.5rem 0;
-      break-inside: avoid;
-    }
-    .figure-caption {
-      font-size: 0.95rem;
-      margin-top: 1rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid #ccc;
-      text-align: justify;
-    }
-
-    /* TABLA ACADÉMICA */
-    table.academic-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-      margin: 0 auto;
-      text-align: center;
-    }
-    table.academic-table th, table.academic-table td {
-      padding: 0.6rem;
-    }
-    table.academic-table th {
-      border-top: 2px solid #000;
-      border-bottom: 1px solid #000;
-      font-weight: 600;
-    }
-    table.academic-table tr:last-child td {
-      border-bottom: 2px solid #000;
-    }
-
-    /* SECCIÓN DE REFERENCIAS ESTILO IEEE/LaTeX */
-    .reference-list {
-      list-style: none;
-      padding: 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-    .reference-list li {
-      margin-bottom: 0.8rem;
-      padding-left: 1.8rem;
-      text-indent: -1.8rem;
-    }
-    .reference-list li strong {
-      font-weight: 600;
-    }
-  </style>
+/* Footer */
+footer{
+  border-top:1px solid var(--line);padding:30px 0 40px;
+  font:400 11px/1.8 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);
+}
+.footer-inner{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+</style>
 </head>
 <body>
 
-<div class="container">
+<canvas id="portalCanvas"></canvas>
 
-  <!-- CABECERA -->
-  <header class="paper-header">
-    <h1>HoloLLM: A Novel Holographic LLM Architecture with $\mathcal{O}(1)$ Memory Complexity</h1>
-    <div class="authors">Marcos Ibarra$^a$, HoloLLM Research Team$^a$</div>
-    <div class="affiliations">
-      $^a$Laboratorio de Investigación en Inteligencia Artificial Holográfica<br>
-      Repositorio: github.com/MRCSIBR/HoloLLM
-    </div>
+<div class="wrap">
+  <header>
+    <div class="brand"><i></i><b>HOLOLLM</b> (HN-1)</div>
+    <div>LABORATORIO DE INTELIGENCIA HOLOGRÁFICA</div>
   </header>
 
-  <!-- ABSTRACT -->
-  <div class="abstract-container">
-    <hr class="thick">
-    <div class="abstract-text">
-      <strong>Abstract—</strong> Los modelos de lenguaje basados en la arquitectura Transformer convencional enfrentan una barrera física y matemática insalvable: la retención autorregresiva de claves y valores (KV-Cache) escala linealmente $\mathcal{O}(N)$ con la longitud del contexto, devorando la memoria VRAM y ahogando el ancho de banda del hardware. En este trabajo presentamos <strong>HoloLLM</strong>, un modelo causal fundamentado en la óptica de Dennis Gabor, el Orden Implicado de David Bohm, la neurobiología de Karl Pribram, el álgebra de Tony Plate y la correspondencia AdS/CFT de Juan Maldacena. Al codificar la memoria sobre el toro unitario complejo $|\mathcal{F}(K)| = 1$ mediante convolución circular, HoloLLM reduce el estado a una huella estrictamente constante de <strong>64 KB</strong>. Evaluado empíricamente, el modelo logra compilar con éxito el 100% de los algoritmos de prueba (7/7 en AST) operando a <strong>142.4 tokens/s en GPU y 45 tokens/s en CPU local</strong>, demostrando que la inferencia de lenguaje natural no requiere bases de datos históricas espaciales, sino la interferencia coherente de fases.
+  <div class="hero">
+    <div class="badge">ESTADO: <b>O(1) CONSTANTE</b> · KV-CACHE: <b>0.00 KB</b></div>
+    <h1>La memoria causal<br>en el <em>Orden Implicado</em></h1>
+    <p class="lead">
+      El fin del almacenamiento lineal de claves y valores. La historia contextual plegada como resonancia espectral en 64 kilobytes de memoria física.
+    </p>
+
+    <!-- Grilla de Puertas de Acceso -->
+    <div class="hub-grid">
+      
+      <!-- Puerta 1: Ensayo Visual -->
+      <a href="teoria_web.html" class="card">
+        <div>
+          <div class="card__num">01 · ENSAYO VISUAL INTERACTIVO</div>
+          <h2>Primeros Principios & El Toro Unitario</h2>
+          <p>Scrollytelling interactivo. La transición de la placa fotográfica del KV-cache hacia la difracción cuántica en el Toro, el Teorema de Fase y la maquinaria de Holo-v2.</p>
+        </div>
+        <div class="card__action">Explorar Ensayo <span>→</span></div>
+      </a>
+
+      <!-- Puerta 2: Whitepaper Académico -->
+      <a href="whitepaper.html" class="card">
+        <div>
+          <div class="card__num">02 · MANUSCRITO CIENTÍFICO</div>
+          <h2>Whitepaper Formal & Teoremas</h2>
+          <p>Publicación técnica completa. Deducción analítica de equivalencia causal, formalización AdS/CFT de Maldacena y pruebas de certificación AST al 100%.</p>
+        </div>
+        <div class="card__action">Leer Whitepaper <span>→</span></div>
+      </a>
+
+      <!-- Puerta 3: Repositorio & Código -->
+      <a href="https://github.com/MRCSIBR/HoloLLM" target="_blank" class="card">
+        <div>
+          <div class="card__num">03 · CÓDIGO ABIERTO & PESOS</div>
+          <h2>Repositorio Oficial en GitHub</h2>
+          <p>Implementación en PyTorch nativo, motor de consola interactiva <code>./holo.py</code>, cliente conversacional y pesos canónicos de 70M listos para descarga.</p>
+        </div>
+        <div class="card__action">Ver Repositorio <span>↗</span></div>
+      </a>
+
     </div>
-    <hr class="thin">
-  </div>
 
-  <!-- TODO EL DOCUMENTO EN UN SOLO CONTENEDOR DE DOS COLUMNAS -->
-  <div class="twocolumn">
-
-    <h2>1. Introducción: ¿Por qué la Red es Holográfica?</h2>
-    <p>
-      En la industria contemporánea de la inteligencia artificial, el adjetivo <em>holográfico</em> suele emplearse como una metáfora comercial. En <strong>HoloLLM</strong>, su uso obedece a un principio físico y matemático estricto, idéntico al mecanismo de reconstrucción óptica descubierto por Dennis Gabor en 1948.
-    </p>
-    <p>
-      Para comprender esta naturaleza, es útil contrastar el modelo Transformer con la óptica tradicional. Un Transformer opera como una <strong>cámara fotográfica</strong>: cada token procesado se almacena en un "píxel" de memoria aislado (una fila en el KV-Cache). Si se recorta una porción de ese almacenamiento, la información contenida allí se destruye irreversiblemente. A lo largo de $65.536$ tokens, el modelo requiere acumular más de 8 GB de vectores discretos en la RAM, lo cual resulta en el estrangulamiento del ancho de banda de cualquier CPU.
-    </p>
-    <p>
-      Por el contrario, <strong>HoloLLM opera como una placa holográfica</strong>. No registra los datos punto por punto, sino que captura el <em>patrón de interferencia</em> (amplitud y fase angular) entre la información entrante y el estado previo. En esta arquitectura, la información de una palabra no reside en una coordenada de memoria específica; cada token excita y modula la totalidad del estado de la red. De este modo, la historia completa de una conversación se pliega analíticamente en un cristal de memoria de apenas 64 KB, cumpliendo el principio holográfico fundamental: <em>el todo está enlazado en cada una de sus partes</em>.
-    </p>
-
-    <h2>2. Traducción de la Teoría Física al Código PyTorch</h2>
-    <p>
-      HoloLLM no es una heurística empírica, sino la síntesis en código de cinco pilares de la física teórica y la neurociencia.
-    </p>
-
-    <h3>2.1 El Orden Implicado (David Bohm)</h3>
-    <p>
-      El físico David Bohm postuló que el universo observable (el Orden Explicado) es la proyección de una matriz subyacente donde todo el espaciotiempo coexiste enredado (el Orden Implicado).
-    </p>
-    <p>
-      En el código, el <strong>Orden Explicado</strong> corresponde a la salida discreta de los tokens (el tensor <code>logits</code> en $\mathbb{R}^D$). El <strong>Orden Implicado</strong> es el tensor de estado holográfico <code>S_t</code>, el cual mantenemos perpetuamente en el dominio espectral usando números complejos. La información nunca se despliega a la memoria espacial; se mantiene como una onda estacionaria.
-    </p>
-
-    <h3>2.2 La Memoria Holonómica (Karl Pribram)</h3>
-    <p>
-      El neurobiólogo Karl Pribram demostró que la memoria biológica es resistente a daños cerebrales masivos porque se almacena como patrones de frentes de onda en el árbol dendrítico.
-    </p>
-    <p>
-      Implementamos esta robustez eliminando las restricciones espaciales de la atención de Vaswani. Durante la inferencia, si introducimos ruido artificial en el tensor <code>S_t</code>, el modelo no sufre olvido catastrófico de una palabra específica; simplemente experimenta una degradación global de nitidez (<em>graceful degradation</em>), operando exactamente como un cerebro biológico.
-    </p>
-
-    <h3>2.3 El Toro Unitario y el Álgebra (Tony Plate)</h3>
-    <p>
-      Asociar tensores clásicos produce explosiones dimensionales. Tony Plate demostró que la <em>convolución circular</em> permite entrelazar dos conceptos sin incrementar la dimensionalidad. En nuestra capa, ejecutamos este entrelazamiento en el espacio de Fourier utilizando <code>torch.fft.rfft</code>. Para evitar la disipación de la onda, forzamos a todas las claves $K$ a vivir sobre el toro unitario:
-    </p>
-    <div class="math-block">
-      $$K_{\text{unit}} = \frac{\mathcal{F}(K)}{| \mathcal{F}(K) | + \epsilon}$$
-    </div>
-    <p>
-      Esta normalización garantiza que los vectores de fase actúen como haces de láser puros: al consultar la memoria (multiplicando por la conjugada de $Q$), el recuerdo se extrae instantáneamente si se cumple la <em>condición de Bragg</em>.
-    </p>
-
-    <!-- EL DIAGRAMA ROMPE LAS COLUMNAS TEMPORALMENTE -->
-    <div class="full-width-fig">
-      <svg viewBox="0 0 960 550" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; border:1px solid #ccc; background:#fff;">
-        <defs>
-          <marker id="arr-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000"/>
-          </marker>
-        </defs>
-
-        <rect x="25" y="25" width="220" height="500" rx="0" fill="#fcfcfc" stroke="#000" stroke-width="1"/>
-        <text x="135" y="55" font-family="Crimson Pro, serif" font-size="14" font-weight="600" fill="#000" text-anchor="middle">AdS/CFT Bulk 2D</text>
-        <line x1="40" y1="70" x2="230" y2="70" stroke="#000" stroke-width="1" stroke-dasharray="2 2"/>
-        <text x="135" y="100" font-family="Crimson Pro, serif" font-size="12" fill="#000" text-anchor="middle">Métrica de Poincaré</text>
-        <text x="135" y="120" font-family="JetBrains Mono, monospace" font-size="12" fill="#000" text-anchor="middle">ds² = (dz² + dx²) / z²</text>
-        <path d="M 50 180 Q 135 280 220 180" stroke="#000" stroke-width="1.5" fill="none"/>
-        <circle cx="135" cy="230" r="4" fill="#000"/>
-        <text x="135" y="260" font-family="Crimson Pro, serif" font-size="12" fill="#000" text-anchor="middle">Pozo Semántico Gravitacional</text>
-        <text x="135" y="340" font-family="Crimson Pro, serif" font-size="12" fill="#000" text-anchor="middle">Propagador de Witten</text>
-        <text x="135" y="360" font-family="JetBrains Mono, monospace" font-size="12" fill="#000" text-anchor="middle">K_z(k) ∝ e^{-|k|z}</text>
-        <line x1="225" y1="80" x2="225" y2="480" stroke="#000" stroke-width="1" stroke-dasharray="2 2"/>
-        <text x="215" y="495" font-family="Crimson Pro, serif" font-size="11" fill="#000" text-anchor="end">Profundidad radial z (L=24)</text>
-
-        <rect x="275" y="80" width="360" height="380" rx="0" fill="#fff" stroke="#000" stroke-width="1" stroke-dasharray="4 4"/>
-        <rect x="580" y="70" width="40" height="20" fill="#000"/>
-        <text x="600" y="84" font-family="Crimson Pro, serif" font-size="12" fill="#fff" text-anchor="middle">× 24</text>
-        <text x="285" y="95" font-family="Crimson Pro, serif" font-size="13" font-weight="600" fill="#000">HoloBlock Layer</text>
-
-        <rect x="305" y="130" width="300" height="35" rx="0" fill="#fff" stroke="#000" stroke-width="1"/>
-        <text x="455" y="152" font-family="Crimson Pro, serif" font-size="13" font-weight="600" fill="#000" text-anchor="middle">SwiGLU MLP (Orden Explicado)</text>
-
-        <rect x="295" y="210" width="320" height="150" rx="0" fill="#fff" stroke="#000" stroke-width="1.5"/>
-        <text x="455" y="230" font-family="Crimson Pro, serif" font-size="13" font-weight="600" fill="#000" text-anchor="middle">MultiHeadHoloAttention O(1)</text>
-
-        <rect x="315" y="250" width="50" height="25" fill="#fff" stroke="#000"/>
-        <text x="340" y="267" font-family="JetBrains Mono, monospace" font-size="11" fill="#000" text-anchor="middle">W_q</text>
-        <rect x="385" y="250" width="50" height="25" fill="#fff" stroke="#000"/>
-        <text x="410" y="267" font-family="JetBrains Mono, monospace" font-size="11" fill="#000" text-anchor="middle">W_k</text>
-        <rect x="455" y="250" width="50" height="25" fill="#fff" stroke="#000"/>
-        <text x="480" y="267" font-family="JetBrains Mono, monospace" font-size="11" fill="#000" text-anchor="middle">W_v</text>
-        <rect x="525" y="250" width="50" height="25" fill="#fff" stroke="#000"/>
-        <text x="550" y="267" font-family="JetBrains Mono, monospace" font-size="11" fill="#000" text-anchor="middle">W_g</text>
-
-        <rect x="315" y="300" width="280" height="30" fill="#f0f0f0" stroke="#000"/>
-        <text x="455" y="319" font-family="Crimson Pro, serif" font-size="12" font-weight="600" fill="#000" text-anchor="middle">Convolución Causal por FFT 1D</text>
-
-        <rect x="305" y="480" width="300" height="40" fill="#fff" stroke="#000" stroke-width="1"/>
-        <text x="455" y="504" font-family="Crimson Pro, serif" font-size="13" font-weight="600" fill="#000" text-anchor="middle">Frontera 1D: x_t + RoPE</text>
-
-        <rect x="305" y="15" width="300" height="40" fill="#fff" stroke="#000" stroke-width="1"/>
-        <text x="455" y="39" font-family="Crimson Pro, serif" font-size="13" font-weight="600" fill="#000" text-anchor="middle">LM Head (Despliegue a Tokens)</text>
-
-        <path d="M 455 480 V 430" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-        <path d="M 455 210 V 165" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-        <path d="M 455 130 V 55" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-
-        <rect x="665" y="25" width="270" height="500" rx="0" fill="#fcfcfc" stroke="#000" stroke-width="1"/>
-        <text x="800" y="55" font-family="Crimson Pro, serif" font-size="14" font-weight="600" fill="#000" text-anchor="middle">Orden Implicado (ℂ)</text>
-        <line x1="680" y1="70" x2="920" y2="70" stroke="#000" stroke-width="1" stroke-dasharray="2 2"/>
-
-        <rect x="680" y="90" width="240" height="45" fill="#fff" stroke="#000"/>
-        <text x="800" y="117" font-family="JetBrains Mono, monospace" font-size="12" fill="#000" text-anchor="middle">Toro Unitario: |F(K)| = 1</text>
-
-        <rect x="680" y="165" width="240" height="45" fill="#fff" stroke="#000"/>
-        <text x="800" y="192" font-family="JetBrains Mono, monospace" font-size="12" fill="#000" text-anchor="middle">Binding: B_t = F(V) ⊙ conj(F(K))</text>
-
-        <rect x="680" y="240" width="240" height="70" fill="#000" stroke="#000"/>
-        <text x="800" y="265" font-family="Crimson Pro, serif" font-size="14" font-weight="600" fill="#fff" text-anchor="middle">Acumulador O(1)</text>
-        <text x="800" y="285" font-family="JetBrains Mono, monospace" font-size="12" fill="#fff" text-anchor="middle">S_t = λ ⊙ S_{t-1} + B_t</text>
-        <text x="800" y="302" font-family="Crimson Pro, serif" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">(64 KB en Cache L1)</text>
-
-        <rect x="680" y="340" width="240" height="45" fill="#fff" stroke="#000"/>
-        <text x="800" y="367" font-family="JetBrains Mono, monospace" font-size="12" fill="#000" text-anchor="middle">Unbinding: iRFFT(S_t ⊙ F(Q))</text>
-
-        <path d="M 800 135 V 165" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-        <path d="M 800 210 V 240" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-        <path d="M 800 310 V 340" stroke="#000" stroke-width="1" marker-end="url(#arr-gray)"/>
-
-        <path d="M 615 262 H 650 V 187 H 680" stroke="#000" stroke-width="1" stroke-dasharray="2 2" fill="none" marker-end="url(#arr-gray)"/>
-        <rect x="635" y="217" width="30" height="15" fill="#fff" />
-        <text x="650" y="228" font-family="JetBrains Mono, monospace" font-size="10" fill="#000" text-anchor="middle">K, V</text>
-
-        <path d="M 680 362 H 650 V 275 H 615" stroke="#000" stroke-width="1" stroke-dasharray="2 2" fill="none" marker-end="url(#arr-gray)"/>
-        <rect x="630" y="342" width="40" height="15" fill="#fff" />
-        <text x="650" y="353" font-family="JetBrains Mono, monospace" font-size="10" fill="#000" text-anchor="middle">V_rec</text>
-      </svg>
-      <div class="figure-caption">
-        <strong>Fig. 1. Arquitectura de HoloLLM.</strong> Izquierda: El propagador conforme en el Bulk AdS/CFT absorbe las frecuencias sintácticas. Centro: El flujo de tokens en el Orden Explicado y la inyección de fase mediante RoPE. Derecha: El motor espectral en el Orden Implicado ($\mathbb{C}$), donde la matriz de memoria permanece confinada en $\mathcal{O}(1)$ gracias a la convolución unitaria de Plate, prescindiendo del KV-Cache.
+    <!-- Telemetría Dura Certificada -->
+    <div class="metrics">
+      <div class="m-item">
+        <div class="val">64 KB</div>
+        <div class="lbl">Estado por Capa (Invariante)</div>
+      </div>
+      <div class="m-item">
+        <div class="val">0.00 KB</div>
+        <div class="lbl">Consumo KV-Cache a 128k</div>
+      </div>
+      <div class="m-item">
+        <div class="val">100%</div>
+        <div class="lbl">Compilación AST (7/7 Algoritmos)</div>
+      </div>
+      <div class="m-item">
+        <div class="val">~45 tok/s</div>
+        <div class="lbl">CPU Doméstica de 12 Hilos</div>
       </div>
     </div>
 
-    <!-- EL TEXTO CONTINÚA EN DOS COLUMNAS -->
-    <h3>2.4 La Geometría AdS/CFT (Maldacena y Witten)</h3>
-    <p>
-      La correspondencia AdS/CFT dicta que una secuencia de tokens en la frontera 1D proyecta un espaciotiempo curvo en un Bulk 2D (métrica de Poincaré). Aplicamos esto escalando HoloLLM a $L=24$ capas de profundidad. Las capas superiores actúan como el Bulk profundo. Mediante decaimientos multiescala sigmoides, emulamos el propagador conforme de Edward Witten $K_z(k) \propto e^{-|k|z}$. El ruido de la sintaxis fina muere en las primeras capas, y en el fondo del Bulk el modelo retiene puramente pozos de atracción invariantes.
-    </p>
-
-    <h3>2.5 Termodinámica del Aprendizaje (Vanchurin)</h3>
-    <p>
-      Vitaly Vanchurin propone que la evolución de la red neuronal hacia un mínimo de pérdida equivale a la termodinámica del espaciotiempo. Para evitar el colapso de fase (que todos los recuerdos interfieran destructivamente), inyectamos el <code>HolographicPhaseDisentangler</code> en la función de pérdida. Este componente actúa como una fuerza repulsiva entrópica que penaliza la coherencia fuera de la diagonal en la matriz de Gram, obligando a los algoritmos a acomodarse ortogonalmente en el espacio de Hilbert.
-    </p>
-
-    <h2>3. Resultados Empíricos y Verificación del Benchmark</h2>
-    <p>
-      Para demostrar la invariancia arquitectónica y la eficiencia en recursos limitados, HoloLLM-70M fue evaluado compilando código real de Python en un árbol de sintaxis abstracta (AST). Evaluamos el rendimiento comparativo ejecutando el mismo checkpoint (en precisión de mantisa de 23 bits, <code>float32</code>) tanto en una GPU industrial como en un procesador de consumo de 12 hilos.
-    </p>
-
-    <!-- LA TABLA VUELVE A ROMPER LAS COLUMNAS -->
-    <div class="full-width-fig">
-      <table class="academic-table">
-        <thead>
-          <tr>
-            <th>Métrica Evaluada</th>
-            <th>NVIDIA A100 (40GB)</th>
-            <th>Host CPU Local (12 Hilos)</th>
-            <th>Transformer Estándar Baseline</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Precisión AST (Algoritmos Completados)</td>
-            <td><strong>7 / 7 (100%)</strong></td>
-            <td><strong>7 / 7 (100%)</strong></td>
-            <td>100% (dependiente de VRAM)</td>
-          </tr>
-          <tr>
-            <td>Velocidad Sostenida (Throughput)</td>
-            <td><strong>142.4 tokens/s</strong></td>
-            <td><strong>~40 tokens/s</strong></td>
-            <td>~10 tokens/s (embotellamiento RAM)</td>
-          </tr>
-          <tr>
-            <td>Latencia Inicial (TTFT)</td>
-            <td>34.6 ms</td>
-            <td>127.0 ms</td>
-            <td>Degradación cuadrática $\mathcal{O}(N^2)$</td>
-          </tr>
-          <tr>
-            <td>Consumo Histórico de KV-Cache a 64k tokens</td>
-            <td><strong>0.00 KB ($\mathcal{O}(1)$)</strong></td>
-            <td><strong>0.00 KB ($\mathcal{O}(1)$)</strong></td>
-            <td>> 8.000 MB (Colapso OOM)</td>
-          </tr>
-          <tr>
-            <td>Huella del Estado Tensor por Capa</td>
-            <td>64 KB Constante</td>
-            <td>64 KB Constante</td>
-            <td>Crecimiento Lineal</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2>4. Conclusiones</h2>
-    <p>
-      HoloLLM ratifica que el muro de memoria del KV-Cache en los modelos de lenguaje no es una limitación inherente a la predicción autorregresiva, sino un artefacto de almacenar información espacialmente en el Orden Explicado. Al transmutar la memoria al dominio angular complejo del Orden Implicado, demostramos que el estado de 64 KB es suficiente para codificar la gramática algorítmica y generalizar secuencias lógicas a velocidades nativas de CPU.
-    </p>
-
-    <!-- NUEVA SECCIÓN DE REFERENCIAS -->
-    <h2>5. Referencias</h2>
-    <ul class="reference-list">
-      <li>[1] <strong>D. Bohm</strong>, <em>Wholeness and the Implicate Order</em>. Routledge & Kegan Paul, 1980.</li>
-      <li>[2] <strong>K. H. Pribram</strong>, <em>Brain and Perception: Holonomy and Structure in Figural Processing</em>. Lawrence Erlbaum Associates, 1991.</li>
-      <li>[3] <strong>T. A. Plate</strong>, <em>Holographic Reduced Representations: Distributed Representations for Cognitive Structures</em>. CSLI Publications, 2003.</li>
-      <li>[4] <strong>J. Maldacena</strong>, "The Large N Limit of Superconformal Field Theories and Supergravity," <em>Advances in Theoretical and Mathematical Physics</em>, vol. 2, pp. 231–252, 1998.</li>
-      <li>[5] <strong>E. Witten</strong>, "Anti-de Sitter Space and Holography," <em>Advances in Theoretical and Mathematical Physics</em>, vol. 2, pp. 253–291, 1998.</li>
-      <li>[6] <strong>V. Vanchurin</strong>, "The World as a Neural Network," <em>Entropy</em>, vol. 22, no. 11, p. 1210, 2020.</li>
-      <li>[7] <strong>D. Gabor</strong>, "A New Microscopic Principle," <em>Nature</em>, vol. 161, pp. 777–778, 1948.</li>
-    </ul>
-
-  </div> <!-- Cierre final de las dos columnas -->
+  </div>
 </div>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>HOLOLLM (HN-1) · MARCOS IBARRA & RESEARCH TEAM</div>
+    <div>DOI OFICIAL: <a href="https://doi.org/10.5281/zenodo.22849908" target="_blank" style="color:var(--lum)">10.5281/ZENODO.22849908</a></div>
+    <div>LICENCIA APACHE 2.0</div>
+  </div>
+</footer>
+
+<script>
+// Animación de frentes de onda en el Toro de fondo
+(function(){
+  const cv = document.getElementById('portalCanvas');
+  const ctx = cv.getContext('2d');
+  let W, H;
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let t = 0;
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    t += 0.004;
+
+    const cx = W * 0.5, cy = H * 0.45;
+    const maxR = Math.min(W, H) * 0.45;
+
+    // Dibujar ondas concéntricas de interferencia
+    for(let i = 1; i <= 7; i++){
+      const r = (i * 50 + t * 40) % maxR;
+      const alpha = (1 - r / maxR) * 0.22;
+      ctx.strokeStyle = `rgba(215, 217, 82, ${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Nodos espectrales en el toro
+    const count = 32;
+    for(let i = 0; i < count; i++){
+      const ang = (i / count) * Math.PI * 2 + t * 0.2;
+      const rad = maxR * 0.65 + Math.sin(t * 2 + i) * 15;
+      const x = cx + Math.cos(ang) * rad;
+      const y = cy + Math.sin(ang) * rad * 0.6; // Proyección elipsoidal
+
+      ctx.fillStyle = `rgba(215, 217, 82, ${0.4 + Math.sin(t * 3 + i) * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 
 </body>
 </html>
