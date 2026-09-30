@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HoloLLM • Toro Unitario y Resonancia Causal O(1)</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js + OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #111012;
+      --panel-bg: rgba(17, 16, 18, 0.90);
+      --bg-surface: #18171B;
+      --bg-code: #0B0A0C;
+      --border: #252428;
+      --accent: #D7D952;
+      --accent-dim: rgba(215, 217, 82, 0.12);
+      --accent-glow: rgba(215, 217, 82, 0.35);
+      --accent-bright: #F5F76B;
+      --text-main: #EAE9EC;
+      --text-muted: #8E8D94;
+      --font-serif: 'Crimson Pro', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: var(--font-serif);
+      color: var(--text-main);
+    }
+
+    ::selection { background: var(--accent); color: var(--bg-dark); }
+
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       CHAT PANEL (IZQUIERDA) - ORDEN EXPLICADO
+       ========================================================================== */
+    .chat-panel {
+      width: 40%;
+      min-width: 430px;
+      height: 100%;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      box-shadow: none; /* Cero sombra proyectada */
+    }
+
+    .panel-header {
+      padding: 1.1rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: transparent;
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .brand-badge {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .metrics-bar {
+      display: flex;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .metric-pill {
+      background: var(--bg-surface);
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .metric-val {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Mensajes */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      scroll-behavior: smooth;
+    }
+
+    .messages-container::-webkit-scrollbar { width: 4px; }
+    .messages-container::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      max-width: 95%;
+    }
+
+    .message-row.user { align-self: flex-end; }
+    .message-row.assistant { align-self: flex-start; width: 100%; }
+
+    .message-sender {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .message-bubble {
+      padding: 0.9rem 1.2rem;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .user .message-bubble {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    .assistant .message-bubble {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+
+    pre code {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1rem;
+      margin-top: 0.7rem;
+      overflow-x: auto;
+      color: #8ef7b6;
+      line-height: 1.48;
+    }
+
+    .quick-actions {
+      padding: 0.6rem 1.3rem;
+      display: flex;
+      gap: 0.55rem;
+      overflow-x: auto;
+      border-top: 1px solid var(--border);
+      background: transparent;
+    }
+    .quick-actions::-webkit-scrollbar { display: none; }
+
+    .action-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .input-wrapper {
+      padding: 1.2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.7rem;
+      background: transparent;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0.8rem 1rem;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+
+    .send-btn {
+      background: var(--accent);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 5px;
+      padding: 0 1.4rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .send-btn:hover { background: var(--accent-bright); }
+
+    /* ==========================================================================
+       TORUS 3D VIEW (DERECHA) - ORDEN IMPLICADO
+       ========================================================================== */
+    .cosmos-panel {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      background-color: var(--bg-dark);
+    }
+
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .cosmos-hud {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: rgba(17, 16, 18, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.3rem;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      pointer-events: none;
+      min-width: 280px;
+    }
+
+    .hud-title {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      letter-spacing: 0.05em;
+    }
+
+    .hud-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .indicator-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      transition: all 0.15s ease;
+    }
+
+    .indicator-led.firing {
+      background: #FFFFFF;
+      box-shadow: 0 0 14px #FFFFFF, 0 0 25px var(--accent);
+      transform: scale(1.4);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <!-- Panel de Chat: Orden Explicado -->
+  <div class="chat-panel">
+    <div class="panel-header">
+      <div class="brand-title">
+        <span class="pulse-dot"></span>
+        HoloLLM
+        <span class="brand-badge">O(1) CAUSAL</span>
+      </div>
+      <div class="metrics-bar">
+        <div class="metric-pill">KV-Cache: <span class="metric-val">0.00 KB</span></div>
+        <div class="metric-pill">Speed: <span class="metric-val" id="tok-sec">0.0</span> t/s</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messages-box">
+      <div class="message-row assistant">
+        <span class="message-sender">HoloLLM Core • Orden Explicado</span>
+        <div class="message-bubble">
+          Motor holográfico activo en memoria constante. A la derecha puedes observar el <strong>Toro Unitario de fases</strong>.
+          Al consultar un algoritmo, verás cómo cada token emitido enciende su propia <strong>órbita de resonancia de Bragg</strong> sobre la piel del toroide en tiempo real, acumulando el pasado causal sin matrices dinámicas.
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action-btn" onclick="sendQuick('factorial')">factorial</button>
+      <button class="action-btn" onclick="sendQuick('fibonacci')">fibonacci</button>
+      <button class="action-btn" onclick="sendQuick('binary search')">binary search</button>
+      <button class="action-btn" onclick="sendQuick('reverse list')">reverse list</button>
+      <button class="action-btn" onclick="sendQuick('bfs')">bfs</button>
+      <button class="action-btn" onclick="sendQuick('kadane')">kadane</button>
+    </div>
+
+    <div class="input-wrapper">
+      <input type="text" id="user-input" class="chat-input" placeholder="Escribe un algoritmo (ej: 'factorial', 'fibonacci')..." autocomplete="off">
+      <button id="send-btn" class="send-btn" onclick="handleSend()">ENVIAR</button>
+    </div>
+  </div>
+
+  <!-- Panel 3D: El Toro Unitario en Acción (Orden Implicado) -->
+  <div class="cosmos-panel">
+    <div class="cosmos-hud">
+      <div class="hud-title">🌌 ORDEN IMPLICADO (ℂ)</div>
+      <div class="hud-indicator">
+        <div class="indicator-led" id="firing-led"></div>
+        <span id="circuit-status" style="color:var(--accent)">Equilibrio Térmico</span>
+      </div>
+      <div>Geometría: <span style="color:var(--text-main)">Toro Unitario (|F(K)| = 1.0)</span></div>
+      <div>Estado Físico: <span style="color:var(--accent)">64.0 KB Invariante</span></div>
+      <div>Modos de Fase Activos: <span id="active-modes-label" style="color:#8ef7b6">En reposo</span></div>
+      <div>Norma de Onda ||S_t||: <b id="state-norm-val" style="color:#fff">12.40</b></div>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.35rem;">Arrastra para orbitar • Rueda para zoom</div>
+    </div>
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+</div>
+
+<!-- MOTOR THREE.JS: TORO UNITARIO DINÁMICO REFLEJANDO EL ENGINE -->
+<script>
+  let scene, camera, renderer, controls;
+  const canvas = document.getElementById("webgl-canvas");
+
+  // Elementos HUD
+  const firingLed = document.getElementById("firing-led");
+  const circuitStatus = document.getElementById("circuit-status");
+  const activeModesLabel = document.getElementById("active-modes-label");
+  const stateNormVal = document.getElementById("state-norm-val");
+  const tokSecEl = document.getElementById("tok-sec");
+
+  // Parámetros canónicos del Toro Unitario en plano X-Z
+  const R_MAJOR = 25.0; // Radio del anillo mayor
+  const R_MINOR = 9.5;  // Radio del tubo
+
+  let ambientTorusDust;
+  let activeWindingLines = []; // Filamentos vivos de la onda S_t
+  let runningTokenCount = 0;
+  let runningEnergyAccumulator = 12.4;
+
+  const PALETTE = [
+    0xD7D952, // Oro-lima característico
+    0x8ef7b6, // Verde cuántico
+    0x00f0ff, // Cian eléctrico
+    0xffb703, // Ámbar cálido
+    0xff0077, // Magenta cuántico
+    0xff5a5f  // Coral estelar
+  ];
+
+  function initThreeTorus() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x111012, 0.0035);
+
+    camera = new THREE.PerspectiveCamera(46, w / h, 0.1, 1000);
+    camera.position.set(36, 24, 46);
+
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setClearColor(0x111012, 1);
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.45;
+
+    buildTorusQuantumDust();
+    buildSubtleStarfield();
+
+    window.addEventListener("resize", onResize);
+    animate();
+  }
+
+  // Coordenadas canónicas del Toro en X-Z con elevación Y
+  function getTorusPoint(phi, theta, offset = 0.0) {
+    const r = R_MINOR + offset;
+    const x = (R_MAJOR + r * Math.cos(theta)) * Math.cos(phi);
+    const z = (R_MAJOR + r * Math.cos(theta)) * Math.sin(phi);
+    const y = r * Math.sin(theta);
+    return new THREE.Vector3(x, y, z);
+  }
+
+  // Polvo cuántico que dibuja sutilmente la superficie del Toro sin mallas artificiales
+  function buildTorusQuantumDust() {
+    const count = 1600;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      const phi = Math.random() * Math.PI * 2;
+      const theta = Math.random() * Math.PI * 2;
+      const p = getTorusPoint(phi, theta, (Math.random() - 0.5) * 0.8);
+      pos[i * 3] = p.x;
+      pos[i * 3 + 1] = p.y;
+      pos[i * 3 + 2] = p.z;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({
+      color: 0xD7D952,
+      size: 0.7,
+      transparent: true,
+      opacity: 0.15,
+      blending: THREE.AdditiveBlending
+    });
+    ambientTorusDust = new THREE.Points(geo, mat);
+    scene.add(ambientTorusDust);
+  }
+
+  function buildSubtleStarfield() {
+    const count = 700;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 400;
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ color: 0x3e3c45, size: 0.55, transparent: true, opacity: 0.35 });
+    scene.add(new THREE.Points(geo, mat));
+  }
+
+  // ==========================================================================
+  // DISPARO DE RESONANCIA: REFLEJA LA TELEMETRÍA REAL DEL ENGINE
+  // ==========================================================================
+  function onEngineTokenEvent(tokenText, activeNodes, energy) {
+    runningTokenCount++;
+    runningEnergyAccumulator = Math.min(680.0, runningEnergyAccumulator * 0.98 + (energy * 4.5));
+
+    // LED de disparo en HUD
+    firingLed.classList.add("firing");
+    circuitStatus.innerText = "Resonancia de Bragg";
+    circuitStatus.style.color = "#FFFFFF";
+
+    stateNormVal.innerText = runningEnergyAccumulator.toFixed(2);
+    
+    // Mostrar nodos reales de Fourier devueltos por el backend
+    const displayedNodes = activeNodes.length > 0 ? activeNodes.slice(0, 4).join(", ") : "Modos k_t";
+    activeModesLabel.innerText = `[${displayedNodes}]`;
+
+    // Derivar frecuencias helicoidales a partir de los nodos dominantes reales del engine
+    const primaryNode = (activeNodes.length > 0) ? activeNodes[0] : (runningTokenCount * 7);
+    const windingToroidal = 2 + (primaryNode % 3);       // Vueltas mayores (p)
+    const windingPoloidal = 3 + ((primaryNode >> 2) % 5); // Vueltas menores (q)
+    const phaseShift = (primaryNode / 384.0) * Math.PI * 2;
+
+    const colorHex = PALETTE[(runningTokenCount - 1) % PALETTE.length];
+
+    // Construir la trayectoria helicoidal continua en la piel del Toro
+    const points = [];
+    const steps = 260;
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * Math.PI * 2;
+      const phi = t * windingToroidal;
+      const theta = t * windingPoloidal + phaseShift;
+      points.push(getTorusPoint(phi, theta, 0.0));
+    }
+
+    const curveGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const curveMat = new THREE.LineBasicMaterial({
+      color: 0xFFFFFF, // Destello blanco inicial de Bragg
+      transparent: true,
+      opacity: 1.0,
+      blending: THREE.AdditiveBlending,
+      linewidth: 2.0
+    });
+
+    const trajectoryLine = new THREE.Line(curveGeo, curveMat);
+    scene.add(trajectoryLine);
+
+    // Esfera emisora de fase que encabeza la onda
+    const headGeo = new THREE.SphereGeometry(0.9, 12, 12);
+    const headMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    const headMesh = new THREE.Mesh(headGeo, headMat);
+    headMesh.position.copy(points[0]);
+    scene.add(headMesh);
+
+    const trajObj = {
+      line: trajectoryLine,
+      head: headMesh,
+      baseColor: colorHex,
+      age: 0,
+      maxAge: 24 // Persistencia de la onda antes del decaimiento
+    };
+    activeWindingLines.push(trajObj);
+
+    // Amortiguamiento de frentes de onda viejos (Simula S_t = lambda * S_{t-1})
+    if (activeWindingLines.length > 18) {
+      const retired = activeWindingLines.shift();
+      scene.remove(retired.line);
+      scene.remove(retired.head);
+    }
+
+    setTimeout(() => {
+      firingLed.classList.remove("firing");
+      circuitStatus.innerText = "Equilibrio Térmico";
+      circuitStatus.style.color = "var(--accent)";
+      // La línea pasa de blanco estelar a su color de armónico en el toro
+      trajectoryLine.material.color.setHex(colorHex);
+      headMat.color.setHex(colorHex);
+    }, 120);
+  }
+
+  function onResize() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    if (ambientTorusDust) {
+      ambientTorusDust.rotation.y += 0.0012;
+    }
+
+    // Decaimiento continuo de los filamentos vivos
+    const time = Date.now() * 0.003;
+    activeWindingLines.forEach((item, idx) => {
+      item.age += 0.04;
+      const decay = Math.max(0.18, 1.0 - (item.age / item.maxAge) * 0.75);
+      item.line.material.opacity = decay;
+
+      const pulse = 1.0 + Math.sin(time * 2.0 + idx) * 0.25;
+      item.head.scale.set(pulse, pulse, pulse);
+    });
+
+    renderer.render(scene, camera);
+  }
+
+  window.onload = initThreeTorus;
+</script>
+
+<!-- CLIENTE DE STREAMING SSE CONECTADO CON HOLO_SERVER.PY -->
+<script>
+  const msgBox = document.getElementById("messages-box");
+  const userInput = document.getElementById("user-input");
+
+  userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleSend();
+  });
+
+  function sendQuick(task) {
+    userInput.value = task;
+    handleSend();
+  }
+
+  async function handleSend() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    userInput.value = "";
+
+    appendMessage("user", text);
+
+    const assistantBubble = appendMessage("assistant", "");
+    const codeContainer = document.createElement("pre");
+    const codeBlock = document.createElement("code");
+    codeContainer.appendChild(codeBlock);
+    assistantBubble.appendChild(codeContainer);
+
+    let accumulatedText = "";
+    let tokenCounter = 0;
+    let startTime = performance.now();
+
+    try {
+      const response = await fetch("http://localhost:8000/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "holollm-70m",
+          messages: [{ role: "user", content: text }],
+          stream: true,
+          max_tokens: 150
+        })
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("data: ")) {
+            const dataStr = trimmed.substring(6);
+            if (dataStr === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              const delta = parsed.choices[0].delta || {};
+              const content = delta.content || "";
+              const activeNodes = delta.active_nodes || [];
+              const energy = delta.energy !== undefined ? delta.energy : 0.5;
+
+              if (content) {
+                accumulatedText += content;
+                tokenCounter++;
+
+                // DISPARO DIRECTO EN EL TORO USANDO LA TELEMETRÍA DEL ENGINE
+                onEngineTokenEvent(content, activeNodes, energy);
+
+                codeBlock.textContent = accumulatedText.replace(/```python/g, "").replace(/```/g, "").trimStart();
+                msgBox.scrollTop = msgBox.scrollHeight;
+
+                const elapsedSec = (performance.now() - startTime) / 1000.0;
+                tokSecEl.innerText = (tokenCounter / Math.max(elapsedSec, 0.001)).toFixed(1);
+              }
+            } catch (err) {}
+          }
+        }
+      }
+    } catch (err) {
+      codeBlock.textContent = "Error de conexión con holo_server.py. Asegúrate de ejecutar: python holo_server.py";
+      codeBlock.style.color = "#FF5A5F";
+    }
+  }
+
+  function appendMessage(role, text) {
+    const row = document.createElement("div");
+    row.className = `message-row ${role}`;
+
+    const sender = document.createElement("span");
+    sender.className = "message-sender";
+    sender.innerText = role === "user" ? "Tú • Frontera 1D" : "HoloLLM • Orden Explicado";
+
+    const bubble = document.createElement("div");
+    bubble.className = "message-bubble";
+    bubble.innerText = text;
+
+    row.appendChild(sender);
+    row.appendChild(bubble);
+    msgBox.appendChild(row);
+    msgBox.scrollTop = msgBox.scrollHeight;
+    return bubble;
+  }
+</script>
+
+</body>
+</html>
